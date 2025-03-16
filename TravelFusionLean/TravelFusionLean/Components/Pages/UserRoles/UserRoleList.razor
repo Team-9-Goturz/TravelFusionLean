@@ -1,0 +1,42 @@
+﻿@page "/UserRoles/UserRoleList"
+@rendermode InteractiveServer
+@using TravelFusionLean.Data
+@using TravelFusionLean.Models
+@inject AppDbContext DbContext
+
+@code {
+    private List<UserRole> _userRoles = new List<UserRole>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _userRoles = DbContext.UserRoles.ToList();
+    }
+}
+
+<h3>User roles</h3>
+<table class="table table-striped">
+    <thead>
+        <th>Id</th>
+        <th>Name</th>
+    </thead>
+    <tbody>
+    @foreach (var userRole in _userRoles)
+    {
+        <tr>
+            <td>@userRole.Id</td>
+            <td>@userRole.Name</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<a class="btn btn-primary" href="/UserRoles/UserRoleCreate">Create User Role</a>
+
+@if (OperatingSystem.IsBrowser())
+{
+    <p>Running in WebAssembly mode</p>
+}
+else
+{
+    <p>Running in Server mode</p>
+}
