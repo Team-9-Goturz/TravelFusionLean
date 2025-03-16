@@ -1,0 +1,32 @@
+﻿@page "/UserRoles"
+@rendermode InteractiveServer
+@using TravelFusionLean.Data
+@using TravelFusionLean.Models
+@inject AppDbContext DbContext
+
+@code {
+    private UserRole _userRole = new UserRole();
+
+    protected override void OnInitialized()
+    {
+        //_userRole = new UserRole();
+        base.OnInitialized();
+    }
+
+    private void Create()
+    {
+        DbContext.UserRoles.Add(_userRole);
+        DbContext.SaveChanges();
+    }
+
+}
+
+
+<h3>UserRoles</h3>
+
+<EditForm FormName="UserRole" Model="@_userRole" OnValidSubmit="@Create">
+    <InputText @bind-Value="@_userRole.Name"></InputText>
+    <button type="submit">Create</button>
+</EditForm>
+
+
