@@ -1,5 +1,5 @@
 ﻿@page "/UserRoles/UserRoleList"
-@rendermode InteractiveServer
+@rendermode InteractiveWebAssembly
 @using TravelFusionLean.Data
 @using TravelFusionLean.Models
 @inject AppDbContext DbContext
@@ -12,6 +12,7 @@
         base.OnInitialized();
         _userRoles = DbContext.UserRoles.ToList();
     }
+
 }
 
 <h3>User roles</h3>

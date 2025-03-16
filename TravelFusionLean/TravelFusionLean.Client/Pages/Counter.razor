@@ -17,3 +17,12 @@
         currentCount++;
     }
 }
+
+@if (OperatingSystem.IsBrowser())
+{
+    <p>Running in WebAssembly mode</p>
+}
+else
+{
+    <p>Running in Server mode</p>
+}
