@@ -23,4 +23,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Components\Layout\TopNavBar.css">
+      <DependentUpon>TopNavBar.razor</DependentUpon>
+    </None>
+    <None Update="Components\Layout\AdminLayout.css">
+      <DependentUpon>AdminLayout.razor</DependentUpon>
+    </None>
+  </ItemGroup>
+
 </Project>
