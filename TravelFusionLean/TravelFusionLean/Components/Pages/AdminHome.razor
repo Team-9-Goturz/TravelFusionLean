@@ -1,13 +1,35 @@
-﻿@page "/"
+﻿@page "/AdminHome"
 @using TravelFusionLean.Components.Layout
 @layout AdminLayout
 <PageTitle>AdminHome</PageTitle>
 
-<h1 class="text-primary">Welcome to Gortoz's admin site!</h1>
+<h1 class="text-primary text-align=center" >Welcome to Gortoz's admin site!</h1>
 
 Choose your next action to continue.<br>
-<br/>
-<br/>
+<br/><br/>
 
-<a href="/UserRoles/UserRoleList">UserRole
-    s</a>
+<a href="/UserRoles/UserRoleList">UserRoles</a>
+
+<div class="adminCard bg-info-subtle" style="width: 250px ">
+    <div class="card-body">
+        <img src="https://cdn-icons-png.flaticon.com/512/9703/9703596.png"
+                class="card-img-top" alt="Admin Icon" style="width: 180px"/>
+        <!-- Billedet skal centreres <3-->
+    </div>
+    <div>
+        <h5 class="card-title">New Admin</h5>
+    </div>
+</div>
+
+<br><br/>
+
+<!-- Employee skal flyttes til siden, i stedet for at være nedenunder  -->
+<div class="employeeCard bg-info-subtle" style="width: 250px">
+    <div class="card-body">
+        <img src="https://cdn-icons-png.flaticon.com/512/4974/4974985.png" 
+                class="card-img-bottom" alt="Employee Icon" style="width: 180px" />
+    </div>
+    <div>
+        <h5>New Employee</h5>
+    </div>
+</div>
