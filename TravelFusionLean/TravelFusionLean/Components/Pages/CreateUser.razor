@@ -1,0 +1,101 @@
+﻿@page "/CreateUser"
+@layout AdminLayout
+@rendermode InteractiveAuto
+
+@using System.Security.Cryptography
+@using System.Text
+@using TravelFusionLean.Data
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Models
+
+@inject AppDbContext DbContext
+@inject NavigationManager NavigationManager
+
+<h3>CreateUser</h3>
+
+@code {
+    private User _user = new User();
+
+    private string password = "";
+    private string passwordRepeat = "";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _users = DbContext.Users.ToList();
+    }
+
+    private void Create()
+    {
+        if (password == passwordRepeat)
+        {
+            string passwordSalt = GenerateSalt();
+            string passwordHash = HashPasswordWithSaltAndPepper(password, passwordSalt);
+
+            _user.passwordSalt = passwordSalt;
+            _user.passwordHash = passwordHash;
+
+            DbContext.Users.Add(_user);
+            DbContext.SaveChanges();
+        }
+
+    }
+    public static string GenerateSalt(int size = 16) //Ja ja den skal rykkes
+    {
+        byte[] salt = new byte[size];
+        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(salt);
+        }
+        return Convert.ToBase64String(salt);
+    }
+
+    public string HashPasswordWithSaltAndPepper(string password, string salt) // og den her I know 
+    {
+        string saltedAndPepperedPassword = password + salt; //+ SecretPepper; TODO
+
+
+        byte[] passwordBytes = Encoding.UTF8.GetBytes(saltedAndPepperedPassword);
+
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] hashBytes = sha256.ComputeHash(passwordBytes);
+            // Convert to a readable hexadecimal string
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hashBytes)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+            return sb.ToString();
+        }
+    }
+}
+
+
+<EditForm FormName="User" Model="@_user" OnValidSubmit="@Create">
+    <h6>Brugernavn</h6>
+    <InputText @bind-Value="@_user.username"></InputText>
+    <h6>Adgangskode</h6>
+    <InputText @bind-Value="@password"></InputText>
+    <h6>Gentag adgangskode</h6>
+    <InputText @bind-Value="@passwordRepeat"></InputText>
+    
+    <h6>Email</h6>
+    <InputText @bind-Value="@_user.email"></InputText>
+    
+    <label for="roleSelect">Vælg en rolle:</label>
+    <select @bind="selectedRoleId">
+        @foreach (UserRole role in _roles)
+        {
+            <option value="@role.Id">@role.Name</option>
+        }
+    </select>
+
+    <button type="submit">Create</button>
+</EditForm>
+
+@code {
+  
+    private List<User> _roles = new List<UserRole>();
+    private int selectedRoleId;
+}
