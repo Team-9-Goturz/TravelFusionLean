@@ -15,6 +15,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<UserRole>(entity =>
         {
+            entity.ToTable("UserRole");
+
             entity.HasKey(ur => ur.Id);
             entity.Property(ur => ur.Name)
                 .IsRequired();
