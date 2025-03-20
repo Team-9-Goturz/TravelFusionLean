@@ -21,7 +21,7 @@
 
     private void Create()
     {
-        DbContext.UserRoles.Add(_userRole);
+        DbContext.UserRole.Add(_userRole);
         DbContext.SaveChanges();
         NavigationManager.NavigateTo("/UserRoles/UserRoleList");
     }
