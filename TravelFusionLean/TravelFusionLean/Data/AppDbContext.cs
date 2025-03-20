@@ -28,13 +28,17 @@ public class AppDbContext : DbContext
         {
             entity.ToTable("User");
 
-            entity.HasKey(u => u.id);
-            entity.Property(u => u.username).IsRequired();
-            entity.Property(u => u.passwordHash).IsRequired();
-            entity.Property(u => u.passwordSalt).IsRequired();
-            entity.Property(u => u.email).IsRequired(); 
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Username).IsRequired();
+            entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.PasswordSalt).IsRequired();
+            entity.Property(u => u.Email).IsRequired();
+
+            //entity.HasOne(u => u.UserRole)
+            //    .WithMany(ur => ur.Users)
+            //    .HasForeignKey(u => u.UserRoleId)
+            //    .OnDelete(DeleteBehavior.Restrict);
         });
     }
-
 }
 

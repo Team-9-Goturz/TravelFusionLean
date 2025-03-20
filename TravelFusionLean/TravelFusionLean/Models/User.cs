@@ -2,12 +2,12 @@
 {
     public class User
     {
-        public int id { get; set; }
-        public string username { get; set; }
-        public string passwordHash { get; set; }
-        public string passwordSalt { get; set; }
+        public int Id { get; set; }
+        public string Username { get; set; }
+        public string PasswordHash { get; set; }
+        public string PasswordSalt { get; set; }
 
-        public string email { get; set; }
+        public string Email { get; set; }
 
         public UserRole UserRole { get; set; }
 
