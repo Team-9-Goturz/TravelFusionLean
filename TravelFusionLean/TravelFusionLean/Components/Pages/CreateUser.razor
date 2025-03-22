@@ -22,8 +22,33 @@
     private List<UserRole> _userRoles = new List<UserRole>();
     private int selectedRoleId;
 
-    private string password = "";
-    private string passwordRepeat = "";
+    private string _password = "";
+    private bool passwordTouched = false;
+    private const int MinPasswordLength = 8;
+    private string _passwordRepeat = "";
+
+    private string Password
+    {
+        get => _password;
+        set
+        {
+            _password = value;
+            passwordTouched = true;
+            StateHasChanged(); // Sikrer UI opdateres live
+        }
+    }
+    private string PasswordRepeat
+    {
+        get => _passwordRepeat;
+        set
+        {
+            _passwordRepeat = value;
+            StateHasChanged();
+        }
+    }
+
+    private bool IsPasswordValid => Password.Length >= MinPasswordLength;
+    private bool PasswordsMatch => Password == PasswordRepeat;
 
 
     protected override async Task OnInitializedAsync()
@@ -34,7 +59,7 @@
 
     private async Task Create()
     {
-        if (password == passwordRepeat)
+        if (Password == PasswordRepeat)
         {
             _user.UserRole = _userRoles.FirstOrDefault(role => role.Id == selectedRoleId);
             var user = await UserService.Create(_user, password);
@@ -44,17 +69,23 @@
 
 }
 
-
 <EditForm FormName="User" Model="@_user" OnValidSubmit="@Create">
     <h6>Brugernavn</h6>
-    <InputText @bind-Value="@_user.Username"></InputText>
+    <InputText @bind-Value="@_user.Username" class="form-control"></InputText>
     <h6>Adgangskode</h6>
-    <InputText @bind-Value="@password"></InputText>
+    <InputText @bind-Value="Password" class="form-control" />
+    @if (!IsPasswordValid && passwordTouched==true)
+    {
+        <div class="text-danger mt-1">Adgangskode er for kort.</div>
+    }
     <h6>Gentag adgangskode</h6>
-    <InputText @bind-Value="@passwordRepeat"></InputText>
-    
+    <InputText @bind-Value="PasswordRepeat" class="form-control" />
+    @if (!PasswordsMatch)
+    {
+        <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
+    }
     <h6>Email</h6>
-    <InputText @bind-Value="@_user.Email"></InputText>
+    <InputText @bind-Value="@_user.Email" class="form-control"></InputText>
     
     <label for="roleSelect">Vælg en rolle:</label>
     <select @bind="selectedRoleId">
@@ -66,4 +97,8 @@
 
     <button type="submit">Create</button>
 </EditForm>
+
+
+
+
  
