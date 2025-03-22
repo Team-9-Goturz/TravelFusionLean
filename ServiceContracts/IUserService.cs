@@ -15,7 +15,7 @@ namespace ServiceContracts
 
         Task<bool> IsPasswordStrongAsync(string requestedPassword);
 
-        Task<bool> IsEmailVaidAsync(string requestedPassword);
+        Task<bool> IsEmailValidAsync(string requestedPassword);
 
     }
 }

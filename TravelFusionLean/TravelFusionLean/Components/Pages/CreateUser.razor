@@ -24,10 +24,12 @@
 
     private string _password = "";
     private bool passwordTouched = false;
-
     private string _passwordRepeat = "";
+
     private bool usernameIsTaken;
     private bool IsUsernameValid;
+
+    private bool IsEmailTouched;
 
     private string Password
     {
@@ -52,6 +54,7 @@
     private bool IsPasswordValid ;
     private bool PasswordsMatch => Password == PasswordRepeat;
     private bool IsUsernameAvailable;
+    private bool IsEmailValid;
 
 
     protected override async Task OnInitializedAsync()
@@ -60,7 +63,7 @@
         await base.OnInitializedAsync();
     }
 
-    private bool canCreate => IsPasswordValid && PasswordsMatch && !usernameIsTaken;
+    private bool canCreate => IsPasswordValid && PasswordsMatch && !usernameIsTaken && IsEmailValid;
     private async Task Create()
     {
         if (canCreate)
@@ -105,6 +108,17 @@
         StateHasChanged(); 
     }
 
+    private async Task CheckEmail(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        if (!string.IsNullOrWhiteSpace(input))
+        {
+            IsEmailValid = await UserService.IsEmailValidAsync(input);
+        }
+        IsEmailTouched = true;
+        StateHasChanged();
+    }
+
     private string GetCssClass(bool Isvalid, string fieldInput )
     {
         if (string.IsNullOrWhiteSpace(fieldInput))
@@ -122,20 +136,23 @@
         <div class="text-danger mt-1">Brugernavn er optaget, vælg et andet.</div>
     }
     <h6>Adgangskode *</h6>
-    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" oninput="@CheckPasswordStrength" />
+    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" oninput="@CheckPasswordStrength" type="password" />
     @if (!IsPasswordValid && passwordTouched==true)
     {
         <div class="text-danger mt-1">Adgangskode er for kort.</div>
     }
     <h6>Gentag adgangskode *</h6>
-    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch,PasswordRepeat)" />
+    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch,PasswordRepeat)" type="password" />
     @if (!PasswordsMatch)
     {
         <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
     }
     <h6>Email * </h6>
-    <InputText @bind-Value="@_user.Email" class="form-control"></InputText>
-    
+    <InputText @bind-Value="@_user.Email" class="@GetCssClass(IsEmailValid, _user.Email)" oninput="@CheckEmail"></InputText>
+    @if (!IsEmailValid && IsEmailTouched )
+    {
+        <div class="text-danger mt-1">Email ikke gyldig.</div>
+    }
     <label for="roleSelect">Vælg en rolle:</label>
     <select @bind="selectedRoleId">
         @foreach (UserRole role in _userRoles)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Data;
 using Microsoft.EntityFrameworkCore;
@@ -37,9 +38,10 @@ namespace ServiceImplementations
             return (requestedPassword.Length >= MinPasswordLength);
         }
 
-        public Task<bool> IsEmailVaidAsync(string requestedPassword)
+        public async Task<bool> IsEmailValidAsync(string email)
         {
-            throw new NotImplementedException();
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+            return emailRegex.IsMatch(email);
         }
 
         private static string GenerateSalt(int size = 16)
