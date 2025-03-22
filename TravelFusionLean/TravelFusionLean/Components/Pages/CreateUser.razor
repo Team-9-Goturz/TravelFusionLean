@@ -62,7 +62,7 @@
         if (Password == PasswordRepeat)
         {
             _user.UserRole = _userRoles.FirstOrDefault(role => role.Id == selectedRoleId);
-            var user = await UserService.Create(_user, password);
+            var user = await UserService.Create(_user, Password);
         }
 
     }
