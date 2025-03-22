@@ -24,7 +24,7 @@
 
     private string _password = "";
     private bool passwordTouched = false;
-    private const int MinPasswordLength = 8;
+
     private string _passwordRepeat = "";
     private bool usernameIsTaken;
     private bool IsUsernameValid;
@@ -49,7 +49,7 @@
         }
     }
 
-    private bool IsPasswordValid => Password.Length >= MinPasswordLength;
+    private bool IsPasswordValid ;
     private bool PasswordsMatch => Password == PasswordRepeat;
     private bool IsUsernameAvailable;
 
@@ -94,6 +94,17 @@
 
         StateHasChanged(); // Opdater UI
     }
+
+    private async Task CheckPasswordStrength(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        if (!string.IsNullOrWhiteSpace(input))
+        {
+            IsPasswordValid = await UserService.IsPasswordStrongAsync(input);
+        }
+        StateHasChanged(); 
+    }
+
     private string GetCssClass(bool Isvalid, string fieldInput )
     {
         if (string.IsNullOrWhiteSpace(fieldInput))
@@ -111,7 +122,7 @@
         <div class="text-danger mt-1">Brugernavn er optaget, vælg et andet.</div>
     }
     <h6>Adgangskode *</h6>
-    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" />
+    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" oninput="@CheckPasswordStrength" />
     @if (!IsPasswordValid && passwordTouched==true)
     {
         <div class="text-danger mt-1">Adgangskode er for kort.</div>

@@ -13,7 +13,8 @@ namespace ServiceImplementations
 {
     public class UserService(AppDbContext context) : CrudService<User>(context), IUserService
     {
-        
+        private const int MinPasswordLength = 8;
+
         public async Task<User> Create(User user, string password)
         {
             string passwordSalt = GenerateSalt();
@@ -28,6 +29,17 @@ namespace ServiceImplementations
         public async Task<bool> IsUsernameAvailableAsync(string requestedUsername)
         {
             return !await _context.Users.AnyAsync(u => u.Username == requestedUsername);
+        }
+
+        public async Task<bool> IsPasswordStrongAsync(string requestedPassword)
+        {
+            //TODO flere krav til adgangskoder som store/små bogstaver? tal? specialtegn?
+            return (requestedPassword.Length >= MinPasswordLength);
+        }
+
+        public Task<bool> IsEmailVaidAsync(string requestedPassword)
+        {
+            throw new NotImplementedException();
         }
 
         private static string GenerateSalt(int size = 16)

@@ -12,6 +12,10 @@ namespace ServiceContracts
         public Task<User> Create(User user, string password);
 
         Task<bool> IsUsernameAvailableAsync(string requestedUsername);
-        
+
+        Task<bool> IsPasswordStrongAsync(string requestedPassword);
+
+        Task<bool> IsEmailVaidAsync(string requestedPassword);
+
     }
 }
