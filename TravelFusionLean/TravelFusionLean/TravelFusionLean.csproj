@@ -9,6 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\..\ServiceContracts\ServiceContracts.csproj" />
+    <ProjectReference Include="..\..\Shared\Shared.csproj" />
     <ProjectReference Include="..\TravelFusionLean.Client\TravelFusionLean.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />

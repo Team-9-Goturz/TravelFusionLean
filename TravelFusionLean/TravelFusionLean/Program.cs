@@ -1,4 +1,6 @@
+using Configuration;
 using Microsoft.EntityFrameworkCore;
+using ServiceContracts;
 using TravelFusionLean.Components;
 using TravelFusionLean.Data;
 
@@ -12,7 +14,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// builder.Services.AddScoped()
+builder.Services.ConfigureServices();
 
 var app = builder.Build();
 

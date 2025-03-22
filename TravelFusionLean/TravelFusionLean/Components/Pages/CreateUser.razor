@@ -1,14 +1,18 @@
 ﻿@page "/CreateUser"
 @layout AdminLayout
-@rendermode InteractiveAuto
+@rendermode InteractiveServer
 
 @using System.Security.Cryptography
 @using System.Text
+@using Microsoft.EntityFrameworkCore
+@using ServiceContracts
 @using TravelFusionLean.Data
 @using TravelFusionLean.Components.Layout
 @using TravelFusionLean.Models
 
-@inject AppDbContext DbContext
+@inject IUserService UserService
+@inject IUserRoleService UserRoleService
+
 @inject NavigationManager NavigationManager
 
 <h3>CreateUser</h3>
@@ -21,58 +25,23 @@
     private string password = "";
     private string passwordRepeat = "";
 
-    protected override void OnInitialized()
+
+    protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized();
-        _userRoles = DbContext.UserRoles.ToList();
+        _userRoles = (await UserRoleService.GetAllAsync()).ToList();
+        await base.OnInitializedAsync();
     }
 
-    private void Create()
+    private async Task Create()
     {
         if (password == passwordRepeat)
         {
-            string passwordSalt = GenerateSalt();
-            string passwordHash = HashPasswordWithSaltAndPepper(password, passwordSalt);
-
-            _user.PasswordSalt = passwordSalt;
-            _user.PasswordHash = passwordHash;
-
             _user.UserRole = _userRoles.FirstOrDefault(role => role.Id == selectedRoleId);
-
-            DbContext.Users.Add(_user);
-            DbContext.SaveChanges();
+            var user = await UserService.Create(_user, password);
         }
 
     }
-    public static string GenerateSalt(int size = 16) //Ja ja den skal rykkes
-    {
-        byte[] salt = new byte[size];
-        using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
-        {
-            rng.GetBytes(salt);
-        }
-        return Convert.ToBase64String(salt);
-    }
 
-    public string HashPasswordWithSaltAndPepper(string password, string salt) // og den her I know 
-    {
-        string saltedAndPepperedPassword = password + salt; //+ SecretPepper; TODO
-
-
-        byte[] passwordBytes = Encoding.UTF8.GetBytes(saltedAndPepperedPassword);
-
-        using (SHA256 sha256 = SHA256.Create())
-        {
-            byte[] hashBytes = sha256.ComputeHash(passwordBytes);
-            // Convert to a readable hexadecimal string
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in hashBytes)
-            {
-                sb.Append(b.ToString("x2"));
-            }
-            return sb.ToString();
-        }
-    }
 }
 
 
