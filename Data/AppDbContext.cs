@@ -33,11 +33,6 @@ namespace Data
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.PasswordSalt).IsRequired();
                 entity.Property(u => u.Email).IsRequired();
-
-                //entity.HasOne(u => u.UserRole)
-                //    .WithMany(ur => ur.Users)
-                //    .HasForeignKey(u => u.UserRoleId)
-                //    .OnDelete(DeleteBehavior.Restrict);
             });
         }
     }

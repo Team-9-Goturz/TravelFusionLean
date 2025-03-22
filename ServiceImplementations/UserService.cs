@@ -13,6 +13,7 @@ namespace ServiceImplementations
 {
     public class UserService(AppDbContext context) : CrudService<User>(context), IUserService
     {
+        
         public async Task<User> Create(User user, string password)
         {
             string passwordSalt = GenerateSalt();
@@ -24,7 +25,12 @@ namespace ServiceImplementations
             return await AddAsync(user);
         }
 
-        private static string GenerateSalt(int size = 16) //Ja ja den skal rykkes
+        public async Task<bool> IsUsernameAvailableAsync(string requestedUsername)
+        {
+            return !await _context.Users.AnyAsync(u => u.Username == requestedUsername);
+        }
+
+        private static string GenerateSalt(int size = 16)
         {
             byte[] salt = new byte[size];
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
@@ -34,7 +40,7 @@ namespace ServiceImplementations
             return Convert.ToBase64String(salt);
         }
 
-        private string HashPasswordWithSaltAndPepper(string password, string salt) // og den her I know 
+        private string HashPasswordWithSaltAndPepper(string password, string salt) 
         {
             string saltedAndPepperedPassword = password + salt; //+ SecretPepper; TODO
 

@@ -26,6 +26,8 @@
     private bool passwordTouched = false;
     private const int MinPasswordLength = 8;
     private string _passwordRepeat = "";
+    private bool usernameIsTaken;
+    private bool IsUsernameValid;
 
     private string Password
     {
@@ -49,6 +51,7 @@
 
     private bool IsPasswordValid => Password.Length >= MinPasswordLength;
     private bool PasswordsMatch => Password == PasswordRepeat;
+    private bool IsUsernameAvailable;
 
 
     protected override async Task OnInitializedAsync()
@@ -57,34 +60,69 @@
         await base.OnInitializedAsync();
     }
 
+    private bool canCreate => IsPasswordValid && PasswordsMatch && !usernameIsTaken;
     private async Task Create()
     {
-        if (Password == PasswordRepeat)
+        if (canCreate)
         {
             _user.UserRole = _userRoles.FirstOrDefault(role => role.Id == selectedRoleId);
             var user = await UserService.Create(_user, Password);
         }
-
     }
 
+    private async Task CheckUsernameAvailability(ChangeEventArgs e)
+    {
+        string input = e.Value?.ToString() ?? "";
+        _user.Username = input;
+
+        if (!string.IsNullOrWhiteSpace(input))
+        {
+            usernameIsTaken = !await UserService.IsUsernameAvailableAsync(input);
+            if (usernameIsTaken)
+            {
+                IsUsernameValid = false;
+            }
+            else
+            {
+                IsUsernameValid = true;
+            }
+        }
+        else
+        {
+            usernameIsTaken = false;
+        }
+
+        StateHasChanged(); // Opdater UI
+    }
+    private string GetCssClass(bool Isvalid, string fieldInput )
+    {
+        if (string.IsNullOrWhiteSpace(fieldInput))
+            return "form-control"; // Neutral grå
+
+        return Isvalid ? "form-control is-valid" : "form-control is-invalid";
+    }
 }
 
 <EditForm FormName="User" Model="@_user" OnValidSubmit="@Create">
-    <h6>Brugernavn</h6>
-    <InputText @bind-Value="@_user.Username" class="form-control"></InputText>
-    <h6>Adgangskode</h6>
-    <InputText @bind-Value="Password" class="form-control" />
+    <h6>Brugernavn *</h6>
+    <InputText @bind-Value="@_user.Username" class="@GetCssClass(IsUsernameValid,_user.Username)" oninput="@CheckUsernameAvailability"></InputText>
+    @if (usernameIsTaken)
+    {
+        <div class="text-danger mt-1">Brugernavn er optaget, vælg et andet.</div>
+    }
+    <h6>Adgangskode *</h6>
+    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" />
     @if (!IsPasswordValid && passwordTouched==true)
     {
         <div class="text-danger mt-1">Adgangskode er for kort.</div>
     }
-    <h6>Gentag adgangskode</h6>
-    <InputText @bind-Value="PasswordRepeat" class="form-control" />
+    <h6>Gentag adgangskode *</h6>
+    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch,PasswordRepeat)" />
     @if (!PasswordsMatch)
     {
         <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
     }
-    <h6>Email</h6>
+    <h6>Email * </h6>
     <InputText @bind-Value="@_user.Email" class="form-control"></InputText>
     
     <label for="roleSelect">Vælg en rolle:</label>
@@ -95,7 +133,7 @@
         }
     </select>
 
-    <button type="submit">Create</button>
+    <button type="submit"  disabled="@(!canCreate)">Create </button>
 </EditForm>
 
 

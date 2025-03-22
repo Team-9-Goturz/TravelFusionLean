@@ -10,5 +10,8 @@ namespace ServiceContracts
     public interface IUserService: ICrudService<User>
     {
         public Task<User> Create(User user, string password);
+
+        Task<bool> IsUsernameAvailableAsync(string requestedUsername);
+        
     }
 }
