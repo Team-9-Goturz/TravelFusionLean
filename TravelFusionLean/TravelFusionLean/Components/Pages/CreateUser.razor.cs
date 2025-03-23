@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
+using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using TravelFusionLean.Models;
 
@@ -10,13 +13,14 @@ public partial class CreateUser
     private User _user = new();
     private List<UserRole> _userRoles = new();
     private int selectedRoleId;
+    private EditContext editContext;
+
 
     // ==== PASSWORD ====
     private string _password = "";
     private string _passwordRepeat = "";
     private bool passwordTouched = false;
     private bool IsPasswordValid;
-    private bool _passwordTouchedCheck => passwordTouched;
     private bool PasswordsMatch => Password == PasswordRepeat;
 
     private string Password
@@ -43,43 +47,57 @@ public partial class CreateUser
     // ==== VALIDATION FLAGS ====
     private bool usernameIsTaken;
     private bool IsUsernameValid;
-    private bool IsUsernameAvailable => !usernameIsTaken;
-
-    private bool IsEmailValid;
-    private bool IsEmailTouched;
-
-    private bool IsNameValid;
-    private bool IsNameTouched;
-
-    private bool IsPhoneNumberValid;
-    private bool IsPhoneNumberTouched;
-
-    private bool canCreate =>
-        IsUsernameValid &&
-        IsPasswordValid &&
-        PasswordsMatch && 
-        IsNameValid&&
-        IsEmailValid &&
-        IsPhoneNumberValid
-        ;
 
     // ==== LIFECYCLE ====
     protected override async Task OnInitializedAsync()
     {
+        editContext = new EditContext(_user);
+        editContext.OnFieldChanged += (_, __) => EvaluateFormState();
         _userRoles = (await UserRoleService.GetAllAsync()).ToList();
         await base.OnInitializedAsync();
     }
 
     // ==== FORM HANDLING ====
+    private bool isFormValid = false;
+    private void EvaluateFormState()
+    {
+        isFormValid =
+            IsModelValid() &&
+            IsUsernameValid &&
+            IsPasswordValid &&
+            PasswordsMatch;
+
+        StateHasChanged();
+    }
+    private bool IsModelValid()
+    {
+        var userResults = new List<ValidationResult>();
+        var contactResults = new List<ValidationResult>();
+
+        var userContext = new ValidationContext(_user);
+        var contactContext = new ValidationContext(_user.Contact);
+
+        var isUserValid = Validator.TryValidateObject(_user, userContext, userResults, validateAllProperties: true);
+        var isContactValid = Validator.TryValidateObject(_user.Contact, contactContext, contactResults, validateAllProperties: true);
+
+        return isUserValid && isContactValid;
+    }
+
+
     private async Task Create()
     {
-        if (canCreate)
-        {
-            _user.UserRole = _userRoles.FirstOrDefault(role => role.Id == selectedRoleId);
-            var user = await UserService.Create(_user, Password);
-            // Eventuelt redirect eller success-feedback her
-        }
+        if (!editContext.Validate())
+            return;
+
+        if (!IsPasswordValid || !PasswordsMatch || usernameIsTaken)
+            return;
+
+        _user.UserRole = _userRoles.FirstOrDefault(r => r.Id == selectedRoleId);
+        var user = await UserService.Create(_user, Password);
+
+        // TODO: Vis success-besked eller redirect
     }
+
 
     // ==== VALIDATION METHODS ====
     private async Task CheckUsernameAvailability(ChangeEventArgs e)
@@ -97,7 +115,7 @@ public partial class CreateUser
             usernameIsTaken = false;
             IsUsernameValid = false;
         }
-
+        EvaluateFormState();
         StateHasChanged();
     }
 
@@ -109,57 +127,20 @@ public partial class CreateUser
             passwordTouched = true;
             IsPasswordValid = await UserService.IsPasswordStrongAsync(input);
         }
-
+        EvaluateFormState();
         StateHasChanged();
-    }
-
-    private async Task CheckName(ChangeEventArgs e)
-    {
-        string name = e.Value?.ToString() ?? "";
-        if (string.IsNullOrWhiteSpace(name))
-            IsNameValid = false;
-
-        // Tillader bogstaver fra alle sprog, mellemrum og bindestreger
-        var regex = new Regex(@"^[\p{L} \-']+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        if (regex.IsMatch(name))
-        {
-            IsNameValid = true;
-        }
-
-        IsNameTouched = true;
-    }
-
-    private async Task CheckEmail(ChangeEventArgs e)
-    {
-        string input = e.Value?.ToString() ?? "";
-        if (!string.IsNullOrWhiteSpace(input))
-        {
-            IsEmailValid = await UserService.IsEmailValidAsync(input);
-        }
-
-        IsEmailTouched = true;
-        StateHasChanged();
-    }
-
-    private async Task CheckPhoneNumber(ChangeEventArgs e)
-    {
-        string phoneNumber = e.Value?.ToString() ?? "";
-        if (string.IsNullOrWhiteSpace(phoneNumber))
-            IsNameValid = false;
-
-        // Tillader + eller 00 i starten, derefter 6-15 cifre og mellemrum/-
-        var regex = new Regex(@"^(?:\+|00)?[0-9\s\-]{6,20}$");
-
-        if (regex.IsMatch(phoneNumber))
-        {
-            IsPhoneNumberValid = true;
-        }
-
-        IsPhoneNumberTouched = true;
     }
 
     // ==== STYLING HELPERS ====
+
+    private string GetCssClassFor<T>(Expression<Func<T>> accessor)
+    {
+        var field = FieldIdentifier.Create(accessor);
+        var isValid = !editContext.GetValidationMessages(field).Any();
+        var fieldValue = accessor.Compile().Invoke()?.ToString();
+        return GetCssClass(isValid, fieldValue);
+    }
+
     private string GetCssClass(bool isValid, string fieldInput)
     {
         if (string.IsNullOrWhiteSpace(fieldInput))

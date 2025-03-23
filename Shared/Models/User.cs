@@ -1,4 +1,5 @@
 ﻿using Shared.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace TravelFusionLean.Models
 {
@@ -9,6 +10,8 @@ namespace TravelFusionLean.Models
         public string PasswordHash { get; set; }
         public string PasswordSalt { get; set; }
 
+        [Required(ErrorMessage = "Email er påkrævet.")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldigt telefonnummer.")]
         public string Email { get; set; }
 
         public UserRole UserRole { get; set; }

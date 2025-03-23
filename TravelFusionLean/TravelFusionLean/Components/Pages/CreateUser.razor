@@ -19,21 +19,23 @@
 
 <h2>Opret bruger </h2>
 
-<EditForm FormName="User" Model="@_user" OnValidSubmit="@Create">
+<EditForm EditContext="@editContext" OnValidSubmit="@Create">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
     <h6>Brugernavn *</h6>
-    <InputText @bind-Value="@_user.Username" class="@GetCssClass(IsUsernameValid,_user.Username)" oninput="@CheckUsernameAvailability"></InputText>
+    <InputText @bind-Value="_user.Username" class="@GetCssClass(IsUsernameValid, _user.Username)"oninput="@CheckUsernameAvailability" />
     @if (usernameIsTaken)
     {
         <div class="text-danger mt-1">Brugernavn er optaget, vælg et andet.</div>
     }
     <h6>Adgangskode *</h6>
-    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid,Password)" oninput="@CheckPasswordStrength" type="password" />
-    @if (!IsPasswordValid && passwordTouched==true)
+    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid, Password)" oninput="@CheckPasswordStrength" type="password"/>
+    @if (!IsPasswordValid && passwordTouched == true)
     {
         <div class="text-danger mt-1">Adgangskode er for kort.</div>
     }
     <h6>Gentag adgangskode *</h6>
-    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch,PasswordRepeat)" type="password" />
+    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch, PasswordRepeat)" type="password"/>
     @if (!PasswordsMatch)
     {
         <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
@@ -47,24 +49,22 @@
     </select>
     <h4>Kontakt oplysninger</h4>
     <h6>Navn *</h6>
-    <InputText @bind-Value="_user.Contact.Name" class="@GetCssClass(IsNameValid,_user.Contact.Name)" oninput="@CheckName"></InputText>
-    @if (!IsNameValid && IsNameTouched)
-    {
-        <div class="text-danger mt-1">Indtast gyldigt navn.</div>
-    }
-    <h6>Email * </h6>
-    <InputText @bind-Value="@_user.Email" class="@GetCssClass(IsEmailValid, _user.Email)" oninput="@CheckEmail"></InputText>
-    @if (!IsEmailValid && IsEmailTouched )
-    {
-        <div class="text-danger mt-1">Email ikke gyldig.</div>
-    }
+    <InputText @bind-Value="_user.Contact.Name"
+               class="@GetCssClassFor(() => _user.Contact.Name)" />
+    <ValidationMessage For="@(() => _user.Contact.Name)" />
+
     <h6>Telefon *</h6>
-    <InputText @bind-Value="_user.Contact.PhoneNumber" class="@GetCssClass(IsPhoneNumberValid,_user.Contact.PhoneNumber)" oninput="@CheckPhoneNumber"></InputText>
-    @if (!IsPhoneNumberValid && IsPhoneNumberTouched)
-    {
-        <div class="text-danger mt-1">Indtast gyldigt telefon nummer.</div>
-    }
-    <button type="submit"  disabled="@(!canCreate)">Create </button>
+    <InputText @bind-Value="_user.Contact.PhoneNumber"
+               class="@GetCssClassFor(() => _user.Contact.PhoneNumber)" />
+    <ValidationMessage For="@(() => _user.Contact.PhoneNumber)" />
+
+    <h6>Email * </h6>
+    <InputText @bind-Value="_user.Email"
+               class="@GetCssClassFor(() => _user.Email)" />
+    <ValidationMessage For="@(() => _user.Email)" />
+
+
+    <button type="submit" disabled="@(!isFormValid)">Create </button>
 </EditForm>
 
 
