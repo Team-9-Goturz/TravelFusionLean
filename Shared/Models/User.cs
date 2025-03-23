@@ -1,4 +1,6 @@
-﻿namespace TravelFusionLean.Models
+﻿using Shared.Models;
+
+namespace TravelFusionLean.Models
 {
     public class User
     {
@@ -10,7 +12,11 @@
         public string Email { get; set; }
 
         public UserRole UserRole { get; set; }
+        public Contact Contact { get; set; }
 
-
+        public User()
+        {
+            Contact = new Contact();
+        }
     }
 }

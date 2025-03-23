@@ -9,13 +9,15 @@
 @using TravelFusionLean.Data
 @using TravelFusionLean.Components.Layout
 @using TravelFusionLean.Models
+@using System.ComponentModel.DataAnnotations
+
 
 @inject IUserService UserService
 @inject IUserRoleService UserRoleService
 
 @inject NavigationManager NavigationManager
 
-<h3>CreateUser</h3>
+<h2>Opret bruger </h2>
 
 <EditForm FormName="User" Model="@_user" OnValidSubmit="@Create">
     <h6>Brugernavn *</h6>
@@ -36,12 +38,6 @@
     {
         <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
     }
-    <h6>Email * </h6>
-    <InputText @bind-Value="@_user.Email" class="@GetCssClass(IsEmailValid, _user.Email)" oninput="@CheckEmail"></InputText>
-    @if (!IsEmailValid && IsEmailTouched )
-    {
-        <div class="text-danger mt-1">Email ikke gyldig.</div>
-    }
     <label for="roleSelect">Vælg en rolle:</label>
     <select @bind="selectedRoleId">
         @foreach (UserRole role in _userRoles)
@@ -49,7 +45,25 @@
             <option value="@role.Id">@role.Name</option>
         }
     </select>
-
+    <h4>Kontakt oplysninger</h4>
+    <h6>Navn *</h6>
+    <InputText @bind-Value="_user.Contact.Name" class="@GetCssClass(IsNameValid,_user.Contact.Name)" oninput="@CheckName"></InputText>
+    @if (!IsNameValid && IsNameTouched)
+    {
+        <div class="text-danger mt-1">Indtast gyldigt navn.</div>
+    }
+    <h6>Email * </h6>
+    <InputText @bind-Value="@_user.Email" class="@GetCssClass(IsEmailValid, _user.Email)" oninput="@CheckEmail"></InputText>
+    @if (!IsEmailValid && IsEmailTouched )
+    {
+        <div class="text-danger mt-1">Email ikke gyldig.</div>
+    }
+    <h6>Telefon *</h6>
+    <InputText @bind-Value="_user.Contact.PhoneNumber" class="@GetCssClass(IsPhoneNumberValid,_user.Contact.PhoneNumber)" oninput="@CheckPhoneNumber"></InputText>
+    @if (!IsPhoneNumberValid && IsPhoneNumberTouched)
+    {
+        <div class="text-danger mt-1">Indtast gyldigt telefon nummer.</div>
+    }
     <button type="submit"  disabled="@(!canCreate)">Create </button>
 </EditForm>
 
