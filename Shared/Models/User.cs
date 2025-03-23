@@ -11,7 +11,7 @@ namespace TravelFusionLean.Models
         public string PasswordSalt { get; set; }
 
         [Required(ErrorMessage = "Email er påkrævet.")]
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldigt telefonnummer.")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldig email.")]
         public string Email { get; set; }
 
         public UserRole UserRole { get; set; }
