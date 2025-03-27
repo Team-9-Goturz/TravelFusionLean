@@ -17,38 +17,42 @@
 
 @inject NavigationManager NavigationManager
 
-<h2>Opret bruger </h2>
+<h2>Create user </h2>
 
 <EditForm EditContext="@editContext" OnValidSubmit="@Create">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <h6>Brugernavn *</h6>
+    <h6>Username *</h6>
     <InputText @bind-Value="_user.Username" class="@GetCssClass(IsUsernameValid, _user.Username)"oninput="@CheckUsernameAvailability" />
     @if (usernameIsTaken)
     {
-        <div class="text-danger mt-1">Brugernavn er optaget, vælg et andet.</div>
+        <div class="text-danger mt-1">Username already exists, chose a different.</div>
     }
-    <h6>Adgangskode *</h6>
+    <h6>Password *</h6>
     <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid, Password)" oninput="@CheckPasswordStrength" type="password"/>
     @if (!IsPasswordValid && passwordTouched == true)
     {
-        <div class="text-danger mt-1">Adgangskode er for kort.</div>
+        <div class="text-danger mt-1">Password is too short.</div>
     }
-    <h6>Gentag adgangskode *</h6>
+    <h6>Repeat password *</h6>
     <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch, PasswordRepeat)" type="password"/>
     @if (!PasswordsMatch)
     {
-        <div class="text-danger mt-1">Adgangskoder er ikke ens.</div>
+        <div class="text-danger mt-1">Passwords do not match.</div>
     }
-    <label for="roleSelect">Vælg en rolle:</label>
+    <label for="roleSelect">Select a role:</label>
     <select @bind="selectedRoleId">
         @foreach (UserRole role in _userRoles)
         {
             <option value="@role.Id">@role.Name</option>
         }
     </select>
-    <h4>Kontakt oplysninger</h4>
-    <h6>Navn *</h6>
+    
+    <br><br/>
+    <br><br/>
+
+    <h4>Contact information</h4>
+    <h6>Name *</h6>
     <InputText @bind-Value="_user.Contact.Name"
                class="@GetCssClassFor(() => _user.Contact.Name)" />
     <ValidationMessage For="@(() => _user.Contact.Name)" />
