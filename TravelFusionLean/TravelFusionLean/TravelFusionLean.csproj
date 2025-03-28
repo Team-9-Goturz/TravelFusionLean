@@ -38,6 +38,17 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\Pages\Admin\AdminHome.razor" />
     <_ContentIncludedByDefault Remove="Components\Pages\Admin\CreateAdmin.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\UserRoles\UserRoleCreate.razor" />
+    <_ContentIncludedByDefault Remove="Components\Pages\UserRoles\UserRoleList.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\CustomerPages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleCreate.razor" />
+    <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleList.razor" />
   </ItemGroup>
 
 </Project>
