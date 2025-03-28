@@ -11,8 +11,15 @@ using ServiceImplementations;
 
 namespace Configuration
 {
+    /// <summary>
+    /// Indeholder metode til at konfigurere og tilføje services til DI-containeren (Dependency Injection),
+    /// herunder databasekontekst og servicelag.
+    /// </summary>
     public static class ServiceConfiguration
     {
+        /// <summary>
+        /// Tilføjer nødvendige services til DI-containeren (DbContext, UserService og UserRoleService).
+        /// </summary>
         public static void  ConfigureServices(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddDbContext<AppDbContext>(options =>
