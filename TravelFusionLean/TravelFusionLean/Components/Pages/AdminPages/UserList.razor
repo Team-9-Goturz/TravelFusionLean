@@ -1,0 +1,69 @@
+﻿@page "/UserList"
+@layout AdminLayout
+@rendermode InteractiveServer
+@using TravelFusionLean.Components.Layout
+@using Microsoft.EntityFrameworkCore
+@using TravelFusionLean.Data
+@using TravelFusionLean.Models
+@inject AppDbContext DbContext
+
+@code {
+    private List<User> _users = new List<User>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _users = DbContext.Users
+           .Include(u => u.UserRole) // Eager load rollen
+           .ToList();
+    }
+    private void DeleteUser(int userId)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == userId);
+        if (user is not null)
+        {
+            DbContext.Users.Remove(user);
+            DbContext.SaveChanges();
+
+            _users.Remove(user);
+        }
+    }
+}
+
+<h3>Users</h3>
+<table class="table table-striped">
+    <thead>
+    <th>Id</th>
+    <th>username</th>
+    <th>email</th>
+    <th>role</th>
+    <th>Actions</th>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Username</td>
+                <td>@user.Email</td>
+                <td>@user.UserRole.Name</td>
+                <td>
+                    <a class="btn btn-sm btn-primary me-1" href="/UserEdit/@user.Id">Rediger</a>
+                    <button class="btn btn-sm btn-warning me-1">Nulstil adgangskode</button>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteUser(user.Id))">Slet</button>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@if (OperatingSystem.IsBrowser())
+{
+    <p>Running in WebAssembly mode</p>
+}
+else
+{
+    <p>Running in Server mode</p>
+}
