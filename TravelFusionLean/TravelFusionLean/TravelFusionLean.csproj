@@ -33,6 +33,9 @@
     <None Update="Components\Layout\AdminLayout.css">
       <DependentUpon>AdminLayout.razor</DependentUpon>
     </None>
+    <None Update="Components\Pages\AdminPages\TravelPackageHotels.css">
+      <DependentUpon>TravelPackageHotels.razor</DependentUpon>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
