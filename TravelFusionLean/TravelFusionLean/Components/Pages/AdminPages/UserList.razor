@@ -1,0 +1,52 @@
+﻿@page "/UserList"
+@layout AdminLayout
+@rendermode InteractiveWebAssembly
+@using TravelFusionLean.Components.Layout
+@using Microsoft.EntityFrameworkCore
+@using TravelFusionLean.Data
+@using TravelFusionLean.Models
+@inject AppDbContext DbContext
+
+@code {
+    private List<User> _users = new List<User>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _users = DbContext.Users
+           .Include(u => u.UserRole) // Eager load rollen
+           .ToList();
+    }
+
+}
+
+<h3>Users</h3>
+<table class="table table-striped">
+    <thead>
+    <th>Id</th>
+    <th>username</th>
+    <th>email</th>
+    <th>role</th>
+    </thead>
+    <tbody>
+        @foreach (var user in _users)
+        {
+            <tr>
+                <td>@user.Id</td>
+                <td>@user.Username</td>
+                <td>@user.Email</td>
+                <td>@user.UserRole.Name</td> 
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@if (OperatingSystem.IsBrowser())
+{
+    <p>Running in WebAssembly mode</p>
+}
+else
+{
+    <p>Running in Server mode</p>
+}

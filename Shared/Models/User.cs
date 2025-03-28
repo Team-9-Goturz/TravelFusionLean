@@ -14,8 +14,9 @@ namespace TravelFusionLean.Models
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldig email.")]
         public string Email { get; set; }
 
+        public int UserRoleId { get; set; }
         public UserRole UserRole { get; set; }
-        public Contact Contact { get; set; }
+        public Contact? Contact { get; set; }
 
 
         public User()
