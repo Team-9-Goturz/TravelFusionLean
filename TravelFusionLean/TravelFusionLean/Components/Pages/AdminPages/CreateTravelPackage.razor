@@ -1,0 +1,81 @@
+@page "/travel-package"
+
+@* Import Bootstrap *@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<div class="container mt-4">
+    <h2 class="text-center">Choose Flight</h2>
+
+    <!-- Search Bar -->
+    <div class="card p-3 mb-3">
+        <div class="row">
+            <div class="col-md-3">
+                <label>Departure:</label>
+                <input type="text" class="form-control" placeholder="Enter departure city">
+            </div>
+            <div class="col-md-3">
+                <label>Destination:</label>
+                <input type="text" class="form-control" placeholder="Enter destination city">
+            </div>
+            <div class="col-md-3">
+                <label>When:</label>
+                <input type="text" class="form-control" placeholder="Select dates">
+            </div>
+            <div class="col-md-2">
+                <label>Travellers:</label>
+                <input type="text" class="form-control" placeholder="Enter number of travelers">
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button class="btn btn-primary w-100">🔍</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Muligheder for at vælge billig, hurtig eller bedst (kombination) VIRKER IKKE ENDNU -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#fastest" role="tab">Fastest</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#cheapest" role="tab">Cheapest</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#best" role="tab">Best</a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <div id="fastest" class="tab-pane fade show active p-3">
+        <div class="d-flex justify-content-between border p-2">
+            <div><strong>KLM</strong> 07:50 [Departure] → 11:45+1 [Destination] (1 stop AMS)</div>
+            <button class="btn btn-primary">Select</button>
+        </div>
+    </div>
+    <div id="cheapest" class="tab-pane fade p-3">
+        <div class="d-flex justify-content-between border p-2">
+            <div><strong>KLM</strong> 07:50 [Departure] → 11:45+1 [Destination] (1 stop AMS) - 50 euros</div>
+            <button class="btn btn-primary">Select</button>
+        </div>
+    </div>
+    <div id="best" class="tab-pane fade p-3">
+        <div class="d-flex justify-content-between border p-2">
+            <div><strong>Qatar Airways</strong> 15:05 [Departure] → 17:55+1 [Destination] (1 stop DOH) - 500 euros</div>
+            <button class="btn btn-primary">Select</button>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- Selected Flight Summary -->
+    <div class="card mt-3 p-3">
+        <h5>Flight</h5>
+        <p>FROM [Departure] TO [Destination] - [Dates] WITH [Airline] FLIGHT NUMBER [FlightNumber]</p>
+        <p><strong>Total: [Price] euros</strong></p>
+        <button class="btn btn-primary">Create Flight</button>
+    </div>
+</div>
+
+@* Include Bootstrap JS *@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
