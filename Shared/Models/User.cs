@@ -16,12 +16,7 @@ namespace TravelFusionLean.Models
 
         public int UserRoleId { get; set; }
         public UserRole UserRole { get; set; }
-        public Contact? Contact { get; set; }
-
-
-        public User()
-        {
-            Contact = new Contact();
-        }
+        public int ContactId { get; set; } 
+        public Contact Contact { get; set; } = new();
     }
 }

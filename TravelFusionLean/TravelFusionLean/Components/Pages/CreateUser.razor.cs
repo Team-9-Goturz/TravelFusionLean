@@ -53,6 +53,12 @@ public partial class CreateUser
         editContext = new EditContext(_user);
         editContext.OnFieldChanged += (_, __) => EvaluateFormState();
         _userRoles = (await UserRoleService.GetAllAsync()).ToList();
+
+        if (_userRoles.Any())
+        {
+            selectedRoleId = _userRoles.First().Id;
+        }
+
         await base.OnInitializedAsync();
     }
 
@@ -92,6 +98,7 @@ public partial class CreateUser
             return;
 
         _user.UserRole = _userRoles.FirstOrDefault(r => r.Id == selectedRoleId);
+        _user.UserRoleId = _user.UserRole.Id;
         var user = await UserService.Create(_user, Password);
 
         // TODO: Vis success-besked eller redirect

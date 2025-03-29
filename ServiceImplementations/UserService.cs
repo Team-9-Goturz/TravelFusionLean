@@ -18,14 +18,44 @@ namespace ServiceImplementations
 
         public async Task<User> Create(User user, string password)
         {
-            string passwordSalt = GenerateSalt();
-            string passwordHash = HashPasswordWithSaltAndPepper(password, passwordSalt);
+            try
+            {
+                string passwordSalt = GenerateSalt();
+                string passwordHash = HashPasswordWithSaltAndPepper(password, passwordSalt);
 
-            user.PasswordSalt = passwordSalt;
-            user.PasswordHash = passwordHash;
+                user.PasswordSalt = passwordSalt;
+                user.PasswordHash = passwordHash;
 
-            return await AddAsync(user);
+                if (user.Contact == null)
+                    throw new ArgumentException("Contact is required.");
+
+                // Gem Contact først
+                _context.Contacts.Add(user.Contact);
+                await _context.SaveChangesAsync();
+
+                // Brug ContactId
+                user.ContactId = user.Contact.Id;
+
+                // Gem bruger
+
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                // Log til konsol
+                Console.WriteLine("🔥 FEJL i UserService.Create:");
+                Console.WriteLine(ex.ToString());
+
+                // Evt. log til fil/db hvis ønsket
+
+                // Genkast for at Blazor/kalder kan reagere
+                throw;
+            }
         }
+
 
         public async Task<bool> IsUsernameAvailableAsync(string requestedUsername)
         {

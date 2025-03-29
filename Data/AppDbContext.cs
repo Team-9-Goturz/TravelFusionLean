@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection.Emit;
 using Microsoft.EntityFrameworkCore;
+using Shared.Models;
 using TravelFusionLean.Models;
 
 namespace Data
@@ -9,6 +10,8 @@ namespace Data
     {
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Contact> Contacts { get; set; } 
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +36,16 @@ namespace Data
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.PasswordSalt).IsRequired();
                 entity.Property(u => u.Email).IsRequired();
+
+                // Contacts
+                modelBuilder.Entity<User>()
+                     .HasOne(u => u.Contact)
+                    .WithOne()
+                    .HasForeignKey<User>(u => u.ContactId)
+                    .OnDelete(DeleteBehavior.Cascade); // valgfrit
             });
+
+            modelBuilder.Entity<Contact>().ToTable("Contact");
         }
     }
 }
