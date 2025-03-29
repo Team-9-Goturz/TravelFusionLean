@@ -74,5 +74,9 @@ namespace ServiceImplementations
             }
         }
 
+        public Task<User> Update(User user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

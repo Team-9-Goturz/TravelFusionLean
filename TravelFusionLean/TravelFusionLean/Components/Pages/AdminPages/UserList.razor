@@ -54,7 +54,7 @@
                 <td>@user.Email</td>
                 <td>@user.UserRole.Name</td>
                 <td>
-                    <a class="btn btn-sm btn-primary me-1" href="/UserEdit/@user.Id">Rediger</a>
+                    <a class="btn btn-sm btn-primary me-1" href="/EditUser/@user.Id">Rediger</a>
                     <button class="btn btn-sm btn-warning me-1">Nulstil adgangskode</button>
                     <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteUser(user.Id))">Slet</button>
                 </td>
