@@ -1,9 +1,9 @@
 ﻿        using System.Text.Json.Serialization;
 
-        /// <summary>
-        /// Oplysninger om hotel, tilpasset mock-API'ets JSON struktur.
-        /// </summary>
-        public class HotelData
+/// <summary>
+/// Indeholder én hoteldatastruktur (Data transfer object - Dto) som returneret af MockHotelsAPI.
+/// </summary>
+public class HotelData
         {
             [JsonPropertyName("hotelId")]
             public string HotelId { get; set; }
@@ -61,7 +61,7 @@ public class GeoCodeInfo
         }
 
 /// <summary>
-/// Data transfer object (Dto) for hoteldata, tilpasset mock-API'ets JSON struktur.
+/// Wrapper klasse for at hente listen af hoteldata fra JSON'ens "data" array.
 /// </summary>
 public class HotelResponse 
 {

@@ -3,8 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using TravelFusionLeanApi.Interfaces;
 using TravelFusionLeanApi.Services;
+
 
 /// <summary>
 /// Program.cs er hovedindgangspunktet for API-applikationen og opsætter alle nødvendige services, middleware og endpoints.

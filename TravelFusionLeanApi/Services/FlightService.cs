@@ -1,10 +1,9 @@
-﻿using TravelFusionLeanApi.Interfaces;
-using TravelFusionLeanApi.Models;
+﻿using System.Net.Http.Json;
 
 namespace TravelFusionLeanApi.Services
 {
     /// <summary>
-    /// Kalder MockFlightsAPI og returnerer flydata.
+    /// Service til håndtering af kald til MockFlightsAPI.
     /// </summary>
     public class FlightService : IFlightService
     {
@@ -15,15 +14,22 @@ namespace TravelFusionLeanApi.Services
             _httpClient = httpClient;
         }
 
-        public async Task<IEnumerable<FlightDto>> GetFlightsAsync()
+        /// <summary>
+        /// Henter alle fly fra mock-API'et.
+        /// </summary>
+        public async Task<IEnumerable<FlightData>> GetFlightsAsync()
         {
-            return await _httpClient.GetFromJsonAsync<List<FlightDto>>("api/flights") ?? new();
+            var response = await _httpClient.GetFromJsonAsync<FlightResponse>("api/flights");
+            return response?.Data ?? new List<FlightData>();
         }
 
-        public async Task<FlightDto?> GetFlightByIdAsync(string id)
+        /// <summary>
+        /// Henter et specifikt fly baseret på flight ID.
+        /// </summary>
+        public async Task<FlightData?> GetFlightByIdAsync(string flightId)
         {
-            return await _httpClient.GetFromJsonAsync<FlightDto>($"api/flights/{id}");
+            var allFlights = await GetFlightsAsync();
+            return allFlights.FirstOrDefault(f => f.Flight.IATA == flightId);
         }
     }
-
 }
