@@ -5,6 +5,7 @@
 @using Microsoft.EntityFrameworkCore
 @using TravelFusionLean.Data
 @using TravelFusionLean.Models
+@using TravelFusionLean.Components.Modals
 @inject AppDbContext DbContext
 
 @code {
@@ -60,7 +61,7 @@
                 <td>@user.UserRole.Name</td>
                 <td>
                     <a class="btn btn-sm btn-primary me-1" href="/EditUser/@user.Id">Rediger</a>
-                    <button class="btn btn-sm btn-warning me-1">Nulstil adgangskode</button>
+                    <button class="btn btn-sm btn-warning me-1" @onclick="@(() => ShowResetPasswordModal(user))">Nulstil adgangskode</button>
                     <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteUser(user.Id))">Slet</button>
                 </td>
 
@@ -70,11 +71,32 @@
 </table>
 
 
-@if (OperatingSystem.IsBrowser())
+<ResetPasswordModal IsVisible="@showResetModal"
+                    IsVisibleChanged="@((bool value) => showResetModal = value)"
+                    SelectedUser="@selectedUser"
+                    OnResetPassword="@HandleResetPassword" />
+
+@code
 {
-    <p>Running in WebAssembly mode</p>
+    private bool showResetModal = false;
+    private User? selectedUser;
+
+    private void ShowResetPasswordModal(User user)
+    {
+        selectedUser = user;
+        showResetModal = true;
+    }
+
+    private async Task HandleResetPassword(int userId)
+    {
+        var user = _users.FirstOrDefault(u => u.Id == userId);
+        if (user != null)
+        {
+            // Du kunne vise en toast her
+            Console.WriteLine($"🔐 Adgangskode for bruger {user.Username} blev nulstillet.");
+        }
+    }
+
+
 }
-else
-{
-    <p>Running in Server mode</p>
-}
+

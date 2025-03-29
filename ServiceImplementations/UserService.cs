@@ -73,6 +73,20 @@ namespace ServiceImplementations
             var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
             return emailRegex.IsMatch(email);
         }
+        public async Task ResetPasswordAsync(int userId, string newPassword)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null) return;
+
+            string salt = GenerateSalt();
+            string hash = HashPasswordWithSaltAndPepper(newPassword, salt);
+
+            user.PasswordSalt = salt;
+            user.PasswordHash = hash;
+
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
 
         private static string GenerateSalt(int size = 16)
         {
