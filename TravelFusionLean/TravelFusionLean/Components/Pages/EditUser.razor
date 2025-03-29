@@ -59,11 +59,6 @@
         <InputText class="form-control" @bind-Value="user.Username" />
     </div>
 
-    <div class="mb-3">
-        <label>Email</label>
-        <InputText class="form-control" @bind-Value="user.Email" />
-    </div>
-
     <label for="roleSelect">Select a role:</label>
     <select @bind="selectedRoleId">
         @foreach (UserRole role in _userRoles)
@@ -74,6 +69,22 @@
 
     <br><br />
     <br><br />
+
+    <h6>Kontaktoplysninger</h6>
+    <div class="mb-3">
+        <label>Name</label>
+        <InputText class="form-control" @bind-Value="user.Contact.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label>Phone</label>
+        <InputText class="form-control" @bind-Value="user.Contact.PhoneNumber" />
+    </div>
+
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="user.Email" />
+    </div>
 
     <button type="submit" class="btn btn-primary">Gem ændringer</button>
 </EditForm>
