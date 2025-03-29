@@ -15,6 +15,7 @@
         base.OnInitialized();
         _users = DbContext.Users
            .Include(u => u.UserRole) // Eager load rollen
+           .Include(u => u.Contact)
            .ToList();
     }
     private void DeleteUser(int userId)
@@ -41,7 +42,9 @@
     <thead>
     <th>Id</th>
     <th>username</th>
+    <th>navn</th>
     <th>email</th>
+    <th>phonenumber</th>
     <th>role</th>
     <th>Actions</th>
     </thead>
@@ -51,7 +54,9 @@
             <tr>
                 <td>@user.Id</td>
                 <td>@user.Username</td>
+                <td>@user.Contact.Name</td>
                 <td>@user.Email</td>
+                <td>@user.Contact.PhoneNumber</td>
                 <td>@user.UserRole.Name</td>
                 <td>
                     <a class="btn btn-sm btn-primary me-1" href="/EditUser/@user.Id">Rediger</a>
