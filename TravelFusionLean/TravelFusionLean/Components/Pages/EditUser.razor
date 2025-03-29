@@ -13,6 +13,9 @@
 @using System.ComponentModel.DataAnnotations
 @using TravelFusionLean.Components.Layout
 
+@inject IUserService UserService
+@inject IUserRoleService UserRoleService
+
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
@@ -21,16 +24,25 @@
     public int UserId { get; set; }
 
     private User user = new();
+    private int selectedRoleId;
+    private List<UserRole> _userRoles = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         user = DbContext.Users
             .Include(u => u.UserRole)
             .FirstOrDefault(u => u.Id == UserId);
+
+        _userRoles = (await UserRoleService.GetAllAsync()).ToList();
+        UserRole selectedRole = _userRoles.FirstOrDefault(u => u.Id == user.UserRoleId);
+        selectedRoleId = selectedRole.Id;
+
+        await base.OnInitializedAsync();
     }
 
     private void SaveChanges()
     {
+        user.UserRoleId = selectedRoleId;
         DbContext.Users.Update(user);
         DbContext.SaveChanges();
         NavigationManager.NavigateTo("/UserList");
@@ -51,6 +63,17 @@
         <label>Email</label>
         <InputText class="form-control" @bind-Value="user.Email" />
     </div>
+
+    <label for="roleSelect">Select a role:</label>
+    <select @bind="selectedRoleId">
+        @foreach (UserRole role in _userRoles)
+        {
+            <option value="@role.Id">@role.Name</option>
+        }
+    </select>
+
+    <br><br />
+    <br><br />
 
     <button type="submit" class="btn btn-primary">Gem ændringer</button>
 </EditForm>
