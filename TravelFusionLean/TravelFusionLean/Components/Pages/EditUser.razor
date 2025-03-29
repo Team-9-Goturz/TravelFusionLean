@@ -31,6 +31,7 @@
     {
         user = DbContext.Users
             .Include(u => u.UserRole)
+            .Include(u => u.Contact)
             .FirstOrDefault(u => u.Id == UserId);
 
         _userRoles = (await UserRoleService.GetAllAsync()).ToList();

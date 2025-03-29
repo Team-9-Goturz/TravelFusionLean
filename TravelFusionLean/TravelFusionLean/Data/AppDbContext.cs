@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Shared.Models;
 using TravelFusionLean.Models;
 
 namespace TravelFusionLean.Data;
@@ -7,6 +8,8 @@ public class AppDbContext : DbContext
 {
     public DbSet<UserRole> UserRoles { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Contact> Contacts { get; set; }
+
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -41,6 +44,17 @@ public class AppDbContext : DbContext
             .HasForeignKey(u => u.UserRoleId)
             .IsRequired();
 
+
+        modelBuilder.Entity<User>()
+            .HasOne(u => u.Contact)
+            .WithOne()
+            .HasForeignKey<User>(u => u.ContactId)
+            .IsRequired();
+
+        modelBuilder.Entity<Contact>(entity =>
+        {
+            entity.ToTable("Contact"); 
+        });
     }
 }
 
