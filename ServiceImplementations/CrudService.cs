@@ -9,6 +9,9 @@ using Data;
 
 namespace ServiceImplementations
 {
+    /// <summary>
+    /// Abstrakt serviceklasse for CRUD-operationer (opret, opdater, slet) for en generisk entitet.
+    /// </summary>
     public abstract class CrudService<TEntity> : ReadService<TEntity>, ICrudService<TEntity> where TEntity : class
     {
         protected CrudService(AppDbContext context) : base(context) { }

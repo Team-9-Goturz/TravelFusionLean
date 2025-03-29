@@ -6,13 +6,26 @@ using TravelFusionLean.Models;
 
 namespace Data
 {
+    /// <summary>
+    /// Repræsenterer Entity Framework Core databasekontekst og definerer tabeller og struktur.
+    /// </summary>
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
+        /// <summary>
+        /// DbSet til UserRoles-tabellen.
+        /// </summary>
         public DbSet<UserRole> UserRoles { get; set; }
+
+        /// <summary>
+        /// DbSet til Users-tabellen.
+        /// </summary>
         public DbSet<User> Users { get; set; }
         public DbSet<Contact> Contacts { get; set; } 
 
 
+        /// <summary>
+        /// Konfigurerer tabelstruktur og relationer mellem entiteter.
+        /// </summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

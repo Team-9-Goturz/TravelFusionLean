@@ -7,6 +7,9 @@ using TravelFusionLean.Models;
 
 namespace ServiceContracts
 {
+    /// <summary>
+    /// Interface til læsning af brugerroller.
+    /// </summary>
     public interface IUserRoleService: IReadService<UserRole>
     {
     }
