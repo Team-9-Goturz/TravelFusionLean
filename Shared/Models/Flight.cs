@@ -32,5 +32,6 @@ namespace Shared.Models
         public Currency Currency { get; set; }
 
 
+
     }
 }
