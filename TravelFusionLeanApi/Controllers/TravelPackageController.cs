@@ -25,7 +25,7 @@ namespace TravelFusionLeanApi.Controllers
         }
 
         [HttpGet("Packages-By-Id/{id}")]
-        public async Task<ActionResult<TravelPackage>> GetPackagesByIdAsync(Guid id)
+        public async Task<ActionResult<TravelPackage>> GetPackagesByIdAsync(int id)
         {
             var packages = await travelPackageService.GetByIdAsync(id);
             return Ok(packages);
@@ -50,12 +50,12 @@ namespace TravelFusionLeanApi.Controllers
 
 
         [HttpDelete("Delete-Package-By-Id/{id}")]
-        public async Task<IActionResult> DeletePackageAsync(Guid id)
+        public async Task<IActionResult> DeletePackageAsync(int id)
         {
             var package = await travelPackageService.GetByIdAsync(id);
             if (package == null) return NotFound();
 
-            travelPackageService.DeleteAsync(package);
+            await travelPackageService.DeleteAsync(id);
             return Ok();
         }
     }
