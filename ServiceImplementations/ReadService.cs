@@ -36,7 +36,7 @@ namespace ServiceImplementations
         /// <summary>
         /// Henter en entitet ud fra dens ID.
         /// </summary>
-        public virtual async Task<TEntity?> GetByIdAsync(Guid id)
+        public virtual async Task<TEntity?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }

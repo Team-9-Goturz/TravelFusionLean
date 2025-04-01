@@ -39,7 +39,7 @@ namespace ServiceImplementations
             return entity;
         }
 
-        public virtual async Task<bool> DeleteAsync(Guid id)
+        public virtual async Task<bool> DeleteAsync(int id)
         {
             var entity = await GetByIdAsync(id);
             if (entity == null) return false;
