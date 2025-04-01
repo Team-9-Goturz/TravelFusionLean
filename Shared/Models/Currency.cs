@@ -1,17 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Models
+namespace Shared.Models;
+
+/// <summary>
+/// Repræsenterer en valuta.
+/// Matcher databasen: dbo.Currency
+/// </summary>
+public class Currency
 {
-    public class Currency
-    {
-        [Key]
-        public int Id { get; set; }
-        public string Name { get; set; }
+    [Key]
+    public int Id { get; set; }
 
-    }
+    [Required]
+    [StringLength(128)]
+    public string Name { get; set; }
 }

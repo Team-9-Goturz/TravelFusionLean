@@ -1,27 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Shared.Models
+namespace Shared.Models;
+
+/// <summary>
+/// Repræsenterer et hotel og dets placering.
+/// Matcher databasen: dbo.Hotel
+/// </summary>
+public class Hotel
 {
-    public class Hotel
-    {
+    [Key]
+    public int Id { get; set; }
 
-        [Key]
-        public int Id { get; set; }
+    [Required]
+    [StringLength(128)]
+    public string Name { get; set; }
 
-        //skal vi egentlig ikke have fornavn og efternavn?
-        public string Name { get; set; }
+    [StringLength(600)]
+    public string? Description { get; set; }
 
-        public string Description { get; set; }
+    [StringLength(128)]
+    public string? Adress { get; set; }
 
-        public string Address { get; set; }
+    [Column(TypeName = "decimal(9,6)")]
+    public decimal Latitude { get; set; }
 
-        public decimal Latitude { get; set; }
-
-        public decimal Longitude { get; set; }
-    }
+    [Column(TypeName = "decimal(9,6)")]
+    public decimal Longitude { get; set; }
 }
