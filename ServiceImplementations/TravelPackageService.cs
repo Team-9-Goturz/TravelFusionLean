@@ -7,6 +7,7 @@ namespace ServiceImplementations;
 
 /// <summary>
 /// Service der håndterer logik for TravelPackages og inkluderer relaterede data.
+/// 
 /// </summary>
 public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageService
 {
