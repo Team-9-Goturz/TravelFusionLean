@@ -74,6 +74,7 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+builder.Services.AddScoped<ITravelPackageService, TravelPackageService>();
 
 var app = builder.Build();
 

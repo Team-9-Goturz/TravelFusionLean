@@ -20,7 +20,7 @@ public class Hotel
     public string? Description { get; set; }
 
     [StringLength(128)]
-    public string? Adress { get; set; }
+    public string? Address { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
     public decimal Latitude { get; set; }
