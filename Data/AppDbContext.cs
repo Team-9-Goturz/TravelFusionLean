@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Shared.Models; 
+using Shared.Models;
 using TravelFusionLean.Models;
 
 namespace Data
@@ -10,11 +10,17 @@ namespace Data
     /// </summary>
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-       
+
 
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Airport> Airports { get; set; }
+        public DbSet<Contact> Contacts { get; set; }
+        public DbSet<Currency> Currencies { get; set; }
+        public DbSet<Flight> Flights { get; set; }
+        public DbSet<Hotel> Hotels { get; set; }
+        public DbSet<HotelStay> HotelStays { get; set; }
+        public DbSet<TravelPackage> TravelPackages { get; set; }
 
         /// <summary>
         /// Konfigurerer tabelstruktur, constraints og relationer mellem entiteter,
@@ -64,12 +70,62 @@ namespace Data
                       .WithMany()
                       .HasForeignKey(f => f.ArrivalAtAirportId);
 
-                entity.HasKey(u => u.Id);
-                entity.Property(u => u.Username).IsRequired();
-                entity.Property(u => u.PasswordHash).IsRequired();
-                entity.Property(u => u.PasswordSalt).IsRequired();
-                entity.Property(u => u.Email).IsRequired();
+                entity.HasOne(f => f.DepartureFromAirport)
+                      .WithMany()
+                      .HasForeignKey(f => f.DepartureFromAirportId);
+
+                entity.HasOne(f => f.Currency)
+                      .WithMany()
+                      .HasForeignKey(f => f.CurrencyId);
             });
+
+            // === HotelStay ===
+            modelBuilder.Entity<HotelStay>(entity =>
+            {
+                entity.ToTable("HotelStay");
+                entity.HasKey(hs => hs.Id);
+
+                entity.HasOne(hs => hs.Hotel)
+                      .WithMany()
+                      .HasForeignKey(hs => hs.HotelId);
+
+                entity.HasOne(hs => hs.Currency)
+                      .WithMany()
+                      .HasForeignKey(hs => hs.CurrencyId);
+            });
+
+            // === TravelPackage ===
+            modelBuilder.Entity<TravelPackage>(entity =>
+            {
+                entity.ToTable("TravelPackage");
+                entity.HasKey(tp => tp.Id);
+
+                entity.HasOne(tp => tp.OutboundFlight)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.OutboundFlightId);
+
+                entity.HasOne(tp => tp.InboundFlight)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.InboundFlightId);
+
+                entity.HasOne(tp => tp.HotelStay)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.HotelStayId);
+
+                entity.HasOne(tp => tp.ToHotelTransfer)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.ToHotelTransferId);
+
+                entity.HasOne(tp => tp.FromHotelTransfer)
+                      .WithMany()
+                      .HasForeignKey(tp => tp.FromHotelTransferId);
+            });
+
+            // === Øvrige tabeller ===
+            modelBuilder.Entity<Airport>().ToTable("Airport");
+            modelBuilder.Entity<Contact>().ToTable("Contact");
+            modelBuilder.Entity<Currency>().ToTable("Currency");
+            modelBuilder.Entity<Hotel>().ToTable("Hotel");
         }
     }
 }
