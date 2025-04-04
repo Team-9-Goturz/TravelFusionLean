@@ -14,7 +14,7 @@ namespace ServiceContracts
         /// <summary>
         /// Henter en entitet ud fra dens unikke ID.
         /// </summary>
-        Task<TEntity?> GetByIdAsync(Guid id);
+        Task<TEntity?> GetByIdAsync(int id);
 
         /// <summary>
         /// Henter alle entiteter.

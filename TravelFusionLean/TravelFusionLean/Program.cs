@@ -5,6 +5,7 @@ using ServiceImplementations;
 using TravelFusionLean.Components;
 using TravelFusionLean.Data;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
