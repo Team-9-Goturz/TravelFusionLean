@@ -68,4 +68,9 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
 
             .FirstOrDefaultAsync(tp => tp.Id == id);
     }
+
+    public List<TravelPackage> Search()
+    {
+        return new List<TravelPackage>();
+    }
 }
