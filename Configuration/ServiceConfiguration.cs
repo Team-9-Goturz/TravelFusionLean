@@ -1,32 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Data;
+﻿using Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ServiceContracts;
 using ServiceImplementations;
 
+
 namespace Configuration
 {
     /// <summary>
-    /// Indeholder metode til at konfigurere og tilføje services til DI-containeren (Dependency Injection),
-    /// herunder databasekontekst og servicelag.
+    /// Indeholder en extension-metode til konfiguration af services og afhængigheder (Dependency Injection).
+    /// Kaldes fra Program.cs i hovedprojektet.
     /// </summary>
     public static class ServiceConfiguration
     {
-        /// <summary>
-        /// Tilføjer nødvendige services til DI-containeren (DbContext, UserService og UserRoleService).
-        /// </summary>
-        public static void  ConfigureServices(this IServiceCollection serviceCollection)
+        public static void ConfigureServices(this IServiceCollection services, string connectionString)
         {
-            serviceCollection.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer("Server=85.10.209.22;Database=TravelFusion;User ID=team09;Password=GdrnJu64D3Lo!;TrustServerCertificate=True;"));
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException(nameof(connectionString), "Connection string cannot be null or empty.");
+            }
 
-            serviceCollection.AddScoped<IUserService, UserService>();
-            serviceCollection.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(connectionString));
+
+            services.AddScoped<ITravelPackageService, TravelPackageService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IUserRoleService, UserRoleService>();
+        }
+
+        public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException(nameof(configuration), "Connection string cannot be null or empty.");
+            }
+
+            services.ConfigureServices(connectionString);
         }
     }
+
 }

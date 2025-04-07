@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using TravelFusionLean.Models;
 
-namespace TravelFusionLean.Components.Pages;
+namespace TravelFusionLean.Components.Views.AdminViews.Users;
 
 public partial class CreateUser
 {

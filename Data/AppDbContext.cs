@@ -8,7 +8,7 @@ namespace Data
     /// Repræsenterer Entity Framework Core databasekontekst og definerer tabeller og struktur.
     /// Indeholder DbSet's for alle entiteter i TravelFusion-databasen.
     /// </summary>
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public class AppDbContext : DbContext
     {
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
@@ -20,6 +20,8 @@ namespace Data
         public DbSet<HotelStay> HotelStays { get; set; }
         public DbSet<TravelPackage> TravelPackages { get; set; }
 
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
         /// <summary>
         /// Konfigurerer tabelstruktur, constraints og relationer mellem entiteter,
         /// så det stemmer overens med den eksisterende SQL Server-database.
@@ -28,7 +30,6 @@ namespace Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // === Brugerroller ===
             modelBuilder.Entity<UserRole>(entity =>
             {
                 entity.ToTable("UserRole");
@@ -36,7 +37,6 @@ namespace Data
                 entity.Property(ur => ur.Name).IsRequired().HasMaxLength(128);
             });
 
-            // === Brugere ===
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("User");
@@ -46,19 +46,31 @@ namespace Data
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(128);
                 entity.Property(u => u.PasswordSalt).IsRequired().HasMaxLength(128);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(128);
-
-                entity.HasOne(u => u.Contact)
-                      .WithMany()
-                      .HasForeignKey(u => u.ContactId)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(u => u.UserRole)
-                      .WithMany()
-                      .HasForeignKey(u => u.UserRoleId)
-                      .OnDelete(DeleteBehavior.NoAction);
             });
 
-            // === Flight-relateret konfiguration ===
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.UserRole)
+                .WithMany()
+                .HasForeignKey(u => u.UserRoleId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Contact)
+                .WithOne()
+                .HasForeignKey<User>(u => u.ContactId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Contact>(entity =>
+            {
+                entity.ToTable("Contact");
+            });
+
+            modelBuilder.Entity<Airport>().ToTable("Airport");
+            modelBuilder.Entity<Currency>().ToTable("Currency");
+            modelBuilder.Entity<Hotel>().ToTable("Hotel");
+
             modelBuilder.Entity<Flight>(entity =>
             {
                 entity.ToTable("Flight");
@@ -77,7 +89,6 @@ namespace Data
                       .HasForeignKey(f => f.CurrencyId);
             });
 
-            // === HotelStay ===
             modelBuilder.Entity<HotelStay>(entity =>
             {
                 entity.ToTable("HotelStay");
@@ -92,7 +103,6 @@ namespace Data
                       .HasForeignKey(hs => hs.CurrencyId);
             });
 
-            // === TravelPackage ===
             modelBuilder.Entity<TravelPackage>(entity =>
             {
                 entity.ToTable("TravelPackage");
@@ -118,12 +128,6 @@ namespace Data
                       .WithMany()
                       .HasForeignKey(tp => tp.FromHotelTransferId);
             });
-
-            // === Øvrige tabeller ===
-            modelBuilder.Entity<Airport>().ToTable("Airport");
-            modelBuilder.Entity<Contact>().ToTable("Contact");
-            modelBuilder.Entity<Currency>().ToTable("Currency");
-            modelBuilder.Entity<Hotel>().ToTable("Hotel");
         }
     }
 }

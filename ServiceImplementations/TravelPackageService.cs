@@ -70,8 +70,36 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
             .FirstOrDefaultAsync(tp => tp.Id == id);
     }
 
+    /// <summary>
+    /// Søgefunktion til fremtidig implementering af filtrering og brugerdefineret visning.
+    /// </summary>
     public List<TravelPackage> Search()
     {
+        // Kan udvides med filtreringsparametre som pris, dato, destination osv.
         return new List<TravelPackage>();
+    }
+
+    /// <summary>
+    /// Opretter en ny rejsepakke.
+    /// </summary>
+    public override async Task<TravelPackage> AddAsync(TravelPackage travelPackage)
+    {
+        return await base.AddAsync(travelPackage);
+    }
+
+    /// <summary>
+    /// Opdaterer en eksisterende rejsepakke.
+    /// </summary>
+    public override async Task<TravelPackage> UpdateAsync(TravelPackage travelPackage)
+    {
+        return await base.UpdateAsync(travelPackage);
+    }
+
+    /// <summary>
+    /// Sletter en rejsepakke.
+    /// </summary>
+    public override async Task<bool> DeleteAsync(int id)
+    {
+        return await base.DeleteAsync(id);
     }
 }

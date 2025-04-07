@@ -1,12 +1,16 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    
+    <div class="sidebar">
+        <NavMenu />
+    </div>
 
     <main>
-        <div class="top-row px-4 bg-primary">
-            <a class="text-light" href="" target="_blank">About Us</a>
-            <img class="mt-1 ml-5 mr-5 mb-1" alt="Gotorz Logo" src="C:/Users/alber/RiderProjects/Screenshot_2025-03-17_151101.png"/>
+        <div class="top-row px-4 custom-navbar">
+            <a href="/" class="navbar-brand">Gotorz's Admin Page</a>
+            <button class="navbar-toggler" @onclick="ToggleNavMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
         </div>
 
         <article class="content px-4">
@@ -15,8 +19,13 @@
     </main>
 </div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
