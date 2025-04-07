@@ -1,0 +1,45 @@
+﻿@page "/Packages"
+@rendermode InteractiveServer
+
+@using TravelFusionLean.Models
+@using Microsoft.EntityFrameworkCore
+@using TravelFusionLean.Data
+@inject AppDbContext DbContext
+
+<h3>TravelpackageList</h3>
+<table class="table table-striped">
+    <thead>
+        <th> </th>
+        <th>Destination</th>
+        <th>Description</th>
+        <th>Number of travelers</th>
+        <th>Price</th>
+        <th>From</th>
+        <th>To</th>
+    </thead>
+    <tbody>
+        @foreach (TravelPackage travelPackage in _travelPackages )
+        {
+            <tr>
+                <td>@travelPackage.Id</td>
+                <td>@travelPackage.HotelStay.Hotel.Address</td>
+                <td>@travelPackage.Description</td>
+                <td>@travelPackage.NoOfTravellers</td>
+                <td>@travelPackage.Price</td>
+                <td>@travelPackage.HotelStay.CheckInDate</td>
+                <td>@travelPackage.HotelStay.CheckOutDate</td>
+            </tr>
+        }
+    </tbody>
+</table>
+@code {
+    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _travelPackages = DbContext.TravelPackages
+           .Include(t => t.HotelStay) // Eager load hotelophold
+           .ToList();
+    }
+}

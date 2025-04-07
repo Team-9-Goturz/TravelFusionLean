@@ -46,10 +46,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Pages\CustomerPages\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleCreate.razor" />
     <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleList.razor" />
   </ItemGroup>

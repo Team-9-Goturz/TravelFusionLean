@@ -1,31 +1,32 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
-namespace Shared.Models;
-
-/// <summary>
-/// Repræsenterer en lufthavn med placering.
-/// Matcher databasen: dbo.Airport
-/// </summary>
-public class Airport
+namespace TravelFusionLean.Models
 {
-    [Key]
-    public int Id { get; set; }
 
-    [Required]
-    [StringLength(128)]
-    public string Country { get; set; }
+    /// <summary>
+    /// Repræsenterer en lufthavn med placering.
+    /// Matcher databasen: dbo.Airport
+    /// </summary>
+    public class Airport
+    {
+        [Key]
+        public int Id { get; set; }
 
-    [Required]
-    [StringLength(128)]
-    public string City { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string Country { get; set; }
 
-    [StringLength(128)]
-    public string? Address { get; set; }
+        [Required]
+        [StringLength(128)]
+        public string City { get; set; }
 
-    [Column(TypeName = "decimal(9,6)")]
-    public decimal Latitude { get; set; }
+        [StringLength(128)]
+        public string? Address { get; set; }
 
-    [Column(TypeName = "decimal(9,6)")]
-    public decimal Longitude { get; set; }
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal Latitude { get; set; }
+
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal Longitude { get; set; }
+    }
 }

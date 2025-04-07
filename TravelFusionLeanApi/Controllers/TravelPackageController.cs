@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ServiceContracts;
 using Shared.Models;
+using TravelFusionLean.Models;
 
 namespace TravelFusionLeanApi.Controllers
 {

@@ -2,6 +2,7 @@
 using Shared.Models;
 using Data;
 using ServiceContracts;
+using TravelFusionLean.Models;
 
 namespace ServiceImplementations;
 

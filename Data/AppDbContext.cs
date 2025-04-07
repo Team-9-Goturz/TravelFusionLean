@@ -10,8 +10,6 @@ namespace Data
     /// </summary>
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
-
-
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Airport> Airports { get; set; }
