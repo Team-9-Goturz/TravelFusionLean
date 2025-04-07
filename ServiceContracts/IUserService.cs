@@ -19,6 +19,7 @@ namespace ServiceContracts
 
         Task<bool> IsEmailValidAsync(string requestedPassword);
         public Task ResetPasswordAsync(int userId, string newPassword);
+        public Task<User?> AuthenticateUserAsync(string email, string password);
 
     }
 }

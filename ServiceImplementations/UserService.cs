@@ -122,5 +122,23 @@ namespace ServiceImplementations
         {
             throw new NotImplementedException();
         }
+
+        public async Task<User?> AuthenticateUserAsync(string email, string password)
+        {
+            var user = await _context.Users
+                .Include(u => u.UserRole)
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return null;
+
+            string attemptedHash = HashPasswordWithSaltAndPepper(password, user.PasswordSalt);
+
+            if (user.PasswordHash == attemptedHash)
+                return user;
+
+            return null;
+        }
+
     }
 }

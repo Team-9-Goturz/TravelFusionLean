@@ -1,28 +1,29 @@
 using Configuration;
 using Microsoft.EntityFrameworkCore;
-using ServiceContracts;
-using ServiceImplementations;
 using TravelFusionLean.Components;
-using TravelFusionLean.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Her henter vi connection string fra appsettings.json
+var configuration = builder.Configuration;
+
+
+/// <summary>
+/// Tilføjer Razor-komponenter (Blazor) med understøttelse for WebAssembly og Server-rendering.
+/// </summary>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IUserService, UserService>();
-
-builder.Services.ConfigureServices();
+// Tilføjer services og databasekonfiguration vha. vores fælles extension-metode
+builder.Services.ConfigureServices(configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+/// <summary>
+/// Konfigurerer middleware til udvikling og produktion.
+/// </summary>
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
@@ -35,14 +36,14 @@ else
 }
 
 app.UseHttpsRedirection();
-
-
 app.UseAntiforgery();
 
+/// <summary>
+/// Konfigurerer routing og rendering for Blazor-komponenter.
+/// </summary>
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(TravelFusionLean.Client._Imports).Assembly);
+    .AddInteractiveWebAssemblyRenderMode();
 
 app.Run();

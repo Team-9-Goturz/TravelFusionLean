@@ -1,0 +1,23 @@
+﻿.customer-navbar {
+    background-color: #0077cc;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+    .customer-navbar .brand {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .customer-navbar .links a {
+        color: white;
+        margin-left: 1rem;
+        text-decoration: none;
+    }
+
+        .customer-navbar .links a:hover {
+            text-decoration: underline;
+        }

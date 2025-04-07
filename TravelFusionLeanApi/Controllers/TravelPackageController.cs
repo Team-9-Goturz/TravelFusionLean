@@ -46,7 +46,7 @@ namespace TravelFusionLeanApi.Controllers
         [HttpPost]
         public async Task<ActionResult<TravelPackage>> AddAsync(TravelPackage travelPackage)
         {
-            if (travelPackage == null)
+            if (travelPackage is null)
                 return BadRequest("Input mangler.");
 
             var created = await _travelPackageService.AddAsync(travelPackage);

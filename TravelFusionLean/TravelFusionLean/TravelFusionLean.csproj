@@ -10,9 +10,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\..\Data\Data.csproj" />
     <ProjectReference Include="..\..\ServiceContracts\ServiceContracts.csproj" />
     <ProjectReference Include="..\..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\TravelFusionLean.Client\TravelFusionLean.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
@@ -27,31 +27,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Components\Layout\TopNavBar.css">
-      <DependentUpon>TopNavBar.razor</DependentUpon>
-    </None>
-    <None Update="Components\Layout\AdminLayout.css">
-      <DependentUpon>AdminLayout.razor</DependentUpon>
-    </None>
-    <None Update="Components\Pages\AdminPages\TravelPackageHotels.css">
+    <None Update="Components\Views\AdminViews\TravelPackages\TravelPackageHotels.css">
       <DependentUpon>TravelPackageHotels.razor</DependentUpon>
     </None>
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="Components\Pages\Admin\AdminHome.razor" />
-    <_ContentIncludedByDefault Remove="Components\Pages\Admin\CreateAdmin.razor" />
-    <_ContentIncludedByDefault Remove="Components\Pages\UserRoles\UserRoleCreate.razor" />
-    <_ContentIncludedByDefault Remove="Components\Pages\UserRoles\UserRoleList.razor" />
+    <_ContentIncludedByDefault Remove="Components\Views\Admin\AdminHome.razor" />
+    <_ContentIncludedByDefault Remove="Components\Views\Admin\CreateAdmin.razor" />
+    <_ContentIncludedByDefault Remove="Components\Views\UserRoles\UserRoleCreate.razor" />
+    <_ContentIncludedByDefault Remove="Components\Views\UserRoles\UserRoleList.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Pages\CustomerPages\" />
+    <AdditionalFiles Include="Components\Views\AdminViews\UserRoles\UserRoleCreate.razor" />
+    <AdditionalFiles Include="Components\Views\AdminViews\UserRoles\UserRoleList.razor" />
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleCreate.razor" />
-    <AdditionalFiles Include="Components\Pages\AdminPages\UserRoles\UserRoleList.razor" />
+    <Content Include="Components\Layout\Customer\TopNavBar.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\" />
   </ItemGroup>
 
 </Project>
