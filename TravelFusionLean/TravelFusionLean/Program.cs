@@ -1,5 +1,7 @@
 using Configuration;
 using Microsoft.EntityFrameworkCore;
+using ServiceContracts;
+using ServiceImplementations;
 using TravelFusionLean.Components;
 
 
@@ -16,8 +18,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
-// Tilføjer services og databasekonfiguration vha. vores fælles extension-metode
 builder.Services.ConfigureServices(configuration);
+builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
+builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
+
+
 
 var app = builder.Build();
 

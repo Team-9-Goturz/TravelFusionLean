@@ -1,8 +1,8 @@
 @page "/travel-package-flights"
+@inject ServiceContracts.IFlightApiService FlightApiService
 @using TravelFusionLean.Components.Layout.Admin
 @layout AdminLayout
 
-@* Import Bootstrap *@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="css/CustomColors.css" rel="stylesheet" />
@@ -35,50 +35,88 @@
         </div>
     </div>
 
-    <!-- Muligheder for at vælge billig, hurtig eller bedst (kombination) VIRKER IKKE ENDNU -->
-<ul class="nav nav-tabs">
-    <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#fastest" role="tab">Fastest</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#cheapest" role="tab">Cheapest</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#best" role="tab">Best</a>
-    </li>
-</ul>
+    <!-- Tabs for fastest / cheapest / best -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#fastest" role="tab">Fastest</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#cheapest" role="tab">Cheapest</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#best" role="tab">Best</a>
+        </li>
+    </ul>
 
-<div class="tab-content">
-    <div id="fastest" class="tab-pane fade show active p-3">
-        <div class="d-flex justify-content-between border p-2">
-            <div><strong>KLM</strong> 07:50 [Departure] → 11:45+1 [Destination] (1 stop AMS)</div>
-            <button class="btn btn-primary">Select</button>
+    <div class="tab-content">
+        <div id="fastest" class="tab-pane fade show active p-3">
+            @if (flights == null)
+            {
+                <p><em>Loading flights...</em></p>
+            }
+            else if (!flights.Any())
+            {
+                <p>No flights found.</p>
+            }
+            else
+            {
+                @foreach (var flight in flights)
+                {
+                    <div class="d-flex justify-content-between border p-2 mb-2">
+                        <div>
+                            <strong>@flight.Airline</strong> @flight.DepartureTime.ToString("HH:mm") [@flight.DepartureFromAirport?.Name] →
+                            @flight.ArrivalTime.ToString("HH:mm") [@flight.ArrivalAtAirport?.Name] -
+                            @flight.Price @flight.Currency?.Symbol
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectFlight(flight)">Select</button>
+                    </div>
+                }
+            }
+        </div>
+
+        <div id="cheapest" class="tab-pane fade p-3">
+            <p>Filtering logic not implemented yet.</p>
+        </div>
+        <div id="best" class="tab-pane fade p-3">
+            <p>Filtering logic not implemented yet.</p>
         </div>
     </div>
-    <div id="cheapest" class="tab-pane fade p-3">
-        <div class="d-flex justify-content-between border p-2">
-            <div><strong>KLM</strong> 07:50 [Departure] → 11:45+1 [Destination] (1 stop AMS) - 50 euros</div>
-            <button class="btn btn-primary">Select</button>
-        </div>
-    </div>
-    <div id="best" class="tab-pane fade p-3">
-        <div class="d-flex justify-content-between border p-2">
-            <div><strong>Qatar Airways</strong> 15:05 [Departure] → 17:55+1 [Destination] (1 stop DOH) - 500 euros</div>
-            <button class="btn btn-primary">Select</button>
-        </div>
-    </div>
-</div>
-
-
 
     <!-- Selected Flight Summary -->
-    <div class="card mt-3 p-3">
-        <h5>Flight</h5>
-        <p>FROM [Departure] TO [Destination] - [Dates] WITH [Airline] FLIGHT NUMBER [FlightNumber]</p>
-        <p><strong>Total: [Price] euros</strong></p>
-        <button class="btn btn-primary">Choose Flight</button> 
-    </div>
+    @if (selectedFlight != null)
+    {
+        <div class="card mt-3 p-3">
+            <h5>Flight</h5>
+            <p>
+                FROM <strong>@selectedFlight.DepartureFromAirport?.Name</strong>
+                TO <strong>@selectedFlight.ArrivalAtAirport?.Name</strong><br />
+                Departure: @selectedFlight.DepartureTime.ToString("g") | Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
+                Airline: @selectedFlight.Airline | Flight #: @selectedFlight.FlightNumber
+            </p>
+            <p><strong>Total: @selectedFlight.Price @selectedFlight.Currency?.Symbol</strong></p>
+            <button class="btn btn-primary">Choose Flight</button>
+        </div>
+    }
 </div>
 
-@* Include Bootstrap JS *@
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@code {
+    private List<Shared.Models.Flight>? flights;
+    private Shared.Models.Flight? selectedFlight;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            flights = (await FlightApiService.GetAllFlightsAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("Error loading flights: " + ex.Message);
+        }
+    }
+
+    private void SelectFlight(Shared.Models.Flight flight)
+    {
+        selectedFlight = flight;
+    }
+}
