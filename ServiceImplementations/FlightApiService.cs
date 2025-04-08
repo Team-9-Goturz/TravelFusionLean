@@ -1,7 +1,7 @@
 ﻿using ServiceContracts;
 using Shared.Models;
 using System.Net.Http.Json;
-using Shared.Dtos;
+using ServiceImplementations.Dtos;
 
 namespace ServiceImplementations;
 
@@ -14,8 +14,14 @@ public class FlightApiService(HttpClient httpClient) : IFlightApiService
 
     public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<Flight>>("https://localhost:7274");
-        return response ?? new List<Flight>();
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightDto>>("https://localhost:7274");
+        var flights = new List<Flight>();
+        if (response == null) return flights;
+        foreach (var flight in response)
+        {
+            flights.Add(Mappers.FlightMapper.MapToModel(flight.Data.FirstOrDefault()));
+        }
+        return flights;
     }
 
     public async Task<Flight?> GetFlightByIdAsync(int id)
