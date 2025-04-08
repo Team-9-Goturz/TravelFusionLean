@@ -1,5 +1,4 @@
 ﻿using ServiceContracts;
-using Dtos;
 using Shared.Models;
 using System.Net.Http.Json;
 using Shared.Dtos;
@@ -15,12 +14,12 @@ public class FlightApiService(HttpClient httpClient) : IFlightApiService
 
     public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<Flight>>("https://localhost:7274/api/flight");
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<Flight>>("https://localhost:7274");
         return response ?? new List<Flight>();
     }
 
     public async Task<Flight?> GetFlightByIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Flight>($"https://localhost:7274/api/flight/{id}");
+        return await _httpClient.GetFromJsonAsync<Flight>($"https://localhost:7274/api/Flights/{id}");
     }
 }

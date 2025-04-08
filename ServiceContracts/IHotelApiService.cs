@@ -1,4 +1,4 @@
-﻿using Shared.Dtos;
+﻿using Shared.Models;
 
 namespace ServiceContracts;
 
@@ -10,10 +10,10 @@ public interface IHotelApiService
     /// <summary>
     /// Henter alle hoteller fra API'et.
     /// </summary>
-    Task<IEnumerable<HotelDto>> GetAllHotelsAsync();
+    Task<IEnumerable<Hotel>> GetAllHotelsAsync();
 
     /// <summary>
     /// Henter et specifikt hotel baseret på ID.
     /// </summary>
-    Task<HotelDto?> GetHotelByIdAsync(int id);
+    Task<Hotel?> GetHotelByIdAsync(int id);
 }
