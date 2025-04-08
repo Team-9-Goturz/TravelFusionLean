@@ -1,28 +1,43 @@
-﻿using Shared.Dtos;
-using TravelFusionLeanApi.Models; // Hvis dine FlightData-klasser ligger her
+﻿using ServiceImplementations.Dtos;
+using Shared.Models;
 
+namespace ServiceImplementations.Mappers;
+
+/// <summary>
+/// Mapper FlightData (fra MockFlightsAPI) til Flight model (EF Core).
+/// </summary>
 public static class FlightMapper
 {
-    public static FlightDto ToDto(FlightData data)
+    public static Flight MapToModel(FlightData dto)
     {
-        return new FlightDto
+        return new Flight
         {
-            FlightNumber = data.Flight.Number,
-            AirlineName = data.Airline.Name,
-            ClassType = data.Price.ClassType,
-            Price = data.Price.Amount,
-            Currency = data.Price.Currency,
-            DepartureTime = DateTime.Parse(data.Departure.Scheduled),
-            ArrivalTime = DateTime.Parse(data.Arrival.Scheduled),
-            DepartureAirportCity = data.Departure.Airport,
-            DepartureAirportCountry = "DK", // Mock data har ikke land - evt. hardcodet
-            DepartureLatitude = 0, // Hvis ikke givet i mock
-            DepartureLongitude = 0,
-            ArrivalAirportCity = data.Arrival.Airport,
-            ArrivalAirportCountry = "FR", // eksempel
-            ArrivalLatitude = 0,
-            ArrivalLongitude = 0,
-            SeatsAvailable = 100 // eksempelværdi
+            Airline = dto.Airline?.Name ?? "Unknown",
+            ClassType = dto.Price?.ClassType,
+            Price = dto.Price?.Amount ?? 0,
+            SeatsAvailable = 100, // Mockværdi
+
+            DepartureTime = DateTime.TryParse(dto.Departure?.Scheduled, out var depTime) ? depTime : DateTime.MinValue,
+            ArrivalTime = DateTime.TryParse(dto.Arrival?.Scheduled, out var arrTime) ? arrTime : DateTime.MinValue,
+
+            DepartureFromAirport = new Airport
+            {
+                City = dto.Departure?.Airport ?? "Unknown",
+                Country = "Unknown",
+                Latitude = 0,
+                Longitude = 0
+            },
+            ArrivalAtAirport = new Airport
+            {
+                City = dto.Arrival?.Airport ?? "Unknown",
+                Country = "Unknown",
+                Latitude = 0,
+                Longitude = 0
+            },
+            Currency = new Currency
+            {
+                Name = dto.Price?.Currency ?? "EUR"
+            }
         };
     }
 }

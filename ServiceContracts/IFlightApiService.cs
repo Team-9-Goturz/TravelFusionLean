@@ -1,4 +1,4 @@
-﻿using Shared.Dtos;
+﻿using Shared.Models;
 
 namespace ServiceContracts
 {
@@ -7,7 +7,7 @@ namespace ServiceContracts
     /// </summary>
     public interface IFlightApiService
     {
-        Task<IEnumerable<FlightDto>> GetAllFlightsAsync();
-        Task<FlightDto?> GetFlightByIdAsync(int id);
+        Task<IEnumerable<Flight>> GetAllFlightsAsync();
+        Task<Flight?> GetFlightByIdAsync(int id);
     }
 }
