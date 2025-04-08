@@ -1,6 +1,7 @@
 @page "/travel-package-flights"
 @inject ServiceContracts.IFlightApiService FlightApiService
 @using TravelFusionLean.Components.Layout.Admin
+@using Shared.Dtos
 @layout AdminLayout
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
@@ -64,9 +65,10 @@
                 {
                     <div class="d-flex justify-content-between border p-2 mb-2">
                         <div>
-                            <strong>@flight.Airline</strong> @flight.DepartureTime.ToString("HH:mm") [@flight.DepartureFromAirport?.Name] →
-                            @flight.ArrivalTime.ToString("HH:mm") [@flight.ArrivalAtAirport?.Name] -
-                            @flight.Price @flight.Currency?.Symbol
+                            <strong>@flight.Airline</strong>
+                            @flight.DepartureTime.ToString("HH:mm") [@flight.DepartureFromAirport?.City] →
+                            @flight.ArrivalTime.ToString("HH:mm") [@flight.ArrivalAtAirport?.City] –
+                            @flight.Price.ToString("0.00") @flight.Currency?.Symbol
                         </div>
                         <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectFlight(flight)">Select</button>
                     </div>
@@ -88,20 +90,22 @@
         <div class="card mt-3 p-3">
             <h5>Flight</h5>
             <p>
-                FROM <strong>@selectedFlight.DepartureFromAirport?.Name</strong>
-                TO <strong>@selectedFlight.ArrivalAtAirport?.Name</strong><br />
-                Departure: @selectedFlight.DepartureTime.ToString("g") | Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
-                Airline: @selectedFlight.Airline | Flight #: @selectedFlight.FlightNumber
+                FROM <strong>@selectedFlight.DepartureFromAirport?.City</strong>
+                TO <strong>@selectedFlight.ArrivalAtAirport?.City</strong><br />
+                Departure: @selectedFlight.DepartureTime.ToString("g") |
+                Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
+                Airline: @selectedFlight.Airline |
+                Flight #: @selectedFlight.FlightNumber
             </p>
-            <p><strong>Total: @selectedFlight.Price @selectedFlight.Currency?.Symbol</strong></p>
+            <p><strong>Total: @selectedFlight.Price.ToString("0.00") @selectedFlight.Currency?.Symbol</strong></p>
             <button class="btn btn-primary">Choose Flight</button>
         </div>
     }
 </div>
 
 @code {
-    private List<Shared.Models.Flight>? flights;
-    private Shared.Models.Flight? selectedFlight;
+    private List<FlightDto>? flights;
+    private FlightDto? selectedFlight;
 
     protected override async Task OnInitializedAsync()
     {
@@ -115,7 +119,7 @@
         }
     }
 
-    private void SelectFlight(Shared.Models.Flight flight)
+    private void SelectFlight(FlightDto flight)
     {
         selectedFlight = flight;
     }

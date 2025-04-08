@@ -1,27 +1,25 @@
 ﻿using ServiceContracts;
+using Dtos;
 using Shared.Models;
 using System.Net.Http.Json;
 
-namespace ServiceImplementations
+namespace ServiceImplementations;
+
+/// <summary>
+/// Service der kommunikerer med TravelFusionLeanApi for at hente flydata som DTO’er.
+/// </summary>
+public class FlightApiService(HttpClient httpClient) : IFlightApiService
 {
-    /// <summary>
-    /// Service der kommunikerer med TravelFusionLeanApi for at hente flydata.
-    /// </summary>
-    public class FlightApiService(HttpClient httpClient) : IFlightApiService
+    private readonly HttpClient _httpClient = httpClient;
+
+    public async Task<IEnumerable<FlightDto>> GetAllFlightsAsync()
     {
-        private readonly HttpClient _httpClient = httpClient;
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightDto>>("https://localhost:7274/api/flight");
+        return response ?? new List<FlightDto>();
+    }
 
-        /// <inheritdoc />
-        public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
-        {
-            var response = await _httpClient.GetFromJsonAsync<IEnumerable<Flight>>("https://localhost:7274/api/flight");
-            return response ?? new List<Flight>();
-        }
-
-        /// <inheritdoc />
-        public async Task<Flight?> GetFlightByIdAsync(int id)
-        {
-            return await _httpClient.GetFromJsonAsync<Flight>($"https://localhost:7274/api/flight/{id}");
-        }
+    public async Task<FlightDto?> GetFlightByIdAsync(int id)
+    {
+        return await _httpClient.GetFromJsonAsync<FlightDto>($"https://localhost:7274/api/flight/{id}");
     }
 }

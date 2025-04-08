@@ -1,13 +1,19 @@
-﻿using Shared.Models;
+﻿using Shared.Dtos;
 
-namespace ServiceContracts
+namespace ServiceContracts;
+
+/// <summary>
+/// Interface for API-service til at hente hoteldata fra TravelFusionLeanApi.
+/// </summary>
+public interface IHotelApiService
 {
     /// <summary>
-    /// Interface til kommunikation med eksternt Hotel API.
+    /// Henter alle hoteller fra API'et.
     /// </summary>
-    public interface IHotelApiService
-    {
-        Task<IEnumerable<Hotel>> GetAllHotelsAsync();
-        Task<Hotel?> GetHotelByIdAsync(int id);
-    }
+    Task<IEnumerable<HotelDto>> GetAllHotelsAsync();
+
+    /// <summary>
+    /// Henter et specifikt hotel baseret på ID.
+    /// </summary>
+    Task<HotelDto?> GetHotelByIdAsync(int id);
 }

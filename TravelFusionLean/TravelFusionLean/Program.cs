@@ -19,8 +19,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.ConfigureServices(configuration);
-builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
+builder.Services.AddHttpClient<IFlightApiService, FlightApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7274");
+});
 builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
+builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
 
 
 
