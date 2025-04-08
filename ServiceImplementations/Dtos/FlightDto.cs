@@ -1,8 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-
-namespace ServiceImplementations.Dtos;
-
 /// <summary>
 /// Data transfer object (Dto) for flydata, tilpasset strukturen fra MockFlightsAPI.
 /// </summary>
@@ -101,5 +98,4 @@ public class FlightDto
     [JsonPropertyName("data")]
     public List<FlightData> Data { get; set; }
 }
-
 

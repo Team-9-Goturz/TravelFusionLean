@@ -9,11 +9,11 @@ namespace TravelFusionLeanApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class HotelController : ControllerBase
+    public class HotelsController : ControllerBase
     {
         private readonly IHotelService _hotelService;
 
-        public HotelController(IHotelService hotelService)
+        public HotelsController(IHotelService hotelService)
         {
             _hotelService = hotelService;
         }

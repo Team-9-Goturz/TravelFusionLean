@@ -10,11 +10,11 @@ namespace TravelFusionLeanApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class FlightController : ControllerBase
+    public class FlightsController : ControllerBase
     {
         private readonly IFlightService _flightService;
 
-        public FlightController(IFlightService flightService)
+        public FlightsController(IFlightService flightService)
         {
             _flightService = flightService;
         }

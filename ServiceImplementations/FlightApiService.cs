@@ -14,18 +14,18 @@ public class FlightApiService(HttpClient httpClient) : IFlightApiService
 
     public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightDto>>("https://localhost:7274");
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightData>>("https://localhost:7274/api/flights");
         var flights = new List<Flight>();
         if (response == null) return flights;
-        foreach (var flight in response)
+        foreach (var flightData in response)
         {
-            flights.Add(Mappers.FlightMapper.MapToModel(flight.Data.FirstOrDefault()));
+            flights.Add(Mappers.FlightMapper.MapToModel(flightData));
         }
         return flights;
     }
 
     public async Task<Flight?> GetFlightByIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Flight>($"https://localhost:7274/api/Flights/{id}");
+        return await _httpClient.GetFromJsonAsync<Flight>($"https://localhost:7274/api/flights/{id}");
     }
 }

@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
 using TravelFusionLeanApi.Services;
-using Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,9 +46,6 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7121/");
 });
-
-/// Brug fælles konfigurationsmetode med connection string fra appsettings.json
-builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
