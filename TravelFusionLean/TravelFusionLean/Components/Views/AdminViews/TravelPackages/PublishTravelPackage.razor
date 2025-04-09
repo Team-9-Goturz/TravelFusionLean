@@ -1,0 +1,153 @@
+﻿@inject ITravelPackageService TravelPackageService
+@page "/publish-travel-package"
+@using Shared.Models
+@using TravelFusionLean.Components.Layout.Admin
+@layout AdminLayout
+
+<!-- Bootstrap og egen CSS til styling -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link href="css/CustomColors.css" rel="stylesheet" />
+
+
+<div class="container mt-4">
+    <h2 class="text-center">Create Travel Package</h2>
+</div>
+
+<!--Kolonne for udfyldning af information om 'travelpackage' -->
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <EditForm Model="travelpackage" OnValidSubmit="handleSaveProduct" id="travelPackageForm">
+                <DataAnnotationsValidator />
+                @* Aktiverer validering fra f.eks. [Required], [StringLength], osv. i modellen *@
+                <ValidationSummary />
+                @* Viser oversigt over alle fejl i formularen *@
+
+                <div class="card shadow-sm">
+                    <div class="card-header fw-bold">Add Travel Package</div>
+                    <div class="card-body">
+                        <!-- Overskrift -->
+                        <div class="mb-3">
+                            <label class="form-label">Headline</label>
+                            <InputText @bind-Value="travelpackage.Headline" class="form-control" />
+                        </div>
+
+                        <!-- Antal rejsende -->
+                        <div class="mb-3">
+                            <label class="form-label">Number of travellers</label>
+                            <InputNumber @bind-Value="travelpackage.NoOfTravellers" class="form-control" min="0" />
+                        </div>
+
+                        <!-- Pris -->
+                        <div class="mb-3">
+                            <label class="form-label">Price</label>
+                            <InputNumber @bind-Value="travelpackage.Price" class="form-control" min="0" />
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <InputTextArea @bind-Value="travelpackage.Description" class="form-control" rows="4" />
+                        </div>
+
+                        <!-- Upload billede (kun png tilladt) -->
+                        <div class="mb-3">
+                            <label class="form-label @(string.IsNullOrEmpty(ImageUploadMessage) ? "" : "text-danger")">
+                                @(string.IsNullOrEmpty(ImageUploadMessage) ? "Upload Image" : ImageUploadMessage)
+                            </label>
+                            <InputFile class="form-control" OnChange="UploadImage" />
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+
+        <!-- Viser flyinformation -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold">Selected Flight</div>
+                <div class="card-body">
+                    <p><strong>Price:</strong> @travelpackage.Flight.Price</p>
+                    <p><strong>Airline:</strong> @travelpackage.Flight.Airline</p>
+                    <p><strong>Class Type:</strong> @travelpackage.Flight.ClassType</p>
+                    <p><strong>Depature from:</strong> @travelpackage.Flight.DepartureFromAirport</p>
+                    <p><strong>Arrival to:</strong> @travelpackage.Flight.ArrivalAtAirport</p>
+                    <p><strong>Departure time:</strong> @travelpackage.Flight.DepartureTime</p>
+                    <p><strong>Arrival Time:</strong> @travelpackage.Flight.ArrivalTime</p>
+                </div>
+            </div>
+
+            <!-- Hotelinformation -->
+            <div class="card shadow-sm">
+                <div class="card-header fw-bold">Selected Hotel</div>
+                <div class="card-body">
+                    <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
+                    <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
+                    <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
+                    <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
+                    <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
+                    <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Knap for publish travel package -->
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-end">
+        @if (ShowSaveButton)
+        {
+            <button type="submit" form="travelPackageForm" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Publish travel package
+            </button>
+        }
+    </div>
+</div>
+
+
+<!-- Codebihind for at binde fly og hotel data er endnu ikke implementeret -->
+@code {
+    TravelPackage travelpackage = new()
+        {
+            Flight = new Flight(),       
+            HotelStay = new HotelStay()
+        };
+
+    // Kører når formularen valideres og sendes
+    async Task handleSaveProduct()
+    {
+        await TravelPackageService.AddAsync(travelpackage);
+    }
+
+    // Gemmer statusbesked for upload
+    string ImageUploadMessage = "";
+
+    // Kaldes når brugeren vælger en fil (kun PNG tilladt)
+    async Task UploadImage(InputFileChangeEventArgs e)
+    {
+        if (e.File.Name.ToLower().Contains(".png"))
+        {
+            var format = "image/png";
+            var resizeImage = await e.File.RequestImageFileAsync(format, 300, 300);
+            var buffer = new byte[resizeImage.Size];
+            await resizeImage.OpenReadStream().ReadAsync(buffer);
+            var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+            ImageUploadMessage = ""; //fejlbesked
+            travelpackage.Base64 = imageData; // Gem billede i pakken
+            imageData = "";
+            return;
+        }
+
+        ImageUploadMessage = "PNG file needed.";
+        return;
+    }
+
+    // Arbejder på at lave en loading knap, så når data gemmes, så viser den en loading knap indtil det er gemt. ikke færdig endnu
+    // Bestemmer om busy-knappen skal vises (f.eks. loading spinner)og om “Gem”-knappen skal vises
+    public bool ShowBusyButton { get; set; }
+    public bool ShowSaveButton { get; set; } = true;
+}
