@@ -1,0 +1,76 @@
+﻿@page "/Travelpackage-Browse"
+@using TravelFusionLean.Components.Layout.Customer
+@layout CustomerLayout
+
+@using Microsoft.EntityFrameworkCore
+@using Shared.Models
+@using Data
+@inject AppDbContext DbContext
+
+<h3>BrowserTravelPackage</h3>
+
+@code
+{
+    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
+        _travelPackages = LoadTravelPackages();
+    }
+
+    private List<TravelPackage> LoadTravelPackages()
+    {
+        return DbContext.TravelPackages.Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+        .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+        .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport) //Eager load indrejse fly og lufthavn
+        .ToList(); //populere Blazor komponentens liste med Travelpackages
+    }
+}
+
+@foreach (var package in _travelPackages)
+{
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <!-- Billede - Brug placeholder hvis der ikke findes billede -->
+            <img src="@(!string.IsNullOrEmpty(package.Base64) ? package.Base64 : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
+
+            <div class="card-body">
+                <h5 class="card-title">@package.Headline</h5>
+                <p class="card-text">@package.Description</p>
+                <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
+
+                <h6>Fly (Udrejse)</h6>
+                <p>
+                    @package.OutboundFlight?.DepartureFromAirport.Name <br />
+                    @package.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm") <br />
+                    @package.OutboundFlight?.Airline
+                </p>
+
+                <h6>Hotel</h6>
+                <p>
+                    @package.HotelStay.CheckInDate.ToString("d") - @package.HotelStay.CheckOutDate.ToString("d") <br />
+                    @package.HotelStay.Hotel.Name
+                </p>
+
+                <h6>Fly (Hjemrejse)</h6>
+                <p>
+                    @package.InboundFlight?.DepartureFromAirport.Name <br />
+                    @package.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm") <br />
+                    @package.InboundFlight?.Airline
+                </p>
+
+                <p><strong>Pris:</strong> @package.Price</p>
+
+                <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Show more</a>
+
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+
+}
