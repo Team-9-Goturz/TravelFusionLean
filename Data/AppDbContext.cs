@@ -105,28 +105,32 @@ namespace Data
 
             modelBuilder.Entity<TravelPackage>(entity =>
             {
-                entity.ToTable("TravelPackage");
-                entity.HasKey(tp => tp.Id);
+                entity.ToTable("TravelPackage"); //Fortæller Entity framework at Travelpackage modellen skal mappes ned i en tabel kaldet "TravelPackage" i databasen 
+                entity.HasKey(tp => tp.Id); // Fortæller Entity Framework at Id kolonnen i databasen er primærnøgle 
 
-                entity.HasOne(tp => tp.OutboundFlight)
-                      .WithMany()
-                      .HasForeignKey(tp => tp.OutboundFlightId);
+                entity.Property(tp => tp.Price).IsRequired(); //Fortæller Entity framework vi har en price kolonne der IKKE kan være null
 
-                entity.HasOne(tp => tp.InboundFlight)
-                      .WithMany()
-                      .HasForeignKey(tp => tp.InboundFlightId);
+                entity.Property(tp => tp.Description).HasMaxLength(600); //fortæller Entity framework vores description kolonne maks kan være 600 tegn
 
-                entity.HasOne(tp => tp.HotelStay)
-                      .WithMany()
-                      .HasForeignKey(tp => tp.HotelStayId);
+                entity.HasOne(tp => tp.OutboundFlight) //Fortæller Entity framework at hver travelpackage har et udrejsefly 
+                      .WithMany() // fortæller Entity framework at et udrejsefly kan være tilknyttet mange rejsepakker
+                      .HasForeignKey(tp => tp.OutboundFlightId); //fortæller at outboundflightId kolonnen i tabellen er en fremmednøgle 
 
-                entity.HasOne(tp => tp.ToHotelTransfer)
-                      .WithMany()
-                      .HasForeignKey(tp => tp.ToHotelTransferId);
+                entity.HasOne(tp => tp.InboundFlight) //en rejsepakke har et hjemrejsefly
+                      .WithMany() // et hjemrejsefly kan optræde på flere rejsepakker
+                      .HasForeignKey(tp => tp.InboundFlightId); //InboundFlightId er en fremmednøgle 
 
-                entity.HasOne(tp => tp.FromHotelTransfer)
-                      .WithMany()
-                      .HasForeignKey(tp => tp.FromHotelTransferId);
+                entity.HasOne(tp => tp.HotelStay) // en rejsepakke har et hotelophold
+                      .WithMany() //et hotelophold kan optræde på flere rejsepakker
+                      .HasForeignKey(tp => tp.HotelStayId); //HotelStayId er en fremmednøgle 
+
+                entity.HasOne(tp => tp.ToHotelTransfer) // en rejsepakke indeholder en transport fra lufthavnen til hotellet (i forbindelse med udrejse) 
+                      .WithMany() //en transport fra lufthavn til hotel kan optræde på mange rejsepakker
+                      .HasForeignKey(tp => tp.ToHotelTransferId); //ToHotelTransferId er en fremmednøgle
+
+                entity.HasOne(tp => tp.FromHotelTransfer) //En rejsepakke indeholder en transport fra hotellet til lufthavnen (i forbindelse med hjemrejse)
+                      .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
+                      .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
             });
         }
     }

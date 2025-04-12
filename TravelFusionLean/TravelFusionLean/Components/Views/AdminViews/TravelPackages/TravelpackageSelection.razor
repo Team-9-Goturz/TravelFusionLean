@@ -1,0 +1,94 @@
+﻿@page "/TravelPackageSelection"
+
+@using Microsoft.EntityFrameworkCore
+@using Shared.Models
+@using Data
+@inject AppDbContext DbContext
+
+@layout AdminLayout
+@rendermode InteractiveServer
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Components.Layout.Admin
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Travelpackages</h3>
+    <a class="btn btn-success" href="/travel-package-flights">
+        <i class="bi bi-person-plus me-1"></i> Opret rejsepakke
+    </a>
+</div>
+
+@code 
+{
+    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
+        _travelPackages = DbContext.TravelPackages.Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+        .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+        .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport) //Eager load indrejse fly og lufthavn
+        .ToList(); //populere Blazor komponentens liste med Travelpackages 
+    }
+}
+
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>beskrivelse</th>
+            <th>Antal Rejsende</th>
+            <th>Fly (udrejse)</th>
+            <th>Hotel</th>
+            <th>Fly (hjemrejse)</th>
+            <th>Pris</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var package in _travelPackages)
+        {
+            <tr>
+                <td>
+                    <strong>@package.Headline</strong><br />
+                    @package.Description
+                </td>
+                <td>@package.NoOfTravellers</td>
+                <td>
+                    @package.OutboundFlight?.DepartureFromAirport.Name <br />
+                    @package.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @package.OutboundFlight?.Airline
+                </td>
+                <td>
+                    @package.HotelStay.CheckInDate.ToString("d") <br />
+                    @package.HotelStay.CheckOutDate.ToString("d") <br />
+                    @package.HotelStay.Hotel.Name <br />
+                </td>
+                <td>
+                    @package.InboundFlight?.DepartureFromAirport.Name <br />
+                    @package.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @package.InboundFlight?.Airline<br />
+                    <br />
+                </td>
+                <td>@package.Price</td>
+                <td>
+                    <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Vis</a>
+                    <a class="btn btn-sm btn-primary me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackage(package.Id))">Slet</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private void DeleteTravelPackage(int Id)
+    {
+        var travelPackage = _travelPackages.FirstOrDefault(tp => tp.Id == Id);
+        if (travelPackage is not null)
+        {
+            DbContext.TravelPackages.Remove(travelPackage);
+            DbContext.SaveChanges();
+
+            _travelPackages.Remove(travelPackage);
+        }
+    }
+}

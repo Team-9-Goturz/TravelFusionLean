@@ -12,9 +12,9 @@
 @code {
     private List<User> _users = new List<User>();
 
-    protected override void OnInitialized()
+    protected override void OnInitialized() 
     {
-        base.OnInitialized();
+        base.OnInitialized(); 
         _users = DbContext.Users
            .Include(u => u.UserRole) // Eager load rollen
            .Include(u => u.Contact)
