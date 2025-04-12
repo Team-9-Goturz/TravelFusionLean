@@ -7,27 +7,42 @@ using ServiceImplementations.Mappers;
 namespace ServiceImplementations;
 
 /// <summary>
-/// Service der kommunikerer med TravelFusionLeanApi for at hente hoteldata.
+/// Service der henter hoteldata fra TravelFusionLeanApi via HTTP.
 /// </summary>
 public class HotelApiService(HttpClient httpClient) : IHotelApiService
 {
     private readonly HttpClient _httpClient = httpClient;
 
-    public async Task<IEnumerable<Hotel>> GetAllHotelsAsync()
+    public async Task<IEnumerable<HotelStay>> GetAllHotelStaysAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelDto>>("https://localhost:7274/api/hotel");
-        var hotels = new List<Hotel>();
-        if (response == null) return hotels;
-        foreach (var hotelDto in response.ToList().FirstOrDefault().Data)
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelData>>("https://localhost:7274/api/hotels");
+
+        var hotelStays = new List<HotelStay>();
+        if (response == null) return hotelStays;
+
+        foreach (var hotelData in response)
         {
-            hotels.Add(HotelMapper.MapToModel(hotelDto));
+            var currency = new Currency
+            {
+                Name = hotelData.Price?.Currency ?? "DKK"
+            };
+
+            hotelStays.Add(HotelMapper.MapToHotelStay(hotelData, currency));
         }
 
-        return hotels;
+        return hotelStays;
     }
 
-    public async Task<Hotel?> GetHotelByIdAsync(int id)
+    public async Task<HotelStay?> GetHotelStayByIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Hotel>($"https://localhost:7274/api/hotel/{id}");
+        var hotelData = await _httpClient.GetFromJsonAsync<HotelData>($"https://localhost:7274/api/hotels/{id}");
+        if (hotelData == null) return null;
+
+        var currency = new Currency
+        {
+            Name = hotelData.Price?.Currency ?? "DKK"
+        };
+
+        return HotelMapper.MapToHotelStay(hotelData, currency);
     }
 }
