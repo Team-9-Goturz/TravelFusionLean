@@ -1,4 +1,4 @@
-﻿@page "/TravelPackageSelection"
+﻿@page "/TravelPackageList"
 
 @using Microsoft.EntityFrameworkCore
 @using Shared.Models
@@ -17,6 +17,47 @@
     </a>
 </div>
 
+@code {
+    private string destinationSearch;
+    private DateOnly startDateSearch;
+    private decimal priceFromSearch = 0;
+    private decimal priceToSearch = 10000;
+
+    private void SearchTravelPackages()
+    {
+        _travelPackages = LoadTravelPackages();
+        _travelPackages = _travelPackages
+            .Where(tp =>
+                (string.IsNullOrEmpty(destinationSearch) ||
+                    tp.HotelStay.Hotel.Address.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase) ||
+                    tp.InboundFlight.DepartureFromAirport.Country.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase) ||
+                    tp.InboundFlight.DepartureFromAirport.City.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase))
+                &&
+               DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= startDateSearch
+                &&
+                tp.Price >= priceFromSearch
+                &&
+                tp.Price <= priceToSearch
+            )
+            .ToList();
+    }
+
+}
+<div>
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination" @bind="destinationSearch" placeholder="Search by destination..." />
+
+    <label for="dateFrom">From Date:</label>
+    <input type="date" id="dateFrom" @bind="startDateSearch" />
+
+    <label for="priceRange">Price Range:</label>
+    <input type="number" id="priceFrom" @bind="priceFromSearch" placeholder="From" />
+    <input type="number" id="priceTo" @bind="priceToSearch" placeholder="To" />
+
+    <button @onclick="SearchTravelPackages">Search</button>
+</div>
+<br />
+
 @code 
 {
     private List<TravelPackage> _travelPackages = new List<TravelPackage>();
@@ -24,10 +65,15 @@
     protected override void OnInitialized()
     {
         base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
-        _travelPackages = DbContext.TravelPackages.Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
-        .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
-        .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport) //Eager load indrejse fly og lufthavn
-        .ToList(); //populere Blazor komponentens liste med Travelpackages 
+        _travelPackages = LoadTravelPackages();
+    }
+
+    private List<TravelPackage> LoadTravelPackages()
+    {
+       return DbContext.TravelPackages.Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+       .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+       .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport) //Eager load indrejse fly og lufthavn
+       .ToList(); //populere Blazor komponentens liste med Travelpackages
     }
 }
 
