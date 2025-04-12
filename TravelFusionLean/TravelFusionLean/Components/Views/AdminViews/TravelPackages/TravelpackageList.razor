@@ -23,7 +23,9 @@
     private decimal priceFromSearch = 0;
     private decimal priceToSearch = 10000;
 
-    private void SearchTravelPackages()
+    private string noResultsMessage = "";
+
+    private void SearchTravelPackages() //TODO tilføj by og land på hotellet
     {
         _travelPackages = LoadTravelPackages();
         _travelPackages = _travelPackages
@@ -40,6 +42,15 @@
                 tp.Price <= priceToSearch
             )
             .ToList();
+
+        if (_travelPackages.Count == 0)
+        {
+            noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
+        }
+        else
+        {
+            noResultsMessage = ""; // Hvis der er fundet resultater, nulstil beskeden
+        }
     }
 
 }
@@ -77,6 +88,11 @@
     }
 }
 
+@if (!string.IsNullOrEmpty(noResultsMessage))
+{
+    <p>@noResultsMessage</p>
+}
+else{
 
 <table border="1">
     <thead>
@@ -124,6 +140,7 @@
         }
     </tbody>
 </table>
+}
 
 @code {
     private void DeleteTravelPackage(int Id)
