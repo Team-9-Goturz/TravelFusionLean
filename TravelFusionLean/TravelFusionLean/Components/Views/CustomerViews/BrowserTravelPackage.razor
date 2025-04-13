@@ -1,76 +1,119 @@
 ﻿@page "/Travelpackage-Browse"
 @using TravelFusionLean.Components.Layout.Customer
 @layout CustomerLayout
+@rendermode InteractiveServer
 
 @using Microsoft.EntityFrameworkCore
 @using Shared.Models
 @using Data
+@using ServiceImplementations;
 @inject AppDbContext DbContext
+@inject ITravelPackageService travelPackageService
 
 <h3>BrowserTravelPackage</h3>
+
+<div>
+    <label for="destination">Destination:</label>
+    <input type="text" id="destination" @bind="destinationSearch" placeholder="Search by destination..." />
+
+    <label for="dateFrom">From Date:</label>
+    <input type="date" id="dateFrom" @bind="startDateSearch" />
+
+    <label for="priceRange">Price Range:</label>
+    <input type="number" id="priceFrom" @bind="priceFromSearch" placeholder="From" />
+    <input type="number" id="priceTo" @bind="priceToSearch" placeholder="To" />
+
+    <button @onclick="async () => await SearchTravelPackages()">Search</button>
+
+</div>
+<br />
+
+@code{
+    private string destinationSearch;
+    private DateOnly startDateSearch;
+    private decimal priceFromSearch = 0;
+    private decimal priceToSearch = 10000;
+
+    private string noResultsMessage = "";
+
+    private async Task SearchTravelPackages() //TODO tilføj by og land på hotellet
+    {
+        LoadTravelPackages();
+        _travelPackages = _travelPackages
+            .Where(tp =>
+                (string.IsNullOrEmpty(destinationSearch) ||
+                    tp.HotelStay.Hotel.Address.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase) ||
+                    tp.InboundFlight.DepartureFromAirport.Country.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase) ||
+                    tp.InboundFlight.DepartureFromAirport.City.Contains(destinationSearch, StringComparison.OrdinalIgnoreCase))
+                &&
+               DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= startDateSearch
+                &&
+                tp.Price >= priceFromSearch
+                &&
+                tp.Price <= priceToSearch
+            )
+            .ToList();
+
+        if (_travelPackages.Count == 0)
+        {
+            noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
+        }
+        else
+        {
+            noResultsMessage = ""; // Hvis der er fundet resultater, nulstil beskeden
+        }
+    }
+}
 
 @code
 {
     private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+    private int resultCount;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
-        _travelPackages = LoadTravelPackages();
+        LoadTravelPackages();
     }
 
-    private List<TravelPackage> LoadTravelPackages()
+    private async Task LoadTravelPackages()
     {
-        return DbContext.TravelPackages.Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
-        .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
-        .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport) //Eager load indrejse fly og lufthavn
-        .ToList(); //populere Blazor komponentens liste med Travelpackages
+        var result = await travelPackageService.GetAllAsync();
+        _travelPackages = result.ToList();
+        resultCount = _travelPackages.Count;
     }
 }
 
-@foreach (var package in _travelPackages)
+
+@if (!string.IsNullOrEmpty(noResultsMessage))
 {
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <!-- Billede - Brug placeholder hvis der ikke findes billede -->
-            <img src="@(!string.IsNullOrEmpty(package.Base64) ? package.Base64 : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
+    <p>@noResultsMessage</p>
+}
+else
+{
+    <p>results: @resultCount</p>
+    <div class="container">
+        <div class="row">
+            @foreach (var package in _travelPackages)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <!-- Billede - Brug placeholder hvis der ikke findes billede -->
+                        <img src="@(!string.IsNullOrEmpty(package.Base64) ? package.Base64 : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
 
-            <div class="card-body">
-                <h5 class="card-title">@package.Headline</h5>
-                <p class="card-text">@package.Description</p>
-                <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
+                        <div class="card-body">
+                            <h5 class="card-title">@package.Headline</h5>
+                            <p class="card-text">@package.Description</p>
+                            <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
 
-                <h6>Fly (Udrejse)</h6>
-                <p>
-                    @package.OutboundFlight?.DepartureFromAirport.Name <br />
-                    @package.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm") <br />
-                    @package.OutboundFlight?.Airline
-                </p>
+                            <p><strong>Pris:</strong> @package.Price</p>
 
-                <h6>Hotel</h6>
-                <p>
-                    @package.HotelStay.CheckInDate.ToString("d") - @package.HotelStay.CheckOutDate.ToString("d") <br />
-                    @package.HotelStay.Hotel.Name
-                </p>
+                            <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Show more</a>
 
-                <h6>Fly (Hjemrejse)</h6>
-                <p>
-                    @package.InboundFlight?.DepartureFromAirport.Name <br />
-                    @package.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm") <br />
-                    @package.InboundFlight?.Airline
-                </p>
-
-                <p><strong>Pris:</strong> @package.Price</p>
-
-                <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Show more</a>
-
-            </div>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
-}
-
-
-
-@code {
-
 }

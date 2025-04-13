@@ -18,33 +18,15 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<IEnumerable<TravelPackage>> GetAllAsync()
     {
-        return await _context.TravelPackages
+        return _context.TravelPackages
             .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport)
-
+                .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
             .Include(tp => tp.HotelStay)
-                .ThenInclude(hs => hs.Hotel)
-            .Include(tp => tp.HotelStay)
-                .ThenInclude(hs => hs.Currency)
-
-            .Include(tp => tp.ToHotelTransfer)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.FromHotelTransfer)
-                .ThenInclude(f => f.Currency)
-
-            .ToListAsync();
+                .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport);//Eager load indrejse fly og lufthavn
     }
+
 
     /// <summary>
     /// Henter en specifik rejsepakke med relaterede entiteter.

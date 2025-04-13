@@ -10,5 +10,6 @@ namespace ServiceContracts
     public interface ITravelPackageService : ICrudService<TravelPackage>
     {
         List<TravelPackage> Search();
+
     }
 }
