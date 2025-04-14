@@ -15,7 +15,7 @@ public class HotelApiService(HttpClient httpClient) : IHotelApiService
 
     public async Task<IEnumerable<Hotel>> GetAllHotelsAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelDto>>("https://localhost:7274/api/hotel");
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelDto>>("https://localhost:7274/api/hotels");
         var hotels = new List<Hotel>();
         if (response == null) return hotels;
         foreach (var hotelDto in response.ToList().FirstOrDefault().Data)
@@ -28,6 +28,6 @@ public class HotelApiService(HttpClient httpClient) : IHotelApiService
 
     public async Task<Hotel?> GetHotelByIdAsync(int id)
     {
-        return await _httpClient.GetFromJsonAsync<Hotel>($"https://localhost:7274/api/hotel/{id}");
+        return await _httpClient.GetFromJsonAsync<Hotel>($"https://localhost:7274/api/hotels/{id}");
     }
 }

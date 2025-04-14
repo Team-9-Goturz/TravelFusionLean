@@ -1,5 +1,6 @@
 @page "/travel-package-hotels"
 @inject IHotelApiService HotelApiService
+@using Shared.Models
 @using TravelFusionLean.Components.Layout.Admin
 @layout AdminLayout
 @inject NavigationManager NavigationManager
@@ -53,8 +54,31 @@
         
         <div class="tab-content">
             <div id="fastest" class="tab-pane fade show active p-3">
+                @if (hotels == null)
+                {
+                    <p><em>Loading hotels...</em></p> <!-- OBS Colour -->
+                }
+                else if (!hotels.Any())
+                {
+                    <p>No hotels found.</p>
+                }
+                else
+                {
+                    @foreach (var hotel in hotels)
+                    {
+                        <div class="d-flex justify-content-between border p-2 mb-2">
+                            <div>
+                                <strong>@hotel.Address</strong>
+                                @hotel.Name
+                                @hotel.Description
+                                -
+                                @hotel.Price.ToString("0.00") @hotel.Currency?.Name
+                            </div>
+                        </div>
+                    }
+                }
                 <div class="d-flex justify-content-between border p-2">
-                    <div><strong>Madrid</strong> Hotel Riu Plaza [Name] Address [Address] Rooms Staying Guests</div>
+                    <div><strong></strong></div>
                     <button class="btn btn-primary">Select</button>
                 </div>
             </div>
@@ -78,11 +102,47 @@
             <h5>Hotel</h5>
             <p>Description of hotel: </p>
             <p><strong>Total: [Price] euros</strong></p>
-            <button class="btn btn-primary">Choose Hotel</button>
         </div>
     </div>
 </div>
 
+<div>
+    <div>
+        <button type="button" class="btn btn-primary" @onclick="GoToPublishTravelPackage" disabled="@(!CanProceed)">
+            <i class="fa fa-bed"></i> Choose Hotel
+        </button>
+    </div>
+</div>
+
 @code{
+    private bool CanProceed => selectedHotel != null;
+
+    private List<Hotel>? hotels;
+    private Hotel? selectedHotel;
+
+    /// <summary>
+    /// Kaldes ved indlæsning af siden og henter alle flights via service.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            hotels = (await HotelApiService.GetAllHotelsAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine("Error loading hotels: " + ex.Message);
+        }
+    }
+
     
+    private void SelectFlight(Hotel hotel)
+    {
+        selectedHotel = hotel;
+    }
+
+    private void GoToPublishTravelPackage()
+    {
+        NavigationManager.NavigateTo("/publish-travel-package");
+    }
 }
