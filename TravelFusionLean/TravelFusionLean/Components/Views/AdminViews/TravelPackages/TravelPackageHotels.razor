@@ -1,4 +1,5 @@
 @page "/travel-package-hotels"
+@inject IHotelApiService HotelApiService
 @using TravelFusionLean.Components.Layout.Admin
 @layout AdminLayout
 
@@ -51,7 +52,7 @@
         <div class="tab-content">
             <div id="fastest" class="tab-pane fade show active p-3">
                 <div class="d-flex justify-content-between border p-2">
-                    <div><strong>DATA</strong> DATA DATA DATA</div>
+                    <div><strong>Madrid</strong> Hotel Riu Plaza [Name] Address [Address] Rooms Staying Guests</div>
                     <button class="btn btn-primary">Select</button>
                 </div>
             </div>
@@ -79,3 +80,7 @@
         </div>
     </div>
 </div>
+
+@code{
+    
+}
