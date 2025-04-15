@@ -27,4 +27,7 @@ public class Hotel
 
     [Column(TypeName = "decimal(9,6)")]
     public decimal Longitude { get; set; }
+
+    public string Country { get; set; }
+    public string City { get; set; }
 }

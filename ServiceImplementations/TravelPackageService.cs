@@ -2,6 +2,7 @@
 using Shared.Models;
 using Data;
 using ServiceContracts;
+using Shared.Dtos;
 
 namespace ServiceImplementations;
 
@@ -54,11 +55,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// <summary>
     /// Søgefunktion til fremtidig implementering af filtrering og brugerdefineret visning.
     /// </summary>
-    public List<TravelPackage> Search()
-    {
-        // Kan udvides med filtreringsparametre som pris, dato, destination osv.
-        return new List<TravelPackage>();
-    }
+
 
     /// <summary>
     /// Opretter en ny rejsepakke.
@@ -83,4 +80,37 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     {
         return await base.DeleteAsync(id);
     }
+
+    public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)
+    {
+        var travelPackages = await GetAllAsync();
+
+        var filteredPackages = travelPackages.Where(tp =>
+            // Departure location: match på land ELLER by
+            (searchDto.DepartureLocation == null ||
+             tp.OutboundFlight.DepartureFromAirport.Country.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase) ||
+             tp.OutboundFlight.DepartureFromAirport.City.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase)) &&
+
+            // Destination: match på land ELLER by
+            (searchDto.Destination == null ||
+             tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+             tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase)) &&
+
+             //dato
+            (searchDto.DepartureDateEarliest == null ||
+             DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= searchDto.DepartureDateEarliest) &&
+
+             //antal rejsende
+            (searchDto.NumberOfTravelers == null || searchDto.NumberOfTravelers == 0 ||
+             tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
+              
+             //pris
+            (searchDto.MinPrice == null || tp.Price >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.Price <= searchDto.MaxPrice)
+        ).ToList();
+
+        return filteredPackages;
+    }
+
+
 }
