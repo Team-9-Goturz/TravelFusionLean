@@ -86,7 +86,7 @@
     protected override async Task OnInitializedAsync()
     {
         base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
-        LoadTravelPackages();
+        await LoadTravelPackages();
     }
 
     private async Task LoadTravelPackages()
@@ -154,7 +154,7 @@ else{
 @code {
   private async Task DeleteTravelPackageAsync(int id)
     {
-        var success = await travelPackageService.DeleteAsync(id); // kald til service/repo
+        var success = await travelPackageService.DeleteAsync(id); // kald til service
 
         if (success)
         {

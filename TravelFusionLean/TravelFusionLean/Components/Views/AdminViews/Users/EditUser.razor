@@ -17,7 +17,6 @@
 @inject IUserService UserService
 @inject IUserRoleService UserRoleService
 
-@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
 @code {
@@ -30,11 +29,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        user = DbContext.Users
-            .Include(u => u.UserRole)
-            .Include(u => u.Contact)
-            .FirstOrDefault(u => u.Id == UserId);
-
+        user = (await UserService.GetByIdAsync(UserId));
         _userRoles = (await UserRoleService.GetAllAsync()).ToList();
         UserRole selectedRole = _userRoles.FirstOrDefault(u => u.Id == user.UserRoleId);
         selectedRoleId = selectedRole.Id;
@@ -45,8 +40,7 @@
     private void SaveChanges()
     {
         user.UserRoleId = selectedRoleId;
-        DbContext.Users.Update(user);
-        DbContext.SaveChanges();
+        UserService.Update(user);
         NavigationManager.NavigateTo("/UserList");
     }
 }
