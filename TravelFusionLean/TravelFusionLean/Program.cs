@@ -2,6 +2,7 @@ using Configuration;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
 using ServiceImplementations;
+using Shared.Models;
 using TravelFusionLean.Components;
 
 
@@ -21,6 +22,7 @@ builder.Services.AddRazorComponents()
 builder.Services.ConfigureServices(configuration);
 builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
 builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
+builder.Services.AddScoped<TravelPackageState>();
 
 
 
