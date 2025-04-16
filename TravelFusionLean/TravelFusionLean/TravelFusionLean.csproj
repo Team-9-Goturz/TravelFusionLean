@@ -27,12 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Components\Views\AdminViews\TravelPackages\TravelPackageHotels.css">
-      <DependentUpon>TravelPackageHotels.razor</DependentUpon>
-    </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <_ContentIncludedByDefault Remove="Components\Views\Admin\AdminHome.razor" />
     <_ContentIncludedByDefault Remove="Components\Views\Admin\CreateAdmin.razor" />
     <_ContentIncludedByDefault Remove="Components\Views\UserRoles\UserRoleCreate.razor" />

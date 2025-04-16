@@ -7,7 +7,7 @@ using TravelFusionLeanApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/// Tilføjer controller-understøttelse og enum-serialisering
+/// Tilfï¿½jer controller-understï¿½ttelse og enum-serialisering
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -33,23 +33,23 @@ builder.Services.AddCors(options =>
         policy.WithOrigins("https://localhost:7177")
               .AllowAnyHeader()
               .AllowAnyMethod();
-    });
+    }); 
 });
 
-/// Registrerer HttpClients til mock-API’er
+/// Registrerer HttpClients til mock-APIï¿½er
 builder.Services.AddHttpClient<IFlightService, FlightService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7115/");
+    client.BaseAddress = new Uri("http://localhost:5225/");
 });
 
 builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7121/");
+    client.BaseAddress = new Uri("http://localhost:5144/");
 });
 
 var app = builder.Build();
 
-/// Swagger vises kun i udviklingsmiljø
+/// Swagger vises kun i udviklingsmiljï¿½
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

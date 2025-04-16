@@ -68,5 +68,6 @@ public class GeoCodeInfo
 /// </summary>
 public class HotelDto
 {
+    [JsonPropertyName("data")]
     public List<HotelData> Data { get; set; }
 }

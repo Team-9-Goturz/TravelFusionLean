@@ -3,17 +3,17 @@
 namespace ServiceContracts;
 
 /// <summary>
-/// Interface for API-service til at hente hoteldata fra TravelFusionLeanApi.
+/// Interface for API-service til at hente hoteldata som ophold fra TravelFusionLeanApi.
 /// </summary>
 public interface IHotelApiService
 {
     /// <summary>
-    /// Henter alle hoteller fra API'et.
+    /// Henter alle hotelophold fra API'et. inkl hotel, pris og valuta
     /// </summary>
-    Task<IEnumerable<Hotel>> GetAllHotelsAsync();
+    Task<IEnumerable<HotelStay>> GetAllHotelStaysAsync();
 
     /// <summary>
-    /// Henter et specifikt hotel baseret på ID.
+    /// Henter et specifikt hotel baseret på ID. (mangler i api'et)
     /// </summary>
-    Task<Hotel?> GetHotelByIdAsync(int id);
+    Task<HotelStay?> GetHotelStayByIdAsync(int id);
 }
