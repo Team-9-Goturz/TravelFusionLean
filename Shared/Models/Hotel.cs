@@ -11,7 +11,7 @@ public class Hotel
 {
     [Key]
     public int Id { get; set; }
-    public decimal Price { get; set; }
+    //public decimal Price { get; set; }
 
     [Required]
     [StringLength(128)]
@@ -20,11 +20,11 @@ public class Hotel
     [StringLength(600)]
     public string? Description { get; set; }
     
-    [StringLength(128)]
-    public string Rooms { get; set; }
+    //[StringLength(128)]
+    //public string Rooms { get; set; }
 
-    [StringLength(128)]
-    public string StayingGuests { get; set; }
+    //[StringLength(128)]
+    //public string StayingGuests { get; set; }
     public string? Address { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
