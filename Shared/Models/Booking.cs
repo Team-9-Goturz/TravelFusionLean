@@ -9,7 +9,7 @@ namespace Shared.Models
 {
     public class Booking
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public int TravelPackageId { get; set; }
         public int? UserId { get; set; }
         public User? User { get; set; }

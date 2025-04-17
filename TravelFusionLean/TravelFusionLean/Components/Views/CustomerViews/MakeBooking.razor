@@ -6,7 +6,11 @@
 @using Shared.Models
 @using Data
 @using ServiceImplementations
+
 @inject ITravelPackageService travelPackageService
+@inject IContactService contactService
+@inject IBookingService bookingService
+@inject ITravelPackageService travelPackageService 
 
 @* Opstart *@
 @code
@@ -89,7 +93,7 @@ else
 @* rejseansvarlig *@ 
 <div>
     <label>Who is Travelmanager?:</label>
-
+    <br />
     <InputRadioGroup @bind-Value="IsUserTravelManager">
         <InputRadio Value=true /> I am<br />
         <InputRadio Value=false /> Other<br />
@@ -115,4 +119,46 @@ else
 @code {
     public bool IsUserTravelManager = true;
     private Contact contact = new Contact();
+}
+
+<button class="btn btn-primary" @onclick="Create">fortsæt</button>
+
+ @code
+ {
+    private async Task Create()
+    {
+        Booking booking = new Booking()
+            {
+                TravelPackageId = TravelPackageId,
+
+                Status = BookingStatus.Pending,
+                BookingMadeAt = DateTime.Now,
+
+                travellers = travellers.ToList()
+            };
+        @* 
+        if(Bruger er logget ind){
+            booking.User = currentUser;
+            booking.UserId = currentUser.Id;
+        } *@
+
+        if (!IsUserTravelManager)
+        {
+            contact = await contactService.AddAsync(contact);
+
+            booking.TravelManagerContact = contact;
+            booking.TravelManagerContactId = contact.Id;
+        }
+        @* else {
+            booking.TravelManagerContact = CurrentUser.Contact;
+            booking.TravelManagerContactId = CurrentUser.Contact.Id;
+        } *@
+
+
+        booking = await (bookingService.AddAsync(booking));
+
+        travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
+        travelPackageService.UpdateAsync(travelPackage);
+
+    }
 }
