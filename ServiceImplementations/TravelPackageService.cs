@@ -34,22 +34,14 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<TravelPackage?> GetByIdAsync(int id)
     {
-        return await _context.TravelPackages
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.Currency)
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.Currency)
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel)
-            .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Currency)
-
-            .Include(tp => tp.ToHotelTransfer).ThenInclude(f => f.Currency)
-            .Include(tp => tp.FromHotelTransfer).ThenInclude(f => f.Currency)
-
-            .FirstOrDefaultAsync(tp => tp.Id == id);
+        return _context.TravelPackages
+           .Include(tp => tp.OutboundFlight)
+               .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+           .Include(tp => tp.HotelStay)
+               .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+           .Include(tp => tp.InboundFlight)
+               .ThenInclude(f => f.DepartureFromAirport)//Eager load indrejse fly og lufthavn
+            .FirstOrDefault(tp => tp.Id == id);
     }
 
     /// <summary>

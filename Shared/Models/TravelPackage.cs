@@ -22,6 +22,7 @@ public class TravelPackage
 
     [StringLength(600)]
     public string? Description { get; set; }
+    public TravelPackageStatus Status { get; set; }
 
     // FK'er
     public int? OutboundFlightId { get; set; }
@@ -42,4 +43,11 @@ public class TravelPackage
     [NotMapped]
     public string? Base64 { get; set; }
 
+    public enum TravelPackageStatus
+    {
+        Draft,          // Endnu ikke klar til booking (kun intern brug)
+        Available,      // Klar til booking
+        Booked,         // Allerede booket af én kunde (ved 1:1 forhold)
+        Cancelled       // Tilbuddet er aflyst
+    }
 }
