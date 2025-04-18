@@ -19,6 +19,8 @@ namespace Data
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelStay> HotelStays { get; set; }
         public DbSet<TravelPackage> TravelPackages { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<Traveller> Travellers { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -132,6 +134,61 @@ namespace Data
                       .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
                       .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
             });
+
+            modelBuilder.Entity<Booking>(entity =>
+            {
+                entity.ToTable("Booking"); // Specificerer, at entiteten 'Booking' skal mappes til tabellen 'Booking' i databasen
+
+                entity.HasKey(b => b.Id); // Angiver, at 'Id' er primærnøgle for tabellen
+
+                entity.Property(b => b.BookingMadeAt)
+                      .IsRequired(); // BookingDate må ikke være null (obligatorisk felt)
+
+                entity.HasOne(b => b.TravelPackage) // Booking refererer til én TravelPackage
+                    .WithOne() // TravelPackage har højst én Booking (0..1)
+                    .HasForeignKey<Booking>(b => b.TravelPackageId) // Fremmednøgle i Booking-tabellen
+                    .IsRequired() // Booking SKAL være knyttet til en rejsepakke
+                    .OnDelete(DeleteBehavior.Restrict); // Forhindrer sletning af rejsepakker hvis der findes en booking
+            });
+
+            modelBuilder.Entity<Traveller>(entity =>
+            {
+                entity.ToTable("Traveller"); // Tabellens navn
+
+                entity.HasKey(t => t.Id); // Primærnøgle
+
+                entity.Property(t => t.FirstName)
+                      .IsRequired(); // Fornavn skal være angivet
+
+                entity.Property(t => t.LastName)
+                      .IsRequired(); // Efternavn skal være angivet
+
+                entity.Property(t => t.DateOfBirth)
+                      .IsRequired(); // Fødselsdato er obligatorisk
+
+                entity.Property(t => t.Gender)
+                      .IsRequired(); // Køn skal være angivet
+
+                entity.Property(t => t.Nationality)
+                      .IsRequired(); // Nationalitet er påkrævet
+
+                entity.Property(t => t.PassportNumber)
+                      .IsRequired(); // Pasnummer er påkrævet
+
+                entity.Property(t => t.PassportExpiry)
+                      .IsRequired(); // Udløbsdato på pas er påkrævet
+
+                entity.Property(t => t.PassportIssuingCountry)
+                      .IsRequired(); // Udstedelsesland for pas er påkrævet
+
+                entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
+                      .WithMany(b => b.travellers) // En booking kan have mange travellers
+                      .HasForeignKey(t => t.BookingId) // Fremmednøgle i Traveller-tabellen
+                      .IsRequired() // Hver traveller SKAL være knyttet til en booking
+                      .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
+            });
+
+
         }
     }
 }

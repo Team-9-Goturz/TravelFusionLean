@@ -149,11 +149,15 @@ else
             booking.TravelManagerContact = contact;
             booking.TravelManagerContactId = contact.Id;
         }
+        else{
+            booking.TravelManagerContactId = 5; //Udskift mig når login kører
+        }
         @* else {
             booking.TravelManagerContact = CurrentUser.Contact;
             booking.TravelManagerContactId = CurrentUser.Contact.Id;
         } *@
 
+        
 
         booking = await (bookingService.AddAsync(booking));
 
