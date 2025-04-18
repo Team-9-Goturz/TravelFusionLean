@@ -3,6 +3,7 @@ using Shared.Models;
 using Data;
 using ServiceContracts;
 using Shared.Dtos;
+using static Shared.Models.TravelPackage;
 
 namespace ServiceImplementations;
 
@@ -27,6 +28,19 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
             .Include(tp => tp.InboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport);//Eager load indrejse fly og lufthavn
     }
+    public async Task<IEnumerable<TravelPackage>> GetAvailableAsync()
+    {
+        return _context.TravelPackages
+            .Include(tp => tp.OutboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Include(tp => tp.HotelStay)
+                .ThenInclude(hs => hs.Hotel)
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Where(tp => tp.Status == TravelPackageStatus.Available)
+            .ToList(); // eller ToListAsync hvis du bruger EF Core
+    }
+
 
 
     /// <summary>

@@ -80,12 +80,12 @@
         base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
         await LoadTravelPackages();
     }
-
     private async Task LoadTravelPackages()
     {
-        _travelPackages = (await travelPackageService.GetAllAsync()).ToList();
+        _travelPackages = (await travelPackageService.GetAvailableAsync()).ToList();
         resultCount = _travelPackages.Count;
     }
+
 }
 
 
