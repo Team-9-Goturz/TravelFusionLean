@@ -56,8 +56,9 @@
         searchDTO.MinPrice = priceFromSearch;
         searchDTO.MaxPrice = priceToSearch;
 
-        var result = await travelPackageService.SearchAsync(searchDTO);
+        var result = await travelPackageService.SearchAvailableAsync(searchDTO);
         _travelPackages = result.ToList();
+        resultCount = _travelPackages.Count;
           
         if (_travelPackages.Count == 0)
         {
