@@ -5,8 +5,8 @@ on:
     branches:
       - master
     paths:
-      - 'TravelFusionLean/TravelFusionLeanApi/**'
-      - '.github/workflows/travelfusionapi.yml'
+      - 'TravelFusionLeanApi/**'
+      - '.github/workflows/master_travelfusionapi.yml'
   workflow_dispatch:
 
 jobs:
@@ -16,28 +16,27 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: ⚙️ Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
 
-      - name: Find the damns file
-        run: |
-          echo "current directory"
-          pwd
-          echo "alle filer"
-          ls -R
+      - name: 🧹 Clean old builds
+        run: dotnet clean ./TravelFusionLeanApi/TravelFusionLeanApi.csproj
 
-      - name: Restore, build and publish API
+      - name: 🔨 Restore and build API
         run: |
           dotnet restore ./TravelFusionLeanApi/TravelFusionLeanApi.csproj
           dotnet build ./TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
-          dotnet publish ./TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release --output ./publish
 
-      - name: Upload API artifact
+      - name: 🚀 Publish API
+        run: |
+          dotnet publish ./TravelFusionLeanApi/TravelFusionLeanApi.csproj --no-build --no-restore --configuration Release --output ./publish
+
+      - name: 📦 Upload API artifact
         uses: actions/upload-artifact@v4
         with:
           name: api-app
@@ -54,22 +53,22 @@ jobs:
       contents: read
 
     steps:
-      - name: Download artifact
+      - name: 📦 Download artifact
         uses: actions/download-artifact@v4
         with:
           name: api-app
 
-      - name: Login to Azure
+      - name: 🔐 Login to Azure
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_3DEA69A8CF04483E98A3395070743E5B }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_95029A3FD0854135BABC22224EC2E755 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CC7FEF1B6FA548C590ED77F6B665A037 }}
 
-      - name: Deploy API to Azure
+      - name: 🌐 Deploy API to Azure
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'travelfusionapi'
           slot-name: 'Production'
-          package: .
+          package: ./api-app
