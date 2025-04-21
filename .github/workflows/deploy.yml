@@ -23,14 +23,17 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
+        file: Dockerfile
         push: true
         tags: travelfusionregistry.azurecr.io/travelfusionlean:${{ github.sha }}
 
     - name: Deploy to Azure Container App
       uses: azure/container-apps-deploy-action@v1
       with:
+        azureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
         registryUrl: travelfusionregistry.azurecr.io
+        registryUsername: ${{ secrets.ACR_USERNAME }}
+        registryPassword: ${{ secrets.ACR_PASSWORD }}
         imageToDeploy: travelfusionregistry.azurecr.io/travelfusionlean:${{ github.sha }}
         containerAppName: TravelFusionApp
         resourceGroup: TravelFusionGroup
-        subscriptionId: 65da915b-ac2e-4b71-a04c-ed5b7d222d15
