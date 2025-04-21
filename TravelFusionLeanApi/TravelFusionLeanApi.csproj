@@ -17,7 +17,6 @@
     <ProjectReference Include="..\ServiceContracts\ServiceContracts.csproj" />
     <ProjectReference Include="..\ServiceImplementations\ServiceImplementations.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\TravelFusionLean\TravelFusionLean\TravelFusionLean.csproj" />
   </ItemGroup>
 
 <ItemGroup>
