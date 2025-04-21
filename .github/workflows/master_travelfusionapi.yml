@@ -24,9 +24,13 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: 🔎 Check if csproj exists
+      - name: Find the damns file
         run: |
-          test -f ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj && echo "✅ Project found!" || echo "❌ Project NOT found!"
+          echo "current directory"
+          pwd
+          echo ""
+          echo "finder alleeee cs.proj filer"
+          find . -name "*.csproj"
 
       - name: Restore, build and publish API
         run: |
