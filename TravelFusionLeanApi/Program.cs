@@ -49,8 +49,8 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 
 var app = builder.Build();
 
-/// Swagger vises kun i udviklingsmilj�
-if (app.Environment.IsDevelopment())
+/// Swagger vises kun i udviklingsmiljø og produktion
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -64,4 +64,5 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/", () => "TravelFusionLean API is running!");
 app.Run();
