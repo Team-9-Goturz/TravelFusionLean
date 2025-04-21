@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'TravelFusionLean/TravelFusionLeanApi/**'
+      - '.github/workflows/travelFusionapi.yml'
   workflow_dispatch:
 
 jobs:
@@ -16,6 +19,7 @@ jobs:
       contents: read # Required for actions/checkout
 
     steps:
+      - name: Checkout repository
       - uses: actions/checkout@v4
 
       - name: Set up .NET Core
@@ -27,7 +31,7 @@ jobs:
         run: dotnet build ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
 
       - name: Publish API only
-        run: dotnet publish ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj -c Release -o ./publish
+        run: dotnet publish ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configutation Release --output ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -64,5 +68,5 @@ jobs:
         with:
           app-name: 'travelfusionapi'
           slot-name: 'Production'
-          package: ./publish
+          package: ./api-app
 
