@@ -11,3 +11,5 @@ Projektet kombinerer data fra mock API’er (fly og hoteller) og sammensætter r
 - SQL Server
 - GitHub Actions (CI/CD)
 - Azure Container Apps
+
+- <3 <3 <3
