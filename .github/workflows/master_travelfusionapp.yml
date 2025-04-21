@@ -65,4 +65,4 @@ jobs:
         with:
           app-name: 'travelfusionapp'
           slot-name: 'Production'
-          package: ./blazor-app
+          package: .
