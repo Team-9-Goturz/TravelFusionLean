@@ -51,7 +51,7 @@
                         <!-- Antal rejsende -->
                         <div class="mb-3">
                             <label class="form-label">Number of travellers</label>
-                            <InputNumber @bind-Value="travelpackage.NoOfTravellers" class="form-control" min="0" />
+                            <InputNumber @bind-Value="travelpackage.NumberOfTravellers" class="form-control" min="0" />
                         </div>
 
 
@@ -98,8 +98,8 @@
                 </div>
             </EditForm>
         </div>
-
-      
+        
+        
         @if (travelPackageState.SelectedFlight != null)
         {
 
@@ -201,7 +201,7 @@
             formErrorMessages.Add("Description is required.");
         }
 
-        if (travelpackage.NoOfTravellers < 1)
+        if (travelpackage.NumberOfTravellers < 1)
         {
             formErrorMessages.Add("Number of travellers must be at least 1.");
         }
@@ -270,8 +270,7 @@
     {  
         UpdatePrice();
     }
-
-   
+    
 
     // Opdatere prisen for, hvis markup prisen er tilføjet
     void UpdatePrice()
