@@ -26,9 +26,15 @@ jobs:
 
       - name: Restore, build and publish API
         run: |
-          dotnet restore ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj
-          dotnet build ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
-          dotnet publish ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release --output ./publish
+          pwd
+          ls -R
+          dotnet restore **/TravelFusionLeanApi.csproj
+          dotnet build **/TravelFusionLeanApi.csproj --configuration Release
+          dotnet publish **/TravelFusionLeanApi.csproj --configuration Release --output ./publish
+      
+      - name: 🔎 Check if csproj exists
+        run: |
+          test -f ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj && echo "Project found!" || echo "Project NOT found!"
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
