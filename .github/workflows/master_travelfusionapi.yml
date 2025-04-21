@@ -9,7 +9,7 @@ on:
       - master
     paths:
       - 'TravelFusionLean/TravelFusionLeanApi/**'
-      - '.github/workflows/travelFusionapi.yml'
+      - '.github/workflows/travelfusionapi.yml'
   workflow_dispatch:
 
 jobs:
