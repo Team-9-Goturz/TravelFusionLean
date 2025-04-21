@@ -24,17 +24,15 @@ jobs:
         with:
           dotnet-version: '9.x'
 
-      - name: Restore, build and publish API
-        run: |
-          pwd
-          ls -R
-          dotnet restore **/TravelFusionLeanApi.csproj
-          dotnet build **/TravelFusionLeanApi.csproj --configuration Release
-          dotnet publish **/TravelFusionLeanApi.csproj --configuration Release --output ./publish
-      
       - name: 🔎 Check if csproj exists
         run: |
-          test -f ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj && echo "Project found!" || echo "Project NOT found!"
+          test -f ./TravelFusionLean/TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj && echo "✅ Project found!" || echo "❌ Project NOT found!"
+
+      - name: Restore, build and publish API
+        run: |
+          dotnet restore ./TravelFusionLean/TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj
+          dotnet build ./TravelFusionLean/TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
+          dotnet publish ./TravelFusionLean/TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release --output ./publish
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
