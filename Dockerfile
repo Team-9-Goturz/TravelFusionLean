@@ -11,7 +11,7 @@ WORKDIR /src
 COPY . .
 
 # ⚙️ Byg dit TravelFusionLean-projekt
-RUN dotnet publish "TravelFusionLean/TravelFusionLean.csproj" -c Release -o /app/publish
+RUN dotnet publish "TravelFusionLean.csproj" -c Release -o /app/publish
 
 # 📦 Final runtime image (lean!)
 FROM base AS final
