@@ -12,69 +12,97 @@
 @using System.ComponentModel.DataAnnotations
 @using TravelFusionLean.Components.Layout.Admin
 
-
 @inject IUserService UserService
 @inject IUserRoleService UserRoleService
-
 @inject NavigationManager NavigationManager
 
-<h2>Create user </h2>
+<link href="css/CustomColors.css" rel="stylesheet" />
 
+<div class="container mt-4">
+    <h2 class="text-center">Create User</h2>
 
+    <div class="card p-4">
+        <EditForm EditContext="@editContext" OnValidSubmit="@Create">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-<EditForm EditContext="@editContext" OnValidSubmit="@Create">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <h6>Username *</h6>
-    <InputText @bind-Value="_user.Username" class="@GetCssClass(IsUsernameValid, _user.Username)"oninput="@CheckUsernameAvailability" />
-    @if (usernameIsTaken)
-    {
-        <div class="text-danger mt-1">Username already exists, chose a different.</div>
-    }
-    <h6>Password *</h6>
-    <InputText @bind-Value="Password" class="@GetCssClass(IsPasswordValid, Password)" oninput="@CheckPasswordStrength" type="password"/>
-    @if (!IsPasswordValid && passwordTouched == true)
-    {
-        <div class="text-danger mt-1">Password is too short.</div>
-    }
-    <h6>Repeat password *</h6>
-    <InputText @bind-Value="PasswordRepeat" class="@GetCssClass(PasswordsMatch, PasswordRepeat)" type="password"/>
-    @if (!PasswordsMatch)
-    {
-        <div class="text-danger mt-1">Passwords do not match.</div>
-    }
+            <!-- Username -->
+            <div class="mb-3">
+                <label class="form-label">Username *</label>
+                <InputText @bind-Value="_user.Username" class="@UsernameCssClass" oninput="@CheckUsernameAvailability" />
+                @if (usernameIsTaken)
+                {
+                    <div class="text-danger mt-1">Username already exists, choose a different one.</div>
+                }
+            </div>
 
-    <label for="roleSelect">Select a role:</label>
-    <select @bind="selectedRoleId">
-        @foreach (UserRole role in _userRoles)
-        {
-            <option value="@role.Id">@role.Name</option>
-        }
-    </select>
-    
-    <br><br/>
-    <br><br/>
+            <!-- Password -->
+            <div class="mb-3">
+                <label class="form-label">Password *</label>
+                <InputText @bind-Value="Password" class="@PasswordCssClass" oninput="@CheckPasswordStrength" type="password" />
+                @if (!IsPasswordValid && passwordTouched == true)
+                {
+                    <div class="text-danger mt-1">Password is too short.</div>
+                }
+            </div>
 
-    <h4>Contact information</h4>
-    <h6>Name *</h6>
-    <InputText @bind-Value="_user.Contact.Name"
-               class="@GetCssClassFor(() => _user.Contact.Name)" />
-    <ValidationMessage For="@(() => _user.Contact.Name)" />
+            <!-- Repeat Password -->
+            <div class="mb-3">
+                <label class="form-label">Repeat password *</label>
+                <InputText @bind-Value="PasswordRepeat" class="@PasswordRepeatCssClass" type="password" />
+                @if (!PasswordsMatch)
+                {
+                    <div class="text-danger mt-1">Passwords do not match.</div>
+                }
+            </div>
 
-    <h6>Phone *</h6>
-    <InputText @bind-Value="_user.Contact.PhoneNumber"
-               class="@GetCssClassFor(() => _user.Contact.PhoneNumber)" />
-    <ValidationMessage For="@(() => _user.Contact.PhoneNumber)" />
+            <!-- Role Dropdown -->
+            <div class="mb-3">
+                <label class="form-label">Select a role:</label>
+                <select class="form-control" @bind="selectedRoleId">
+                    @foreach (UserRole role in _userRoles)
+                    {
+                        <option value="@role.Id">@role.Name</option>
+                    }
+                </select>
+            </div>
 
-    <h6>Email * </h6>
-    <InputText @bind-Value="_user.Email"
-               class="@GetCssClassFor(() => _user.Email)" />
-    <ValidationMessage For="@(() => _user.Email)" />
+            <hr />
 
+            <!-- Contact Info -->
+            <h5 class="mt-4">Contact Information</h5>
 
-    <button type="submit" disabled="@(!isFormValid)">Create </button>
-</EditForm>
+            <div class="mb-3">
+                <label class="form-label">Name *</label>
+                <InputText @bind-Value="_user.Contact.Name" class="@ContactNameCssClass" />
+                <ValidationMessage For="@(() => _user.Contact.Name)" />
+            </div>
 
+            <div class="mb-3">
+                <label class="form-label">Phone *</label>
+                <InputText @bind-Value="_user.Contact.PhoneNumber" class="@PhoneCssClass" />
+                <ValidationMessage For="@(() => _user.Contact.PhoneNumber)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email *</label>
+                <InputText @bind-Value="_user.Email" class="@EmailCssClass" />
+                <ValidationMessage For="@(() => _user.Email)" />
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3" disabled="@(!isFormValid)">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string UsernameCssClass => $"form-control {GetCssClass(IsUsernameValid, _user.Username)}";
+    private string PasswordCssClass => $"form-control {GetCssClass(IsPasswordValid, Password)}";
+    private string PasswordRepeatCssClass => $"form-control {GetCssClass(PasswordsMatch, PasswordRepeat)}";
+    private string ContactNameCssClass => $"form-control {GetCssClassFor(() => _user.Contact.Name)}";
+    private string PhoneCssClass => $"form-control {GetCssClassFor(() => _user.Contact.PhoneNumber)}";
+    private string EmailCssClass => $"form-control {GetCssClassFor(() => _user.Email)}";
+}
 
 
 
