@@ -28,15 +28,14 @@ jobs:
         run: |
           echo "current directory"
           pwd
-          echo ""
-          echo "finder alleeee cs.proj filer"
-          find . -name "*.csproj"
+          echo "alle filer"
+          ls -R
 
       - name: Restore, build and publish API
         run: |
-          dotnet restore ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj
-          dotnet build ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
-          dotnet publish ./TravelFusionLean/TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release --output ./publish
+          dotnet restore ./TravelFusionLeanApi/TravelFusionLeanApi.csproj
+          dotnet build ./TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release
+          dotnet publish ./TravelFusionLeanApi/TravelFusionLeanApi.csproj --configuration Release --output ./publish
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
