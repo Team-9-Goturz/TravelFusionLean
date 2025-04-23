@@ -31,6 +31,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("https://travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
+
               .AllowAnyHeader()
               .AllowAnyMethod();
     }); 
@@ -53,6 +54,7 @@ var app = builder.Build();
 /// Swagger vises
 app.UseSwagger();
 app.UseSwaggerUI(options =>
+
 {
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
     options.RoutePrefix = string.Empty;
@@ -63,4 +65,5 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/", () => "TravelFusionLean API is running!");
 app.Run();

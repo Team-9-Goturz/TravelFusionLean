@@ -1,3 +1,4 @@
+
 # TravelFusionLean ✈️🌍
 
 TravelFusionLean er et moderne rejseplanlægningssystem udviklet i ASP.NET Core og Blazor.  
@@ -13,3 +14,5 @@ Projektet kombinerer data fra mock API’er (fly og hoteller) og sammensætter r
 - Azure Container Apps
 <3
 - <3 <3 <3
+=======
+Lets do a readme
