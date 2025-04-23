@@ -58,7 +58,15 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
+        if (app.Environment.IsProduction())
+        {
+            options.SwaggerEndpoint("https://travelfusionapi-hve3ajcqcdcyexfe.canadacentral-01.azurewebsites.net/swagger/v1/swagger.json", "TravelFusionLean API v1");
+        }
+        else
+        {
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
+        }
+
         options.RoutePrefix = string.Empty; // Swagger UI bliver vist på roden (/)
     });
 }
