@@ -16,47 +16,117 @@
 body {
     background-color: var(--primary-blue-dark);
     color: var(--text-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* === Typography === */
-h1, h2, h3, h4, h5, h6 {
-    color: var(--accent-gold);
-    font-weight: bold;
+/* === Layout === */
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-label, p, span, .form-label {
+.sidebar {
+    width: 250px;
+    min-width: 250px;
+    background-color: var(--primary-blue);
     color: var(--text-light);
 }
 
-/* === Card Text Override === */
-.card label, .card p, .card span, .card .form-label, .card h5 {
-    color: var(--text-dark);
+main {
+    flex-grow: 1;
+    background-color: var(--primary-blue-dark);
+    color: var(--text-light);
 }
 
-/* === Buttons === */
-.btn-primary {
-    background-color: var(--accent-gold) !important;
-    border-color: var(--accent-gold) !important;
-    color: var(--primary-blue-dark) !important;
-    font-weight: 600;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(255, 193, 7, 0.3);
+/* === Top Navigation Bar === */
+header {
+    background: linear-gradient(to right, #0073e6, #005bac);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
 }
 
-    .btn-primary:hover {
-        background-color: #e6ac00 !important;
-        border-color: #e6ac00 !important;
-        color: var(--text-dark) !important;
+    header img {
+        border-radius: 6px;
+        max-height: 50px;
     }
+
+    header h5 {
+        margin-bottom: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--accent-gold);
+    }
+
+    header nav a {
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 1rem;
+        padding: 0.5rem;
+        transition: color 0.3s ease;
+    }
+
+        header nav a:hover {
+            color: var(--accent-gold);
+        }
 
 /* === Cards === */
 .card {
     background-color: var(--card-bg);
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 91, 172, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--card-border);
     color: var(--text-dark);
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
 }
+
+    .card:hover {
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .card h1 {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #1976d2;
+    }
+
+    .card p.lead {
+        font-size: 1.125rem;
+        color: var(--text-dark);
+    }
+
+/* === Buttons === */
+.btn {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-gold);
+    border: none;
+    color: var(--primary-blue-dark);
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.25);
+}
+
+    .btn-primary:hover {
+        background-color: #e6ac00;
+        box-shadow: 0 6px 18px rgba(255, 193, 7, 0.35);
+        transform: translateY(-1px);
+    }
+
+.btn-outline-primary {
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--primary-blue);
+        color: white;
+    }
 
 /* === Form Controls === */
 .form-control {
@@ -97,7 +167,6 @@ label, p, span, .form-label {
             border-color: var(--tab-active);
         }
 
-/* === Tab Content === */
 .tab-content {
     background-color: var(--card-bg);
     border-radius: 0 0 10px 10px;
@@ -110,7 +179,7 @@ label, p, span, .form-label {
         border-color: #ced4da !important;
     }
 
-/* === Responsive adjustments === */
+/* === Responsive === */
 @media (max-width: 768px) {
     .nav-tabs {
         border-radius: 8px;
@@ -120,17 +189,58 @@ label, p, span, .form-label {
             font-size: 0.9rem;
             padding: 0.5rem 0.75rem;
         }
-}
 
-.custom-navbar {
-    background-color: #0d47a1 !important;
-    color: white !important;
-}
-
-    .custom-navbar a {
-        color: white !important;
+    .sidebar {
+        width: 100%;
+        min-width: unset;
     }
 
-    .custom-navbar .navbar-toggler-icon {
-        filter: invert(1); /* Makes the hamburger menu icon white */
+    .page {
+        flex-direction: column;
     }
+
+    header nav {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        margin-top: 0.5rem;
+    }
+
+        header nav a {
+            padding: 0.25rem 0;
+        }
+}
+
+/* === Animations === */
+.fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* === Animated Globe Emoji === */
+.animated-globe {
+    display: inline-block;
+    animation: bounceGlobe 1.5s infinite ease-in-out;
+    font-size: 1.25rem;
+}
+
+@keyframes bounceGlobe {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}

@@ -7,28 +7,26 @@
 @using TravelFusionLean.Components.Layout.Admin
 @using TravelFusionLean.Models
 @using TravelFusionLean.Components.Modals
-@inject AppDbContext DbContext
+
+
+@inject IUserService UserService
+@inject IUserRoleService UserRoleService
 
 @code {
     private List<User> _users = new List<User>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync() 
     {
-        base.OnInitialized();
-        _users = DbContext.Users
-           .Include(u => u.UserRole) // Eager load rollen
-           .Include(u => u.Contact)
-           .ToList();
+        await base.OnInitializedAsync();
+        _users = (await UserService.GetAllAsync()).ToList();
+
     }
-    private void DeleteUser(int userId)
+    private async Task DeleteUser(int userId)
     {
         var user = _users.FirstOrDefault(u => u.Id == userId);
         if (user is not null)
         {
-            DbContext.Users.Remove(user);
-            DbContext.SaveChanges();
-
-            _users.Remove(user);
+            await UserService.DeleteAsync(userId);
         }
     }
 }

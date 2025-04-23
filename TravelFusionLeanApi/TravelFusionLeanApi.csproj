@@ -17,7 +17,16 @@
     <ProjectReference Include="..\ServiceContracts\ServiceContracts.csproj" />
     <ProjectReference Include="..\ServiceImplementations\ServiceImplementations.csproj" />
     <ProjectReference Include="..\Shared\Shared.csproj" />
-    <ProjectReference Include="..\TravelFusionLean\TravelFusionLean\TravelFusionLean.csproj" />
   </ItemGroup>
+
+<ItemGroup>
+  <None Update="appsettings*.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+
+<ItemGroup>
+  <Folder Include="wwwroot\" />
+</ItemGroup>
 
 </Project>

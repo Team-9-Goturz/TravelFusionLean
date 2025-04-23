@@ -1,14 +1,13 @@
 ﻿using Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Shared.Dtos;
+
 
 namespace ServiceContracts
 {
     public interface ITravelPackageService : ICrudService<TravelPackage>
     {
-        List<TravelPackage> Search();
+        Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto);
+        Task<List<TravelPackage>> SearchAvailableAsync(TravelPackageSearchDTO searchDto);
+        Task<IEnumerable<TravelPackage>> GetAvailableAsync();
     }
 }

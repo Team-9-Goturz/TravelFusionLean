@@ -13,7 +13,7 @@ public class TravelPackage
     public int Id { get; set; }
 
     [StringLength(100)]
-    public string Headline { get; set; }
+    public string? Headline { get; set; }
 
     [Column(TypeName = "decimal(30,2)")]
     public decimal Price { get; set; }
@@ -22,6 +22,7 @@ public class TravelPackage
 
     [StringLength(600)]
     public string? Description { get; set; }
+    public TravelPackageStatus Status { get; set; }
 
     // FK'er
     public int? OutboundFlightId { get; set; }
@@ -31,14 +32,21 @@ public class TravelPackage
     public int? FromHotelTransferId { get; set; }
 
     // Navigation properties
-    public Flight? Flight { get; set; }
     public Flight? OutboundFlight { get; set; }
     public Flight? InboundFlight { get; set; }
     public HotelStay? HotelStay { get; set; }
-    public Flight? ToHotelTransfer { get; set; }
-    public Flight? FromHotelTransfer { get; set; }
+    public Transfer? ToHotelTransfer { get; set; }
+    public Transfer? FromHotelTransfer { get; set; }
 
 
     // For at uplade billeder, når man opretter travelpackages
-    public string Base64 { get; set; } 
+    public string ImagePath { get; set; }
+
+    public enum TravelPackageStatus
+    {
+        Draft,          // Endnu ikke klar til booking (kun intern brug)
+        Available,      // Klar til booking
+        Booked,         // Allerede booket af én kunde (ved 1:1 forhold)
+        Cancelled       // Tilbuddet er aflyst
+    }
 }

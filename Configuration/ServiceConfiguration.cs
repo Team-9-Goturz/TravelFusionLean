@@ -27,6 +27,8 @@ namespace Configuration
             services.AddScoped<ITravelPackageService, TravelPackageService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRoleService, UserRoleService>();
+            services.AddScoped<IContactService, ContactService>();
+            services.AddScoped<IBookingService, BookingService>();
         }
 
         public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)

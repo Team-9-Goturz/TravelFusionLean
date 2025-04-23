@@ -1,0 +1,168 @@
+﻿@page "/MakeBooking/{TravelPackageId:int}"
+@using TravelFusionLean.Components.Layout.Customer
+@layout CustomerLayout
+@rendermode InteractiveServer
+
+@using Shared.Models
+@using Data
+@using ServiceImplementations
+
+@inject ITravelPackageService travelPackageService
+@inject IContactService contactService
+@inject IBookingService bookingService
+@inject ITravelPackageService travelPackageService 
+
+@* Opstart *@
+@code
+{
+    [Parameter]
+    public int TravelPackageId { get; set; }
+
+    TravelPackage travelPackage;
+    Traveller[] travellers;
+
+    protected override async Task OnInitializedAsync()
+    {
+        travelPackage = (await travelPackageService.GetByIdAsync(TravelPackageId));
+        travellers = new Traveller[travelPackage.NoOfTravellers];
+        for (int i = 0; i < travellers.Length; i++)
+        {
+            travellers[i] = new Traveller();
+        }
+        await base.OnInitializedAsync();
+    }
+}
+
+@*  Rejsende *@
+@if (travelPackage != null && travellers != null)
+{
+    @foreach (Traveller traveller in travellers)
+    {
+        <div class="mb-3">
+            <h5 class="mb-2 toggle-header" @onclick="() => ToggleTraveller(traveller)" style="cursor: pointer;">
+                @((traveller.ShowDetails ? "▼" : "►") + " " + (traveller.FirstName ?? "Rejsende"))
+            </h5>
+            @if (traveller.ShowDetails)
+            {
+                <label>first name</label>
+                <InputText @bind-Value="traveller.FirstName" class="form-control" placeholder="Fornavn" />
+                <label>last name:</label>
+                <InputText @bind-Value="traveller.LastName" class="form-control" placeholder="Efternavn" />
+                <label>Birthday:</label>
+                <InputDate @bind-Value="traveller.DateOfBirth" class="form-control" />
+                <label>Gender</label>
+                <InputText @bind-Value="traveller.Gender" class="form-control" placeholder="køn"/>
+
+                <div class="form-group">
+                    <label>Nationality</label>
+                    <InputText @bind-Value="traveller.Nationality" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Passport Number</label>
+                    <InputText @bind-Value="traveller.PassportNumber" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Passport Expiry</label>
+                    <InputDate @bind-Value="traveller.PassportExpiry" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label>Passport Issuing Country</label>
+                    <InputText @bind-Value="traveller.PassportIssuingCountry" class="form-control" />
+                </div>
+            }
+        </div>
+    }
+}
+else
+{
+    <p>Indlæser rejsedata...</p>
+}
+@code {
+    private void ToggleTraveller(Traveller traveller)
+    {
+        traveller.ShowDetails = !traveller.ShowDetails;
+    }
+}
+
+
+
+
+@* rejseansvarlig *@ 
+<div>
+    <label>Who is Travelmanager?:</label>
+    <br />
+    <InputRadioGroup @bind-Value="IsUserTravelManager">
+        <InputRadio Value=true /> I am<br />
+        <InputRadio Value=false /> Other<br />
+    </InputRadioGroup>
+</div>
+@if (IsUserTravelManager == false)
+{
+    <div>
+        <label>Rejseansvarlig navn:</label>
+        <InputText @bind-Value="contact.Name" class="form-control" />
+    </div>
+    <div>
+        <label>Rejseansvarlig telefon:</label>
+        <InputText @bind-Value="contact.PhoneNumber" class="form-control" />
+    </div>
+
+    <div>
+        <label>Email:</label>
+        <InputText @bind-Value="contact.Email" class="form-control" />
+    </div>
+}
+
+@code {
+    public bool IsUserTravelManager = true;
+    private Contact contact = new Contact();
+}
+
+<button class="btn btn-primary" @onclick="Create">fortsæt</button>
+
+ @code
+ {
+    private async Task Create()
+    {
+        Booking booking = new Booking()
+            {
+                TravelPackageId = TravelPackageId,
+
+                Status = BookingStatus.Pending,
+                BookingMadeAt = DateTime.Now,
+
+                travellers = travellers.ToList()
+            };
+        @* 
+        if(Bruger er logget ind){
+            booking.User = currentUser;
+            booking.UserId = currentUser.Id;
+        } *@
+
+        if (!IsUserTravelManager)
+        {
+            contact = await contactService.AddAsync(contact);
+
+            booking.TravelManagerContact = contact;
+            booking.TravelManagerContactId = contact.Id;
+        }
+        else{
+            booking.TravelManagerContactId = 5; //Udskift mig når login kører
+        }
+        @* else {
+            booking.TravelManagerContact = CurrentUser.Contact;
+            booking.TravelManagerContactId = CurrentUser.Contact.Id;
+        } *@
+
+        
+
+        booking = await (bookingService.AddAsync(booking));
+
+        travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
+        travelPackageService.UpdateAsync(travelPackage);
+
+    }
+}

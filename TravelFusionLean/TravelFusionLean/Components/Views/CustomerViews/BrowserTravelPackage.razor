@@ -1,0 +1,124 @@
+﻿@page "/Travelpackage-Browse"
+@using Shared.Dtos
+@using TravelFusionLean.Components.Layout.Customer
+@layout CustomerLayout
+@rendermode InteractiveServer
+
+@using Shared.Models
+@using Data
+@using ServiceImplementations;
+@inject ITravelPackageService travelPackageService
+
+<h3>BrowserTravelPackage</h3>
+
+<div>
+    <label for="departureLocation">Afrejsested (by eller land):</label>
+    <input type="text" id="departureLocation" @bind="DepartureLocation" placeholder="F.eks. Danmark eller København" />
+
+    <label for="destination">Destination (by eller land):</label>
+    <input type="text" id="destination" @bind="destinationSearch" placeholder="F.eks. Paris eller Frankrig" />
+
+    <label for="dateFrom">Tidligste afrejsedato:</label>
+    <input type="date" id="dateFrom" @bind="startDateSearch" />
+
+    <label for="travelers">Antal rejsende:</label>
+    <input type="number" id="travelers" @bind="NoOfTravelers" min="1" />
+
+    <label for="priceFrom">Pris (min):</label>
+    <input type="number" id="priceFrom" @bind="priceFromSearch" />
+
+    <label for="priceTo">Pris (maks):</label>
+    <input type="number" id="priceTo" @bind="priceToSearch" />
+
+    <br />
+    <button @onclick="SearchTravelPackages">Søg</button>
+</div>
+<br />
+
+@code{
+    private string? DepartureLocation;
+    private string? destinationSearch;
+    private DateOnly? startDateSearch = DateOnly.FromDateTime(DateTime.Now);
+    private int? NoOfTravelers;
+    private decimal priceFromSearch = 0;
+    private decimal priceToSearch = 10000;
+
+    private string noResultsMessage = "";
+
+    private async Task SearchTravelPackages() 
+    {
+        TravelPackageSearchDTO searchDTO = new TravelPackageSearchDTO();
+
+        searchDTO.DepartureLocation = DepartureLocation;
+        searchDTO.Destination = destinationSearch;
+        searchDTO.DepartureDateEarliest = startDateSearch;
+        searchDTO.NumberOfTravelers = NoOfTravelers;
+        searchDTO.MinPrice = priceFromSearch;
+        searchDTO.MaxPrice = priceToSearch;
+
+        var result = await travelPackageService.SearchAvailableAsync(searchDTO);
+        _travelPackages = result.ToList();
+        resultCount = _travelPackages.Count;
+          
+        if (_travelPackages.Count == 0)
+        {
+            noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
+        }
+        else
+        {
+            noResultsMessage = ""; // Hvis der er fundet resultater, nulstil beskeden
+        }
+    }
+}
+
+@code
+{
+    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+    private int resultCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
+        await LoadTravelPackages();
+    }
+    private async Task LoadTravelPackages()
+    {
+        _travelPackages = (await travelPackageService.GetAvailableAsync()).ToList();
+        resultCount = _travelPackages.Count;
+    }
+
+}
+
+
+@if (!string.IsNullOrEmpty(noResultsMessage))
+{
+    <p>@noResultsMessage</p>
+}
+else
+{
+    <p>results: @resultCount</p>
+    <div class="container">
+        <div class="row">
+            @foreach (var package in _travelPackages)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <!-- Billede - Brug placeholder hvis der ikke findes billede -->
+                        <img src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
+
+                        <div class="card-body">
+                            <h5 class="card-title">@package.Headline</h5>
+                            <p class="card-text">@package.Description</p>
+                            <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
+
+                            <p><strong>Pris:</strong> @package.Price</p>
+
+                            <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Show more</a>
+                            <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@package.Id">Book</a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

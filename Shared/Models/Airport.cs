@@ -12,6 +12,8 @@ public class Airport
     [Key]
     public int Id { get; set; }
 
+    public string Name { get; set; }
+
     [Required]
     [StringLength(128)]
     public string Country { get; set; }

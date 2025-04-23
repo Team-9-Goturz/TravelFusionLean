@@ -2,6 +2,8 @@
 using Shared.Models;
 using Data;
 using ServiceContracts;
+using Shared.Dtos;
+using static Shared.Models.TravelPackage;
 
 namespace ServiceImplementations;
 
@@ -18,65 +20,48 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<IEnumerable<TravelPackage>> GetAllAsync()
     {
-        return await _context.TravelPackages
+        return _context.TravelPackages
             .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.ArrivalAtAirport)
+                .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+            .Include(tp => tp.HotelStay)
+                .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport);//Eager load indrejse fly og lufthavn
+    }
+    public async Task<IEnumerable<TravelPackage>> GetAvailableAsync()
+    {
+        return _context.TravelPackages
             .Include(tp => tp.OutboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport)
-
             .Include(tp => tp.HotelStay)
                 .ThenInclude(hs => hs.Hotel)
-            .Include(tp => tp.HotelStay)
-                .ThenInclude(hs => hs.Currency)
-
-            .Include(tp => tp.ToHotelTransfer)
-                .ThenInclude(f => f.Currency)
-            .Include(tp => tp.FromHotelTransfer)
-                .ThenInclude(f => f.Currency)
-
-            .ToListAsync();
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Where(tp => tp.Status == TravelPackageStatus.Available)
+            .ToList(); // eller ToListAsync hvis du bruger EF Core
     }
+
+
 
     /// <summary>
     /// Henter en specifik rejsepakke med relaterede entiteter.
     /// </summary>
     public override async Task<TravelPackage?> GetByIdAsync(int id)
     {
-        return await _context.TravelPackages
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.Currency)
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.OutboundFlight).ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.Currency)
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.ArrivalAtAirport)
-            .Include(tp => tp.InboundFlight).ThenInclude(f => f.DepartureFromAirport)
-
-            .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Hotel)
-            .Include(tp => tp.HotelStay).ThenInclude(hs => hs.Currency)
-
-            .Include(tp => tp.ToHotelTransfer).ThenInclude(f => f.Currency)
-            .Include(tp => tp.FromHotelTransfer).ThenInclude(f => f.Currency)
-
-            .FirstOrDefaultAsync(tp => tp.Id == id);
+        return _context.TravelPackages
+           .Include(tp => tp.OutboundFlight)
+               .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+           .Include(tp => tp.HotelStay)
+               .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+           .Include(tp => tp.InboundFlight)
+               .ThenInclude(f => f.DepartureFromAirport)//Eager load indrejse fly og lufthavn
+            .FirstOrDefault(tp => tp.Id == id);
     }
 
     /// <summary>
     /// Søgefunktion til fremtidig implementering af filtrering og brugerdefineret visning.
     /// </summary>
-    public List<TravelPackage> Search()
-    {
-        // Kan udvides med filtreringsparametre som pris, dato, destination osv.
-        return new List<TravelPackage>();
-    }
+
 
     /// <summary>
     /// Opretter en ny rejsepakke.
@@ -111,4 +96,92 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         decimal totalPrice = priceForFlights + priceForHotel;
         return totalPrice;
     }
+    public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)
+    {
+        var travelPackages = await GetAllAsync();
+
+        var filteredPackages = travelPackages.Where(tp =>
+            // Departure location: match på land ELLER by
+            (searchDto.DepartureLocation == null ||
+             tp.OutboundFlight.DepartureFromAirport.Country.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase) ||
+             tp.OutboundFlight.DepartureFromAirport.City.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase)) &&
+
+            // Destination: match på land ELLER by
+            (searchDto.Destination == null ||
+             tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+             tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase)) &&
+
+             //dato
+            (searchDto.DepartureDateEarliest == null ||
+             DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= searchDto.DepartureDateEarliest) &&
+
+             //antal rejsende
+            (searchDto.NumberOfTravelers == null || searchDto.NumberOfTravelers == 0 ||
+             tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
+              
+             //pris
+            (searchDto.MinPrice == null || tp.Price >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.Price <= searchDto.MaxPrice)
+        ).ToList();
+
+        return filteredPackages;
+    }
+    public async Task<List<TravelPackage>> SearchAvailableAsync(TravelPackageSearchDTO searchDto)
+    {
+        var query = _context.TravelPackages
+            .Include(tp => tp.OutboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Include(tp => tp.HotelStay)
+                .ThenInclude(hs => hs.Hotel)
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Where(tp => tp.Status == TravelPackageStatus.Available) 
+            .AsQueryable();
+
+        // Departure location: land eller by
+        if (!string.IsNullOrWhiteSpace(searchDto.DepartureLocation))
+        {
+            query = query.Where(tp =>
+                tp.OutboundFlight.DepartureFromAirport.Country.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase) ||
+                tp.OutboundFlight.DepartureFromAirport.City.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Destination: land eller by
+        if (!string.IsNullOrWhiteSpace(searchDto.Destination))
+        {
+            query = query.Where(tp =>
+                tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+                tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Afgangs-dato
+        if (searchDto.DepartureDateEarliest != null)
+        {
+            query = query.Where(tp =>
+                DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= searchDto.DepartureDateEarliest);
+        }
+
+        // Antal rejsende
+        if (searchDto.NumberOfTravelers != null && searchDto.NumberOfTravelers > 0)
+        {
+            query = query.Where(tp =>
+                tp.NoOfTravellers == searchDto.NumberOfTravelers);
+        }
+
+        // Prisgrænser
+        if (searchDto.MinPrice != null)
+        {
+            query = query.Where(tp => tp.Price >= searchDto.MinPrice);
+        }
+
+        if (searchDto.MaxPrice != null)
+        {
+            query = query.Where(tp => tp.Price <= searchDto.MaxPrice);
+        }
+
+        return await query.ToListAsync();
+    }
+
+
+
 }

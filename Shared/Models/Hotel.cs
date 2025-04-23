@@ -20,11 +20,11 @@ public class Hotel
     [StringLength(600)]
     public string? Description { get; set; }
     
-    [StringLength(128)]
-    public string Rooms { get; set; }
+    //[StringLength(128)]
+    //public string Rooms { get; set; }
 
-    [StringLength(128)]
-    public string StayingGuests { get; set; }
+    //[StringLength(128)]
+    //public string StayingGuests { get; set; }
     public string? Address { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
@@ -32,7 +32,7 @@ public class Hotel
 
     [Column(TypeName = "decimal(9,6)")]
     public decimal Longitude { get; set; }
-    
-    public int CurrencyId { get; set; }
-    public Currency? Currency { get; set; }
+
+    public string Country { get; set; }
+    public string City { get; set; }
 }

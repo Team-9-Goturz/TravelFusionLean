@@ -1,7 +1,19 @@
-﻿<nav class="customer-navbar">
-    <div class="brand">Gotorz Travel Customer</div>
-    <div class="links">
-        <NavLink href="/customer-home" Match="NavLinkMatch.All">Customer Home</NavLink>
-     
+﻿<nav class="customer-navbar navbar navbar-expand-lg navbar-dark" style="background-color: #004aad;">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Gotorz Travel Customer</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <NavLink href="/customer-home" class="nav-link" Match="NavLinkMatch.All">Customer Home</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink href="/Travelpackage-Browse" class="nav-link">See All Travelpackages</NavLink>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
+

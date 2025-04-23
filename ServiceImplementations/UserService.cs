@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
+using Shared.Models;
 using TravelFusionLean.Models;
 
 namespace ServiceImplementations
@@ -55,7 +56,13 @@ namespace ServiceImplementations
                 throw;
             }
         }
-
+        public async override Task<User?> GetByIdAsync(int id)
+        {
+            return _context.Users
+            .Include(u => u.UserRole)
+            .Include(u => u.Contact)
+            .FirstOrDefault(u => u.Id == id);
+        }
 
         public async Task<bool> IsUsernameAvailableAsync(string requestedUsername)
         {
@@ -118,10 +125,21 @@ namespace ServiceImplementations
             }
         }
 
-        public Task<User> Update(User user)
+        public async Task<User> Update(User user)
         {
-            throw new NotImplementedException();
+            _context.Users.Update(user);          
+            await _context.SaveChangesAsync();        
+            return user;
         }
+
+        public override async Task<IEnumerable<User>> GetAllAsync()
+        {
+            return _context.Users
+           .Include(u => u.UserRole) // Eager load rollen
+           .Include(u => u.Contact)
+           .ToList();
+        }
+
 
         public async Task<User?> AuthenticateUserAsync(string email, string password)
         {
@@ -139,6 +157,5 @@ namespace ServiceImplementations
 
             return null;
         }
-
     }
 }

@@ -1,19 +1,26 @@
 ﻿@inherits LayoutComponentBase
 
+<div class="page d-flex flex-column min-vh-100">
 
-<div class="page">
-    
-    <TopNavBar/>
-    <main>
-        <div class="top-row px-4 bg-primary">
-            <a class="text-light" href="" target="_blank">About Us</a>
-            <img class="mt-1 ml-5 mr-5 mb-1" alt="Gotorz Logo" src="C:/Users/alber/RiderProjects/Screenshot_2025-03-17_151101.png"/>
+    <!-- Fixed Top Nav -->
+    <header class="bg-primary text-light px-4 py-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <img src="/images/GoTorz.png" alt="Gotorz Logo" style="max-height: 50px;" />
+            <h5 class="mb-0">Gotorz Travel Customer</h5>
         </div>
 
-        <article class="content px-4">
-            @Body
-        </article>
+        <nav>
+            <a class="text-light me-3" href="#">Customer Home</a>
+            <a class="text-light me-3" href="#">Travelpackages</a>
+            <a class="text-light" href="#">About Us</a>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-fill px-4 py-5">
+        @Body
     </main>
+
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

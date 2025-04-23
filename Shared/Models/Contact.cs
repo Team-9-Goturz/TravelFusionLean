@@ -18,5 +18,9 @@ namespace Shared.Models
         [Required(ErrorMessage = "Telefonnummer er påkrævet.")]
         [RegularExpression(@"^(?:\+|00)?[0-9\s\-]{6,20}$", ErrorMessage = "Ugyldigt telefonnummer.")]
         public string PhoneNumber { get; set; }
+
+        //[Required(ErrorMessage = "Email er påkrævet.")]
+        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldig email.")]
+        public string Email { get; set; }
     }
 }

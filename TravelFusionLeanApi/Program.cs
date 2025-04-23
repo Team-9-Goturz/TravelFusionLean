@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://localhost:7177")
+        policy.WithOrigins("travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
               .AllowAnyHeader()
               .AllowAnyMethod();
     }); 
@@ -49,8 +49,8 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 
 var app = builder.Build();
 
-/// Swagger vises kun i udviklingsmilj�
-if (app.Environment.IsDevelopment())
+/// Swagger vises kun i udviklingsmiljø og produktion
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -64,4 +64,5 @@ app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
+app.MapGet("/", () => "TravelFusionLean API is running!");
 app.Run();

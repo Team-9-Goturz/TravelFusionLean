@@ -24,33 +24,41 @@ builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
 builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
 builder.Services.AddScoped<TravelPackageState>();
 
-
-
-var app = builder.Build();
-
-/// <summary>
-/// Konfigurerer middleware til udvikling og produktion.
-/// </summary>
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseWebAssemblyDebugging();
+
+    var app = builder.Build();
+
+    /// <summary>
+    /// Konfigurerer middleware til udvikling og produktion.
+    /// </summary>
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseWebAssemblyDebugging();
+    }
+    else
+    {
+        app.UseExceptionHandler("/Error", createScopeForErrors: true);
+        // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+        app.UseHsts();
+    }
+
+    app.UseHttpsRedirection();
+    app.UseAntiforgery();
+
+    /// <summary>
+    /// Konfigurerer routing og rendering for Blazor-komponenter.
+    /// </summary>
+    app.MapStaticAssets();
+    app.MapRazorComponents<App>()
+        .AddInteractiveServerRenderMode()
+        .AddInteractiveWebAssemblyRenderMode();
+
+    app.Run();
 }
-else
+catch (Exception ex)
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    Console.WriteLine("Fatal fejl under opstart: " + ex.Message);
+    Console.WriteLine("Stacktrace: " + ex.StackTrace);
+    throw;
 }
-
-app.UseHttpsRedirection();
-app.UseAntiforgery();
-
-/// <summary>
-/// Konfigurerer routing og rendering for Blazor-komponenter.
-/// </summary>
-app.MapStaticAssets();
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode();
-
-app.Run();
