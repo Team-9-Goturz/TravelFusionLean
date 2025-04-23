@@ -30,7 +30,8 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
+        policy.WithOrigins("https://travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
+
               .AllowAnyHeader()
               .AllowAnyMethod();
     }); 
@@ -39,9 +40,10 @@ builder.Services.AddCors(options =>
 /// Registrerer HttpClients til mock-API�er
 builder.Services.AddHttpClient<IFlightService, FlightService>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5225/");
+    client.BaseAddress = new Uri("https://mockflightapi-webapp.azurewebsites.net");
 });
 
+//mockhotelsapi stadig ikke deployed
 builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 {
     client.BaseAddress = new Uri("http://localhost:5144/");
@@ -49,16 +51,15 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 
 var app = builder.Build();
 
-/// Swagger vises kun i udviklingsmiljø og produktion
-if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+/// Swagger vises
+app.UseSwagger();
+app.UseSwaggerUI(options =>
+
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
-        options.RoutePrefix = string.Empty;
-    });
-}
+    options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
+    options.RoutePrefix = string.Empty;
+});
+
 
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");

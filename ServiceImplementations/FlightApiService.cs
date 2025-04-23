@@ -14,7 +14,7 @@ public class FlightApiService(HttpClient httpClient) : IFlightApiService
 
     public async Task<IEnumerable<Flight>> GetAllFlightsAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightData>>("https://localhost:7274/api/flights");
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<FlightData>>("https://mockflightapi-webapp.azurewebsites.net");
         var flights = new List<Flight>();
         if (response == null) return flights;
         foreach (var flightData in response)
