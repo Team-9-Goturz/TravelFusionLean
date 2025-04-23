@@ -9,7 +9,6 @@ using TravelFusionLeanApi.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 /// <summary>
 /// Binder konfigurationsafsnittet 'ApiSettings' fra appsettings.json til en stærkt typet klasse, så det kan bruges i hele applikationen.
 /// </summary>
@@ -39,10 +38,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins("https://travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
-
               .AllowAnyHeader()
               .AllowAnyMethod();
-    }); 
+    });
 });
 
 /// <summary>
@@ -69,7 +67,6 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
 
 var app = builder.Build();
 
-
 /// <summary>
 /// Aktiverer Swagger UI i både Development og Production, med korrekt endpoint afhængigt af miljø.
 /// </summary>
@@ -78,18 +75,14 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        var swaggerUrl = app.Environment.IsProduction()
-            ? "https://travelfusionapi-hve3ajcqcdcyexfe.canadacentral-01.azurewebsites.net/swagger/v1/swagger.json"
-            : "/swagger/v1/swagger.json";
-
+        var swaggerUrl = "/swagger/v1/swagger.json";
         options.SwaggerEndpoint(swaggerUrl, "TravelFusionLean API v1");
         options.RoutePrefix = string.Empty;
     });
 }
 
-
-
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
