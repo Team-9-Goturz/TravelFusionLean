@@ -51,14 +51,18 @@ builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
 
 var app = builder.Build();
 
-/// Swagger vises
-app.UseSwagger();
-app.UseSwaggerUI(options =>
 
+// Swagger middleware - aktiveres i både Development og Production
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
-    options.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
+        options.RoutePrefix = string.Empty; // Swagger UI bliver vist på roden (/)
+    });
+}
+
 
 
 app.UseHttpsRedirection();
