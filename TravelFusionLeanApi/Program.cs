@@ -4,8 +4,16 @@ using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
 using TravelFusionLeanApi.Services;
+using Microsoft.Extensions.Options;
+using TravelFusionLeanApi.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+/// <summary>
+/// Binder konfigurationsafsnittet 'ApiSettings' fra appsettings.json til en stærkt typet klasse, så det kan bruges i hele applikationen.
+/// </summary>
+builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 
 /// Tilf�jer controller-underst�ttelse og enum-serialisering
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -37,37 +45,45 @@ builder.Services.AddCors(options =>
     }); 
 });
 
-/// Registrerer HttpClients til mock-API�er
-builder.Services.AddHttpClient<IFlightService, FlightService>(client =>
+/// <summary>
+/// Registrerer HttpClient til FlightService. Bruger base URL fra ApiSettings-konfigurationen.
+/// </summary>
+builder.Services.AddHttpClient<IFlightService, FlightService>((sp, client) =>
 {
-    client.BaseAddress = new Uri("https://mockflightapi-webapp.azurewebsites.net");
+    var settings = sp.GetRequiredService<IOptions<ApiSettings>>().Value;
+    client.BaseAddress = new Uri(settings.MockFlightsApiUrl);
 });
 
-//mockhotelsapi stadig ikke deployed
-builder.Services.AddHttpClient<IHotelService, HotelService>(client =>
+/// <summary>
+/// Registrerer HttpClient til HotelService. Bruger kun base URL hvis den er sat i ApiSettings.
+/// Dette gør det muligt at undgå fejl, hvis MockHotelsAPI ikke er deployet.
+/// </summary>
+builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
 {
-    client.BaseAddress = new Uri("http://localhost:5144/");
+    var settings = sp.GetRequiredService<IOptions<ApiSettings>>().Value;
+    if (!string.IsNullOrWhiteSpace(settings.MockHotelsApiUrl))
+    {
+        client.BaseAddress = new Uri(settings.MockHotelsApiUrl);
+    }
 });
 
 var app = builder.Build();
 
 
-// Swagger middleware - aktiveres i både Development og Production
+/// <summary>
+/// Aktiverer Swagger UI i både Development og Production, med korrekt endpoint afhængigt af miljø.
+/// </summary>
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
     {
-        if (app.Environment.IsProduction())
-        {
-            options.SwaggerEndpoint("https://travelfusionapi-hve3ajcqcdcyexfe.canadacentral-01.azurewebsites.net/swagger/v1/swagger.json", "TravelFusionLean API v1");
-        }
-        else
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "TravelFusionLean API v1");
-        }
+        var swaggerUrl = app.Environment.IsProduction()
+            ? "https://travelfusionapi-hve3ajcqcdcyexfe.canadacentral-01.azurewebsites.net/swagger/v1/swagger.json"
+            : "/swagger/v1/swagger.json";
 
-        options.RoutePrefix = string.Empty; // Swagger UI bliver vist på roden (/)
+        options.SwaggerEndpoint(swaggerUrl, "TravelFusionLean API v1");
+        options.RoutePrefix = string.Empty;
     });
 }
 
