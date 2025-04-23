@@ -140,18 +140,24 @@
 
 
                 <!-- Hotelinformation heller ikke bindet endnu -->
-                <div class="card shadow-sm">
-                    <div class="card-header fw-bold">Selected Hotel</div>
-                    <div class="card-body">
-                        <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
-                        <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
-                        <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
-                        <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
-                        <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
-                        <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
+                @if (travelpackage.HotelStay != null)
+                {
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header fw-bold">Selected Hotel</div>
+                        <div class="card-body">
+                            <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
+                            <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
+                            <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
+                            <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
+                            <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
+                            <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
+                        </div>
                     </div>
-                </div>
-                
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-2">No hotel selected.</div>
+                }
             </div>
         }
         else
@@ -181,7 +187,7 @@
     TravelPackage travelpackage = new()
         {
             OutboundFlight = new Flight(),       
-            HotelStay = new HotelStay()
+            HotelStay = null
         };
 
 
@@ -227,9 +233,20 @@
         if (formErrorMessages.Any())
             return;
 
-        //ellers gemmer den, hvis der ikke er fejl
         try
         {
+            if (travelpackage.HotelStay == null)
+            {
+                travelpackage.HotelStay = null; 
+            }
+
+
+            if (travelPackageState.SelectedFlight != null)
+            {
+                travelpackage.OutboundFlight = travelPackageState.SelectedFlight;
+                travelpackage.Status = TravelPackage.TravelPackageStatus.Available;
+            }
+
             await TravelPackageService.AddAsync(travelpackage);
         }
         catch (Exception ex)
