@@ -35,4 +35,6 @@ public class Hotel
 
     public string Country { get; set; }
     public string City { get; set; }
+    public Currency? Curreny{ get; set; }
+    public int Rating;
 }
