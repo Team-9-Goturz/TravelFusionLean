@@ -130,9 +130,13 @@ else{
                     @package.OutboundFlight?.Airline
                 </td>
                 <td>
-                    @package.HotelStay.CheckInDate.ToString("d") <br />
-                    @package.HotelStay.CheckOutDate.ToString("d") <br />
-                    @package.HotelStay.Hotel.Name <br />
+                    @if (package.HotelStay!= null)
+                    {
+                        @package.HotelStay.CheckInDate.ToString("d") <br />
+                        @package.HotelStay.CheckOutDate.ToString("d") <br />
+                        @package.HotelStay.Hotel.Name <br />
+                    }
+
                 </td>
                 <td>
                     @package.InboundFlight?.DepartureFromAirport.Name <br />
