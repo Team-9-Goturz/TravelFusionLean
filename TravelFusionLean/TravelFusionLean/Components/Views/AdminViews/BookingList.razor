@@ -1,0 +1,84 @@
+﻿@page "/BookingList"
+
+@using Microsoft.EntityFrameworkCore
+@using ServiceImplementations
+@using Shared.Dtos
+@using Shared.Models
+@using Data
+@using ServiceImplementations;
+@inject IBookingService bookingService
+
+@layout AdminLayout
+@rendermode InteractiveServer
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Components.Layout.Admin
+
+<h3>BookingList</h3>
+
+@code
+{
+    private List<Booking> _bookings = new List<Booking>();
+    private int resultCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
+        await LoadBookings();
+    }
+
+    private async Task LoadBookings()
+    {
+        var result = await bookingService.GetAllAsync();
+        _bookings = result.ToList();
+        resultCount = _bookings.Count;
+    }
+}
+<table border="1" class="table">
+    <thead>
+        <tr>
+            <th>Beskrivelse</th>
+            <th>Antal Rejsende</th>
+            <th>Fly (udrejse)</th>
+            <th>Hotel</th>
+            <th>Fly (hjemrejse)</th>
+            <th>Pris</th>
+            <th>Status</th>
+            <th>Booket den</th>
+            <th>Handling</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in _bookings)
+        {
+            <tr>
+                <td>
+                    <strong>@booking.TravelPackage?.Headline</strong><br />
+                    @booking.TravelPackage?.Description
+                </td>
+                <td>@booking.travellers?.Count()</td>
+                <td>
+                    @booking.TravelPackage?.OutboundFlight?.DepartureFromAirport?.Name <br />
+                    @booking.TravelPackage?.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @booking.TravelPackage?.OutboundFlight?.Airline
+                </td>
+                <td>
+                    @if (booking.TravelPackage?.HotelStay != null)
+                    {
+                        @booking.TravelPackage.HotelStay.CheckInDate.ToString("d") <br />
+                        @booking.TravelPackage.HotelStay.CheckOutDate.ToString("d") <br />
+                        @booking.TravelPackage.HotelStay.Hotel?.Name
+                    }
+                </td>
+                <td>
+                    @booking.TravelPackage?.InboundFlight?.DepartureFromAirport?.Name <br />
+                    @booking.TravelPackage?.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @booking.TravelPackage?.InboundFlight?.Airline
+                </td>
+                <td>@booking.TravelPackage?.Price.ToString("C")</td>
+                <td>@booking.Status</td>
+                <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
+                   
+            </tr>
+        }
+    </tbody>
+</table>
