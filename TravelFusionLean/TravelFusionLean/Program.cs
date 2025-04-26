@@ -5,12 +5,19 @@ using ServiceImplementations;
 using Shared.Models;
 using TravelFusionLean.Components;
 using Data;
+using TravelFusionLean;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Her henter vi connection string fra appsettings.json
 var configuration = builder.Configuration;
+
+// 1. Tilføj Stripe-konfiguration fra appsettings.json
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+
+// 2. Tilføj StripeService til Dependency Injection
+builder.Services.AddSingleton<StripeService>();
 
 // Tilføj DbContext med migrations assembly sat korrekt
 builder.Services.AddDbContext<AppDbContext>(options =>

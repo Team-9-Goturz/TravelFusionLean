@@ -16,8 +16,9 @@ public class TravelPackage
     public string? Headline { get; set; }
 
     [Column(TypeName = "decimal(30,2)")]
-    public decimal Price { get; set; }
+    public decimal PriceAsDecimal { get; set; }
 
+    public Price Price { get; set; }
     public int NoOfTravellers { get; set; }
 
     [StringLength(600)]

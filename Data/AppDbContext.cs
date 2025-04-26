@@ -111,7 +111,7 @@ namespace Data
                 entity.ToTable("TravelPackage"); //Fortæller Entity framework at Travelpackage modellen skal mappes ned i en tabel kaldet "TravelPackage" i databasen 
                 entity.HasKey(tp => tp.Id); // Fortæller Entity Framework at Id kolonnen i databasen er primærnøgle 
 
-                entity.Property(tp => tp.Price).IsRequired(); //Fortæller Entity framework vi har en price kolonne der IKKE kan være null
+                entity.Property(tp => tp.PriceAsDecimal).IsRequired(); //Fortæller Entity framework vi har en price kolonne der IKKE kan være null
 
                 entity.Property(tp => tp.Description).HasMaxLength(600); //fortæller Entity framework vores description kolonne maks kan være 600 tegn
 
@@ -176,7 +176,7 @@ namespace Data
 
                 entity.HasKey(p => p.Id);
 
-                // Mapper Price til en separat tabel eller som en værdi-objekt
+                // Mapper PriceAsDecimal til en separat tabel eller som en værdi-objekt
                 entity.OwnsOne(p => p.Price, price =>
                 {
                     price.Property(p => p.Amount)

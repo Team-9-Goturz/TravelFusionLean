@@ -78,7 +78,7 @@
                         <!-- Pris -->
                         <div class="mb-3">
                             <label class="form-label">Price</label>
-                            <InputNumber @bind-Value="travelpackage.Price" class="form-control" readonly="@(manualPriceOverride == false)" />
+                            <InputNumber @bind-Value="travelpackage.PriceAsDecimal" class="form-control" readonly="@(manualPriceOverride == false)" />
                         </div>
 
                         <!-- Description -->
@@ -212,7 +212,7 @@
             {
                 formErrorMessages.Add("Cannot set manual price, because no flight is selected.");
             }
-            else if (travelpackage.Price <= travelPackageState.SelectedFlight.Price)
+            else if (travelpackage.PriceAsDecimal <= travelPackageState.SelectedFlight.Price)
             {
                 formErrorMessages.Add($"Manual price must be greater than the flight price ({travelPackageState.SelectedFlight.Price:0.00}).");
             }
@@ -280,7 +280,7 @@
         {
             var basePrice = travelPackageState.SelectedFlight.Price;
             var markupAmount = basePrice * (selectedMarkup / 100m);
-            travelpackage.Price = basePrice + markupAmount;
+            travelpackage.PriceAsDecimal = basePrice + markupAmount;
         }
     }
 
@@ -316,7 +316,7 @@
 
                 if (value)
                 {
-                    travelpackage.Price = 0;
+                    travelpackage.PriceAsDecimal = 0;
                 }
                 else
                 {

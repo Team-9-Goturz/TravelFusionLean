@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Models
 {
-    // "Owned" Price - det betyder, at Price et value object og ikke har sin egen tabel i databasen, men er en del af Booking
+    // "Owned" PriceAsDecimal - det betyder, at PriceAsDecimal et value object og ikke har sin egen tabel i databasen, men er en del af Booking
     [Owned]
     public class Price
     {

@@ -111,8 +111,8 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
              tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
               
              //pris
-            (searchDto.MinPrice == null || tp.Price >= searchDto.MinPrice) &&
-            (searchDto.MaxPrice == null || tp.Price <= searchDto.MaxPrice)
+            (searchDto.MinPrice == null || tp.PriceAsDecimal >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.PriceAsDecimal <= searchDto.MaxPrice)
         ).ToList();
 
         return filteredPackages;
