@@ -1,9 +1,10 @@
-using Configuration;
+﻿using Configuration;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
 using ServiceImplementations;
 using Shared.Models;
 using TravelFusionLean.Components;
+using Data;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,9 +12,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Her henter vi connection string fra appsettings.json
 var configuration = builder.Configuration;
 
+// Tilføj DbContext med migrations assembly sat korrekt
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+    sqlOptions => sqlOptions.MigrationsAssembly("Data"))); // 👈 Her specificeres migrations-projektet
 
 /// <summary>
-/// Tilf�jer Razor-komponenter (Blazor) med underst�ttelse for WebAssembly og Server-rendering.
+/// Tilføjer Razor-komponenter (Blazor) med understøttelse for WebAssembly og Server-rendering.
 /// </summary>
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()

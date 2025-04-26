@@ -137,56 +137,115 @@ namespace Data
 
             modelBuilder.Entity<Booking>(entity =>
             {
-                entity.ToTable("Booking"); // Specificerer, at entiteten 'Booking' skal mappes til tabellen 'Booking' i databasen
+                entity.ToTable("Booking");
 
-                entity.HasKey(b => b.Id); // Angiver, at 'Id' er primærnøgle for tabellen
+                entity.HasKey(b => b.Id);
 
                 entity.Property(b => b.BookingMadeAt)
-                      .IsRequired(); // BookingDate må ikke være null (obligatorisk felt)
+                      .IsRequired();
 
-                entity.HasOne(b => b.TravelPackage) // Booking refererer til én TravelPackage
-                    .WithOne() // TravelPackage har højst én Booking (0..1)
-                    .HasForeignKey<Booking>(b => b.TravelPackageId) // Fremmednøgle i Booking-tabellen
-                    .IsRequired() // Booking SKAL være knyttet til en rejsepakke
-                    .OnDelete(DeleteBehavior.Restrict); // Forhindrer sletning af rejsepakker hvis der findes en booking
+                // One-to-Many relation: En TravelPackage kan have mange Bookings (kun en aktiv, men måske rejsepakken optræder på annulerede bookinger)
+                entity.HasOne(b => b.TravelPackage)
+                      .WithMany()  // Flere Bookings kan være knyttet til ét TravelPackage
+                      .HasForeignKey(b => b.TravelPackageId) // ForeignKey for Bookings
+                      .IsRequired()
+                      .OnDelete(DeleteBehavior.Restrict); // Du kan justere onDelete hvis nødvendigt
+
+                entity.OwnsOne(b => b.Price, price =>
+                {
+                    price.Property(p => p.Amount)
+                         .HasColumnName("PriceAmount")
+                         .HasPrecision(18, 0)
+                         .IsRequired();
+
+                    price.Property(p => p.Currency)
+                         .HasColumnName("PriceCurrency")
+                         .IsRequired();
+                });
             });
+
 
             modelBuilder.Entity<Traveller>(entity =>
+                {
+                    entity.ToTable("Traveller"); // Tabellens navn
+
+                    entity.HasKey(t => t.Id); // Primærnøgle
+
+                    entity.Property(t => t.FirstName)
+                          .IsRequired(); // Fornavn skal være angivet
+
+                    entity.Property(t => t.LastName)
+                          .IsRequired(); // Efternavn skal være angivet
+
+                    entity.Property(t => t.DateOfBirth)
+                          .IsRequired(); // Fødselsdato er obligatorisk
+
+                    entity.Property(t => t.Gender)
+                          .IsRequired(); // Køn skal være angivet
+
+                    entity.Property(t => t.Nationality)
+                          .IsRequired(); // Nationalitet er påkrævet
+
+                    entity.Property(t => t.PassportNumber)
+                          .IsRequired(); // Pasnummer er påkrævet
+
+                    entity.Property(t => t.PassportExpiry)
+                          .IsRequired(); // Udløbsdato på pas er påkrævet
+
+                    entity.Property(t => t.PassportIssuingCountry)
+                          .IsRequired(); // Udstedelsesland for pas er påkrævet
+
+                    entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
+                          .WithMany(b => b.travellers) // En booking kan have mange travellers
+                          .HasForeignKey(t => t.BookingId) // Fremmednøgle i Traveller-tabellen
+                          .IsRequired() // Hver traveller SKAL være knyttet til en booking
+                          .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
+                });
+            modelBuilder.Entity<Payment>(entity =>
             {
-                entity.ToTable("Traveller"); // Tabellens navn
+                // Mapper til tabellen "Payment"
+                entity.ToTable("Payment", "dbo");
 
-                entity.HasKey(t => t.Id); // Primærnøgle
+                // Primærnøgle for Payment-tabellen
+                entity.HasKey(p => p.Id);
 
-                entity.Property(t => t.FirstName)
-                      .IsRequired(); // Fornavn skal være angivet
+                // Mapper Price til en separat tabel eller som en værdi-objekt
+                entity.OwnsOne(p => p.Price, price =>
+                {
+                    // Mappede egenskaber for Price objektet
+                    price.Property(p => p.Amount)
+                        .HasColumnName("PriceAmount")
+                         .IsRequired()
+                         .HasColumnType("decimal(18,2)"); // Forventet at beløbet er decimal
 
-                entity.Property(t => t.LastName)
-                      .IsRequired(); // Efternavn skal være angivet
+                    price.Property(p => p.Currency)
+                         .HasColumnName("PriceCurrency")
+                         .IsRequired()
+                         .HasMaxLength(3); // ISO valuta kode (f.eks. USD, EUR)
+                });
 
-                entity.Property(t => t.DateOfBirth)
-                      .IsRequired(); // Fødselsdato er obligatorisk
+                // Mapper PaymentMethodId (Stripe Payment Method ID) til en simpel streng
+                entity.Property(p => p.PaymentMethodId)
+                      .IsRequired() // Påkrævet
+                      .HasMaxLength(255); // Max længde for Payment Method ID
 
-                entity.Property(t => t.Gender)
-                      .IsRequired(); // Køn skal være angivet
+                // Mapper Status (status for betalingen, f.eks. "succeeded", "failed")
+                entity.Property(p => p.Status)
+                      .IsRequired()
+                      .HasMaxLength(50); // Max længde for statusbeskrivelse
 
-                entity.Property(t => t.Nationality)
-                      .IsRequired(); // Nationalitet er påkrævet
+                // Mapper StripePaymentIntentId (Stripe's Payment Intent ID)
+                entity.Property(p => p.StripePaymentIntentId)
+                      .HasMaxLength(255); // Max længde for Payment Intent ID, kan være null
 
-                entity.Property(t => t.PassportNumber)
-                      .IsRequired(); // Pasnummer er påkrævet
-
-                entity.Property(t => t.PassportExpiry)
-                      .IsRequired(); // Udløbsdato på pas er påkrævet
-
-                entity.Property(t => t.PassportIssuingCountry)
-                      .IsRequired(); // Udstedelsesland for pas er påkrævet
-
-                entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
-                      .WithMany(b => b.travellers) // En booking kan have mange travellers
-                      .HasForeignKey(t => t.BookingId) // Fremmednøgle i Traveller-tabellen
-                      .IsRequired() // Hver traveller SKAL være knyttet til en booking
-                      .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
+                // Fremmednøgle til Booking, som refererer til én booking
+                entity.HasOne(p => p.Booking)
+                      .WithMany() // En booking kan have mange betalinger
+                      .HasForeignKey(p => p.BookingId) // Fremmednøgle i Payment-tabellen
+                      .IsRequired(); // Påkrævet (da BookingId er obligatorisk)
             });
+
+
 
 
         }

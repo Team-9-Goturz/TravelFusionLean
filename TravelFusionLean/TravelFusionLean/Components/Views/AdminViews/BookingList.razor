@@ -55,25 +55,7 @@
                     <strong>@booking.TravelPackage?.Headline</strong><br />
                     @booking.TravelPackage?.Description
                 </td>
-                <td>@booking.travellers?.Count()</td>
-                <td>
-                    @booking.TravelPackage?.OutboundFlight?.DepartureFromAirport?.Name <br />
-                    @booking.TravelPackage?.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
-                    @booking.TravelPackage?.OutboundFlight?.Airline
-                </td>
-                <td>
-                    @if (booking.TravelPackage?.HotelStay != null)
-                    {
-                        @booking.TravelPackage.HotelStay.CheckInDate.ToString("d") <br />
-                        @booking.TravelPackage.HotelStay.CheckOutDate.ToString("d") <br />
-                        @booking.TravelPackage.HotelStay.Hotel?.Name
-                    }
-                </td>
-                <td>
-                    @booking.TravelPackage?.InboundFlight?.DepartureFromAirport?.Name <br />
-                    @booking.TravelPackage?.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
-                    @booking.TravelPackage?.InboundFlight?.Airline
-                </td>
+                    <td>@booking.TravelPackage?.NoOfTravellers</td>
                 <td>@booking.TravelPackage?.Price.ToString("C")</td>
                 <td>@booking.Status</td>
                 <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
