@@ -15,9 +15,10 @@ namespace ServiceImplementations
     {
         public override async Task<IEnumerable<Booking>> GetAllAsync()
         {
-            return _context.Bookings
+            return await _context.Bookings
                 .Include(b => b.TravelPackage)
-                .Include(b => b.Payment);  
+                .ToListAsync(); // <-- Her!
+
         }
     }
 }

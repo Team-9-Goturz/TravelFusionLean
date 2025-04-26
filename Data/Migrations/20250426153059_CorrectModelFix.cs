@@ -6,11 +6,14 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Data.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateBookingPrice : Migration
+    public partial class CorrectModelFix : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "dbo");
+
             migrationBuilder.CreateTable(
                 name: "Airport",
                 columns: table => new
@@ -259,8 +262,7 @@ namespace Data.Migrations
                     UserId = table.Column<int>(type: "int", nullable: true),
                     TravelManagerContactId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    BookingMadeAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    paymentId = table.Column<int>(type: "int", nullable: true)
+                    BookingMadeAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -286,16 +288,18 @@ namespace Data.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Payment",
+                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Price_Amount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Price_Currency = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethodId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StripePaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BookingId = table.Column<int>(type: "int", nullable: false)
+                    PriceAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    PriceCurrency = table.Column<int>(type: "int", maxLength: 3, nullable: false),
+                    PaymentMethodId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    StripePaymentIntentId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    BookingId = table.Column<int>(type: "int", nullable: false),
+                    BookingId1 = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -303,6 +307,12 @@ namespace Data.Migrations
                     table.ForeignKey(
                         name: "FK_Payment_Booking_BookingId",
                         column: x => x.BookingId,
+                        principalTable: "Booking",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Payment_Booking_BookingId1",
+                        column: x => x.BookingId1,
                         principalTable: "Booking",
                         principalColumn: "Id");
                 });
@@ -342,8 +352,7 @@ namespace Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_TravelPackageId",
                 table: "Booking",
-                column: "TravelPackageId",
-                unique: true);
+                column: "TravelPackageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Booking_UserId",
@@ -377,9 +386,17 @@ namespace Data.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_BookingId",
+                schema: "dbo",
                 table: "Payment",
-                column: "BookingId",
-                unique: true);
+                column: "BookingId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payment_BookingId1",
+                schema: "dbo",
+                table: "Payment",
+                column: "BookingId1",
+                unique: true,
+                filter: "[BookingId1] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Traveller_BookingId",
@@ -433,7 +450,8 @@ namespace Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Payment");
+                name: "Payment",
+                schema: "dbo");
 
             migrationBuilder.DropTable(
                 name: "Traveller");

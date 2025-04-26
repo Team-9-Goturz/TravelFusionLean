@@ -21,6 +21,7 @@ namespace Data
         public DbSet<TravelPackage> TravelPackages { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Traveller> Travellers { get; set; }
+        //public DbSet<Payment> Payments { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -142,27 +143,29 @@ namespace Data
                 entity.HasKey(b => b.Id);
 
                 entity.Property(b => b.BookingMadeAt)
-                      .IsRequired();
+                    .IsRequired();
 
-                // One-to-Many relation: En TravelPackage kan have mange Bookings (kun en aktiv, men måske rejsepakken optræder på annulerede bookinger)
                 entity.HasOne(b => b.TravelPackage)
-                      .WithMany()  // Flere Bookings kan være knyttet til ét TravelPackage
-                      .HasForeignKey(b => b.TravelPackageId) // ForeignKey for Bookings
-                      .IsRequired()
-                      .OnDelete(DeleteBehavior.Restrict); // Du kan justere onDelete hvis nødvendigt
+                    .WithMany() // Flere Bookings kan være knyttet til ét TravelPackage
+                    .HasForeignKey(b => b.TravelPackageId)
+                    .IsRequired()
+                    .OnDelete(DeleteBehavior.Restrict);
 
                 entity.OwnsOne(b => b.Price, price =>
                 {
                     price.Property(p => p.Amount)
-                         .HasColumnName("PriceAmount")
-                         .HasPrecision(18, 0)
-                         .IsRequired();
+                        .HasColumnName("PriceAmount")
+                        
+                        .HasPrecision(18, 0)
+                        .IsRequired();
 
                     price.Property(p => p.Currency)
-                         .HasColumnName("PriceCurrency")
-                         .IsRequired();
+                        .HasColumnName("PriceCurrency")
+                        .HasConversion<string>() // <-- Konverter enum til string
+                        .IsRequired();
                 });
             });
+
 
 
             modelBuilder.Entity<Traveller>(entity =>
@@ -201,49 +204,26 @@ namespace Data
                           .IsRequired() // Hver traveller SKAL være knyttet til en booking
                           .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
                 });
-            modelBuilder.Entity<Payment>(entity =>
-            {
-                // Mapper til tabellen "Payment"
-                entity.ToTable("Payment", "dbo");
+            //modelBuilder.Entity<Payment>(entity =>
+            //{
+            //    entity.ToTable("Payment", "dbo");
 
-                // Primærnøgle for Payment-tabellen
-                entity.HasKey(p => p.Id);
+            //    entity.HasKey(p => p.Id);
 
-                // Mapper Price til en separat tabel eller som en værdi-objekt
-                entity.OwnsOne(p => p.Price, price =>
-                {
-                    // Mappede egenskaber for Price objektet
-                    price.Property(p => p.Amount)
-                        .HasColumnName("PriceAmount")
-                         .IsRequired()
-                         .HasColumnType("decimal(18,2)"); // Forventet at beløbet er decimal
+            //    // Mapper Price til en separat tabel eller som en værdi-objekt
+            //    entity.OwnsOne(p => p.Price, price =>
+            //    {
+            //        price.Property(p => p.Amount)
+            //            .HasColumnName("PriceAmount")
+            //            .IsRequired()
+            //            .HasColumnType("decimal(18,2)");
 
-                    price.Property(p => p.Currency)
-                         .HasColumnName("PriceCurrency")
-                         .IsRequired()
-                         .HasMaxLength(3); // ISO valuta kode (f.eks. USD, EUR)
-                });
-
-                // Mapper PaymentMethodId (Stripe Payment Method ID) til en simpel streng
-                entity.Property(p => p.PaymentMethodId)
-                      .IsRequired() // Påkrævet
-                      .HasMaxLength(255); // Max længde for Payment Method ID
-
-                // Mapper Status (status for betalingen, f.eks. "succeeded", "failed")
-                entity.Property(p => p.Status)
-                      .IsRequired()
-                      .HasMaxLength(50); // Max længde for statusbeskrivelse
-
-                // Mapper StripePaymentIntentId (Stripe's Payment Intent ID)
-                entity.Property(p => p.StripePaymentIntentId)
-                      .HasMaxLength(255); // Max længde for Payment Intent ID, kan være null
-
-                // Fremmednøgle til Booking, som refererer til én booking
-                entity.HasOne(p => p.Booking)
-                      .WithMany() // En booking kan have mange betalinger
-                      .HasForeignKey(p => p.BookingId) // Fremmednøgle i Payment-tabellen
-                      .IsRequired(); // Påkrævet (da BookingId er obligatorisk)
-            });
+            //        price.Property(p => p.Currency)
+            //            .HasColumnName("PriceCurrency")
+            //            .IsRequired()
+            //            .HasMaxLength(3);
+            //    });
+            //});
 
 
 

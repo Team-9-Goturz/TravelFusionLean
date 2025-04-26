@@ -22,7 +22,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
+        await base.OnInitializedAsync();
         await LoadBookings();
     }
 
@@ -38,9 +38,6 @@
         <tr>
             <th>Beskrivelse</th>
             <th>Antal Rejsende</th>
-            <th>Fly (udrejse)</th>
-            <th>Hotel</th>
-            <th>Fly (hjemrejse)</th>
             <th>Pris</th>
             <th>Status</th>
             <th>Booket den</th>
@@ -56,7 +53,7 @@
                     @booking.TravelPackage?.Description
                 </td>
                     <td>@booking.TravelPackage?.NoOfTravellers</td>
-                <td>@booking.TravelPackage?.Price.ToString("C")</td>
+                <td>@booking.Price.ToString()</td>
                 <td>@booking.Status</td>
                 <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
                    

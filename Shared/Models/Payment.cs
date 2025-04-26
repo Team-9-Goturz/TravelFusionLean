@@ -14,7 +14,7 @@ namespace Shared.Models
         public string Status { get; set; } // Status for betalingen (f.eks. "succeeded", "failed")
         public string StripePaymentIntentId { get; set; }  // Stripe's Payment Intent ID
 
-        public Booking Booking { get; set; }
         public int BookingId { get; set; }
+        public Booking Booking { get; set; }
     }
 }

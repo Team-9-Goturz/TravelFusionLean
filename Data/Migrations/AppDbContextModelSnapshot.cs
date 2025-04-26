@@ -273,7 +273,8 @@ namespace Data.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
-               
+                    b.Property<int?>("BookingId1")
+                        .HasColumnType("int");
 
                     b.Property<string>("PaymentMethodId")
                         .IsRequired()
@@ -294,7 +295,9 @@ namespace Data.Migrations
 
                     b.HasIndex("BookingId");
 
-                
+                    b.HasIndex("BookingId1")
+                        .IsUnique()
+                        .HasFilter("[BookingId1] IS NOT NULL");
 
                     b.ToTable("Payment", "dbo");
                 });
@@ -584,7 +587,9 @@ namespace Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                
+                    b.HasOne("Shared.Models.Booking", null)
+                        .WithOne("Payment")
+                        .HasForeignKey("Shared.Models.Payment", "BookingId1");
 
                     b.OwnsOne("Shared.Models.Price", "Price", b1 =>
                         {

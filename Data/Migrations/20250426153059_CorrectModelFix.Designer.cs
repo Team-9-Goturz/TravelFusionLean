@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250426133320_UpdateBookingPrice")]
-    partial class UpdateBookingPrice
+    [Migration("20250426153059_CorrectModelFix")]
+    partial class CorrectModelFix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -85,15 +85,11 @@ namespace Data.Migrations
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("paymentId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("TravelManagerContactId");
 
-                    b.HasIndex("TravelPackageId")
-                        .IsUnique();
+                    b.HasIndex("TravelPackageId");
 
                     b.HasIndex("UserId");
 
@@ -280,24 +276,33 @@ namespace Data.Migrations
                     b.Property<int>("BookingId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BookingId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("PaymentMethodId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("StripePaymentIntentId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookingId")
-                        .IsUnique();
+                    b.HasIndex("BookingId");
 
-                    b.ToTable("Payment", (string)null);
+                    b.HasIndex("BookingId1")
+                        .IsUnique()
+                        .HasFilter("[BookingId1] IS NOT NULL");
+
+                    b.ToTable("Payment", "dbo");
                 });
 
             modelBuilder.Entity("Shared.Models.Transfer", b =>
@@ -490,8 +495,8 @@ namespace Data.Migrations
                         .IsRequired();
 
                     b.HasOne("Shared.Models.TravelPackage", "TravelPackage")
-                        .WithOne()
-                        .HasForeignKey("Shared.Models.Booking", "TravelPackageId")
+                        .WithMany()
+                        .HasForeignKey("TravelPackageId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -580,8 +585,14 @@ namespace Data.Migrations
             modelBuilder.Entity("Shared.Models.Payment", b =>
                 {
                     b.HasOne("Shared.Models.Booking", "Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Shared.Models.Booking", null)
                         .WithOne("Payment")
-                        .HasForeignKey("Shared.Models.Payment", "BookingId");
+                        .HasForeignKey("Shared.Models.Payment", "BookingId1");
 
                     b.OwnsOne("Shared.Models.Price", "Price", b1 =>
                         {
@@ -589,14 +600,17 @@ namespace Data.Migrations
                                 .HasColumnType("int");
 
                             b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)");
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("PriceAmount");
 
                             b1.Property<int>("Currency")
-                                .HasColumnType("int");
+                                .HasMaxLength(3)
+                                .HasColumnType("int")
+                                .HasColumnName("PriceCurrency");
 
                             b1.HasKey("PaymentId");
 
-                            b1.ToTable("Payment");
+                            b1.ToTable("Payment", "dbo");
 
                             b1.WithOwner()
                                 .HasForeignKey("PaymentId");
