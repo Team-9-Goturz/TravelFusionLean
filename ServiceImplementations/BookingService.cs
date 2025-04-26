@@ -17,6 +17,7 @@ namespace ServiceImplementations
         {
             return await _context.Bookings
                 .Include(b => b.TravelPackage)
+                .Include(b => b.Payment)
                 .ToListAsync(); // <-- Her!
 
         }

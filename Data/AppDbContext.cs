@@ -163,10 +163,33 @@ namespace Data
                         .HasColumnName("PriceCurrency")
                         .HasConversion<string>() // <-- Konverter enum til string
                         .IsRequired();
-                });
+                })
+
+                .HasOne(b => b.Payment)
+                .WithOne(p => p.Booking)
+                .HasForeignKey<Payment>(p => p.BookingId);
             });
 
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.ToTable("Payment", "dbo");
 
+                entity.HasKey(p => p.Id);
+
+                // Mapper Price til en separat tabel eller som en værdi-objekt
+                entity.OwnsOne(p => p.Price, price =>
+                {
+                    price.Property(p => p.Amount)
+                        .HasColumnName("PriceAmount")
+                        .IsRequired()
+                        .HasColumnType("decimal(18,2)");
+
+                    price.Property(p => p.Currency)
+                        .HasColumnName("PriceCurrency")
+                        .IsRequired()
+                        .HasMaxLength(3);
+                });
+            });
 
             modelBuilder.Entity<Traveller>(entity =>
                 {
@@ -204,26 +227,7 @@ namespace Data
                           .IsRequired() // Hver traveller SKAL være knyttet til en booking
                           .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
                 });
-            //modelBuilder.Entity<Payment>(entity =>
-            //{
-            //    entity.ToTable("Payment", "dbo");
 
-            //    entity.HasKey(p => p.Id);
-
-            //    // Mapper Price til en separat tabel eller som en værdi-objekt
-            //    entity.OwnsOne(p => p.Price, price =>
-            //    {
-            //        price.Property(p => p.Amount)
-            //            .HasColumnName("PriceAmount")
-            //            .IsRequired()
-            //            .HasColumnType("decimal(18,2)");
-
-            //        price.Property(p => p.Currency)
-            //            .HasColumnName("PriceCurrency")
-            //            .IsRequired()
-            //            .HasMaxLength(3);
-            //    });
-            //});
 
 
 
