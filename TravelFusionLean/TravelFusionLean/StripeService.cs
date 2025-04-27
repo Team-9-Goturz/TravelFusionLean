@@ -16,7 +16,6 @@ namespace ServiceImplementations
             StripeConfiguration.ApiKey = _stripeSettings.SecretKey;  // Sæt Stripe's Secret Key
         }
 
-        // Opretter en Checkout-session
         // Opretter en Stripe Checkout session
         public async Task<Session> CreateCheckoutSessionAsync(TravelPackage package)
         {
@@ -45,8 +44,8 @@ namespace ServiceImplementations
                 },
             },
                     Mode = "payment",
-                    SuccessUrl = "https://dd13-192-38-145-135.ngrok-free.app/success",
-                    CancelUrl = "https://dd13-192-38-145-135.ngrok-free.app/cancel",
+                    SuccessUrl = "https://localhost:7177/success",
+                    CancelUrl = "https://localhost:7177/cancel",
                 };
 
                 var service = new SessionService();

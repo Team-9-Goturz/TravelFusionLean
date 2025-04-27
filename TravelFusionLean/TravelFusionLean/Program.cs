@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowStripe", policy =>
     {
-        policy.WithOrigins("https://dd13-192-38-145-135.ngrok-free.app")  // Ngrok URL
+        policy.WithOrigins("https://dd13-192-38-145-135.ngrok-free.app","https://localhost:7177")  // Ngrok URL
                           
               .AllowAnyHeader()
               .AllowAnyMethod();
@@ -79,6 +79,8 @@ try
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode()
         .AddInteractiveWebAssemblyRenderMode();
+
+
 
     app.Run();
 }
