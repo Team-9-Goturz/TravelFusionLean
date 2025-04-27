@@ -15,9 +15,20 @@ var configuration = builder.Configuration;
 
 // 1. Tilføj Stripe-konfiguration fra appsettings.json
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-
 // 2. Tilføj StripeService til Dependency Injection
 builder.Services.AddSingleton<StripeService>();
+
+// CORS-konfiguration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowStripe", policy =>
+    {
+        policy.WithOrigins("https://dd13-192-38-145-135.ngrok-free.app")  // Ngrok URL
+                          
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 // Tilføj DbContext med migrations assembly sat korrekt
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -40,6 +51,9 @@ try
 {
 
     var app = builder.Build();
+
+    // Brug CORS politikken for at tillade de nødvendige domæner
+    app.UseCors("AllowStripe");
 
     /// <summary>
     /// Konfigurerer middleware til udvikling og produktion.

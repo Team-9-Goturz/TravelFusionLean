@@ -11,6 +11,10 @@
 @inject IContactService contactService
 @inject IBookingService bookingService
 @inject ITravelPackageService travelPackageService 
+@inject StripeService StripeService
+@inject NavigationManager NavigationManager
+
+
 
 @* Opstart *@
 @code
@@ -137,7 +141,8 @@ else
                 travellers = travellers.ToList()
             };
         @* 
-        if(Bruger er logget ind){
+        //kræver log ind
+        if(currentuser!=null){
             booking.User = currentUser;
             booking.UserId = currentUser.Id;
         } *@
@@ -152,17 +157,30 @@ else
         else{
             booking.TravelManagerContactId = 5; //Udskift mig når login kører
         }
-        @* else {
+        @*Kræver en log ind funktion
+            else {
             booking.TravelManagerContact = CurrentUser.Contact;
             booking.TravelManagerContactId = CurrentUser.Contact.Id;
         } *@
 
-        
 
+
+    @*     
+        Deaktiveret mens vi tester Stripe
         booking = await (bookingService.AddAsync(booking));
 
         travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
-        travelPackageService.UpdateAsync(travelPackage);
+        travelPackageService.UpdateAsync(travelPackage); *@
 
+        await CreateCheckoutSession(); // fortsæt til betaling
+
+    }
+
+    private async Task CreateCheckoutSession()
+    {
+        var session = await StripeService.CreateCheckoutSessionAsync(travelPackage);
+
+        // Omdiriger brugeren til Stripe Checkout
+        NavigationManager.NavigateTo(session.Url);
     }
 }

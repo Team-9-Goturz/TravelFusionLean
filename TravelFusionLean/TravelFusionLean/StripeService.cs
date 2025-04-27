@@ -18,25 +18,24 @@ namespace ServiceImplementations
 
         // Opretter en Checkout-session
         // Opretter en Stripe Checkout session
-        public Session CreateCheckoutSession(TravelPackage package)
+        public async Task<Session> CreateCheckoutSessionAsync(TravelPackage package)
         {
-            // Konverterer prisen til små enheder (øre)
-            long amountInCents = (long)(package.Price.Amount * 100);
-
-            // Henter valuta som en streng fra ISOCurrency
-            string currency = package.Price.Currency.ToString().ToLower();
-
-            var options = new SessionCreateOptions
+            try
             {
-                PaymentMethodTypes = new List<string> { "card" },
-                LineItems = new List<SessionLineItemOptions>
+                long amountInCents = (long)(package.Price.Amount * 100);
+                string currency = package.Price.Currency.ToString().ToLower();
+
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string> { "card" },
+                    LineItems = new List<SessionLineItemOptions>
             {
                 new SessionLineItemOptions
                 {
                     PriceData = new SessionLineItemPriceDataOptions
                     {
-                        UnitAmount = amountInCents,  // Beløbet i små enheder (øre)
-                        Currency = currency,         // Valuta som stræng
+                        UnitAmount = amountInCents,
+                        Currency = currency,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
                             Name = package.Headline,
@@ -45,13 +44,27 @@ namespace ServiceImplementations
                     Quantity = 1,
                 },
             },
-                Mode = "payment",
-                SuccessUrl = "https://localhost:5001/success",  // Din succes-side URL
-                CancelUrl = "https://localhost:5001/cancel",   // Din annullerings-side URL
-            };
-            var service = new SessionService();
-            Session session = service.Create(options);
-            return session;
+                    Mode = "payment",
+                    SuccessUrl = "https://dd13-192-38-145-135.ngrok-free.app/success",
+                    CancelUrl = "https://dd13-192-38-145-135.ngrok-free.app/cancel",
+                };
+
+                var service = new SessionService();
+                Session session = await service.CreateAsync(options); // Brug CreateAsync i stedet for Create
+                return session;
+            }
+            catch (StripeException ex)
+            {
+                // Log stripe fejl og giv brugeren feedback
+                Console.WriteLine($"Stripe error: {ex.Message}");
+                throw new ApplicationException("Der opstod en fejl ved oprettelse af Stripe Checkout session.");
+            }
+            catch (Exception ex)
+            {
+                // Håndter fejl
+                Console.WriteLine($"Fejl: {ex.Message}");
+                throw;
+            }
         }
 
     }

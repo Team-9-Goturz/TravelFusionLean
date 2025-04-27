@@ -111,8 +111,6 @@ namespace Data
                 entity.ToTable("TravelPackage"); //Fortæller Entity framework at Travelpackage modellen skal mappes ned i en tabel kaldet "TravelPackage" i databasen 
                 entity.HasKey(tp => tp.Id); // Fortæller Entity Framework at Id kolonnen i databasen er primærnøgle 
 
-                entity.Property(tp => tp.PriceAsDecimal).IsRequired(); //Fortæller Entity framework vi har en price kolonne der IKKE kan være null
-
                 entity.Property(tp => tp.Description).HasMaxLength(600); //fortæller Entity framework vores description kolonne maks kan være 600 tegn
 
                 entity.HasOne(tp => tp.OutboundFlight) //Fortæller Entity framework at hver travelpackage har et udrejsefly 
@@ -134,6 +132,20 @@ namespace Data
                 entity.HasOne(tp => tp.FromHotelTransfer) //En rejsepakke indeholder en transport fra hotellet til lufthavnen (i forbindelse med hjemrejse)
                       .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
                       .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
+                                                                    // Mapper PriceAsDecimal til en separat tabel eller som en værdi-objekt
+                entity.OwnsOne(p => p.Price, price =>
+                {
+                    price.Property(p => p.Amount)
+                        .HasColumnName("PriceAmount")
+                        .IsRequired()
+                        .HasColumnType("decimal(18,2)");
+
+                    price.Property(p => p.Currency)
+                        .HasColumnName("PriceCurrency")
+                        .HasConversion<string>() // <-- Konverter enum til string
+                        .IsRequired()
+                        .HasMaxLength(3);
+                });
             });
 
             modelBuilder.Entity<Booking>(entity =>

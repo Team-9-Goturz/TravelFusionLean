@@ -15,10 +15,10 @@ public class TravelPackage
     [StringLength(100)]
     public string? Headline { get; set; }
 
-    [Column(TypeName = "decimal(30,2)")]
+    [NotMapped]
     public decimal PriceAsDecimal { get; set; }
 
-    public Price Price { get; set; }
+    public Price? Price { get; set; }
     public int NoOfTravellers { get; set; }
 
     [StringLength(600)]
