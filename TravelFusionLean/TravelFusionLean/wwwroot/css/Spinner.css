@@ -1,10 +1,22 @@
-﻿.spinner-container {
+﻿.center-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Fuld højde af visningen */
+    text-align: center; /* Centrerer teksten */
+}
+
+/* Spinner-containeren */
+.spinner-container {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100px;
+    flex-direction: column;
 }
 
+/* Spinnerens stil */
 .spinner {
     border: 8px solid #f3f3f3; /* Lys grå farve til baggrund */
     border-top: 8px solid #3498db; /* Blå farve til toppen af spinneren */

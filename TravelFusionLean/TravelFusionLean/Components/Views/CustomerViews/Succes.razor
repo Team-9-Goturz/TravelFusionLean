@@ -3,17 +3,19 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveServer
 
-<h1>Betaling gennemført ✅</h1>
-<p>Tak for din betaling! Din rejsepakke er nu booket.</p>
+<div class="center-container">
+    <h1>Betaling gennemført ✅</h1>
+    <p>Tak for din betaling! Din rejsepakke er nu booket.</p>
 
-@if (_isRedirecting == true)
-{
-    <!-- Loading spinner -->
-    <div class="spinner-container" style="text-align:center;">
-        <div class="spinner"></div>
-        <p>Vi viderestiller dig til forsiden...</p>
-    </div>
-}
+    @if (_isRedirecting == true)
+    {
+        <!-- Loading spinner -->
+        <div class="spinner-container" style="text-align:center;">
+            <div class="spinner"></div>
+            <p>Vi viderestiller dig til forsiden...</p>
+        </div>
+    }
+</div>
 
 @code {
     private bool _isRedirecting = false;
@@ -29,7 +31,7 @@
     }
     private async Task Redirect()
     {
-        await Task.Delay(5000);
+        await Task.Delay(2000);
         NavigationManager.NavigateTo("/customer-home"); 
     }
 }
