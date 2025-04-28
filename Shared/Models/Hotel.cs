@@ -11,7 +11,7 @@ public class Hotel
 {
     [Key]
     public int Id { get; set; }
-    //public decimal PriceAsDecimal { get; set; }
+    public decimal Price { get; set; }
 
     [Required]
     [StringLength(128)]
@@ -35,4 +35,6 @@ public class Hotel
 
     public string Country { get; set; }
     public string City { get; set; }
+    public Currency? Curreny{ get; set; }
+    public int Rating;
 }

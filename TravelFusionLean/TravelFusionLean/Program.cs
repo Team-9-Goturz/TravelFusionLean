@@ -43,9 +43,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.ConfigureServices(configuration);
+builder.Services.AddScoped<TravelPackageState>();
+
+
 builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
 builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
-builder.Services.AddScoped<TravelPackageState>();
+
 
 try
 {

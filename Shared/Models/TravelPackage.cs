@@ -41,8 +41,7 @@ public class TravelPackage
 
 
     // For at uplade billeder, når man opretter travelpackages
-    [NotMapped]
-    public string? Base64 { get; set; }
+    public string ImagePath { get; set; }
 
     public enum TravelPackageStatus
     {

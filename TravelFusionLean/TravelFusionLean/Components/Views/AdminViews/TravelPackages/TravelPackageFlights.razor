@@ -1,15 +1,12 @@
 @page "/travel-package-flights"
+@layout TravelFusionLean.Components.Layout.Admin.AdminLayout
 @inject IFlightApiService FlightApiService
-@using TravelFusionLean.Components.Layout.Admin
-@using Shared.Models
-@layout AdminLayout
 @inject NavigationManager NavigationManager
-@rendermode InteractiveServer
 @inject TravelPackageState travelPackageState
+@rendermode InteractiveServer
 
+@using Shared.Models
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
@@ -17,81 +14,82 @@
 
     <!-- Search Bar -->
     <div class="card p-3 mb-3">
-        <div class="row">
+        <div class="row g-3">
             <div class="col-md-3">
                 <label>Departure:</label>
-                <input type="text" class="form-control" placeholder="Enter departure city">
+                <input type="text" class="form-control" @bind="searchFrom" placeholder="Enter departure city" />
             </div>
             <div class="col-md-3">
                 <label>Destination:</label>
-                <input type="text" class="form-control" placeholder="Enter destination city">
+                <input type="text" class="form-control" @bind="searchTo" placeholder="Enter destination city" />
             </div>
             <div class="col-md-3">
                 <label>When:</label>
-                <input type="text" class="form-control" placeholder="Select dates">
+                <input type="date" class="form-control" @bind="searchDate" />
             </div>
             <div class="col-md-2">
                 <label>Travellers:</label>
-                <input type="text" class="form-control" placeholder="Enter number of travelers">
+                <input type="number" class="form-control" placeholder="Enter number" disabled />
             </div>
             <div class="col-md-1 d-flex align-items-end">
-                <button class="btn btn-primary w-100">🔍</button>
+                <button class="btn btn-primary w-100" @onclick="FilterFlights">
+                    🔍
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Tabs for fastest / cheapest / best -->
+    <!-- Tabs for sorting -->
     <ul class="nav nav-tabs">
         <li class="nav-item">
-            <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#fastest" role="tab">Fastest</a>
+            <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick="@(() => SetTab("fastest"))">Fastest</button>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#cheapest" role="tab">Cheapest</a>
+            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
         </li>
         <li class="nav-item">
-            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#best" role="tab">Best</a>
+            <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
         </li>
     </ul>
 
-    <div class="tab-content">
-        <div id="fastest" class="tab-pane fade show active p-3">
-            @if (flights == null)
+    <div class="tab-content p-3">
+        @if (filteredFlights == null)
+        {
+            <p><em>Loading flights...</em></p>
+        }
+        else if (!filteredFlights.Any())
+        {
+            <p>No flights found.</p>
+        }
+        else
+        {
+            foreach (var flight in sortedFlights)
             {
-                <p><em>Loading flights...</em></p> <!-- Tror farven skal ændres -->
-            }
-            else if (!flights.Any())
-            {
-                <p>No flights found.</p>
-            }
-            else
-            {
-                @foreach (var flight in flights)
-                {
-                    <div class="d-flex justify-content-between border p-2 mb-2">
-                        <div>
-                            <strong>@flight.Airline</strong>
-                            @flight.DepartureTime.ToString("HH:mm") →
-                            @flight.ArrivalTime.ToString("HH:mm")
-                            -
-                            @flight.Price.ToString("0.00") @flight.Currency?.Name
-                        </div>
-                        <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectFlight(flight)">Select</button>
-                    </div>
-                }
-            }
-        </div>
+                var duration = flight.ArrivalTime - flight.DepartureTime;
 
-        <div id="cheapest" class="tab-pane fade p-3">
-            <p>Filtering logic not implemented yet.</p>
-        </div>
-        <div id="best" class="tab-pane fade p-3">
-            <p>Filtering logic not implemented yet.</p>
-        </div>
+                <div class="d-flex justify-content-between border p-2 mb-2">
+                    <div>
+                        <strong>@flight.Airline</strong>
+                        @flight.DepartureTime.ToString("HH:mm") →
+                        @flight.ArrivalTime.ToString("HH:mm")
+                        -
+                        @flight.Price.ToString("0.00") @flight.Currency?.Name
+                        <br />
+                        Duration: @($"{duration.Hours}h {duration.Minutes}m")<br />
+                        Class: @(flight.ClassType ?? "Economy")<br />
+                        Route: @flight.DepartureFromAirport?.City → @flight.ArrivalAtAirport?.City
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectFlight(flight)">Select</button>
+                </div>
+            }
+        }
     </div>
 
     <!-- Selected Flight Summary -->
     @if (selectedFlight != null)
     {
+        var dur = selectedFlight.ArrivalTime - selectedFlight.DepartureTime;
+
         <div class="card mt-3 p-3">
             <h5>Selected Flight</h5>
             <p>
@@ -100,49 +98,64 @@
                 TO: @selectedFlight.ArrivalAtAirport?.City<br />
                 Departure: @selectedFlight.DepartureTime.ToString("g")<br />
                 Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
-                Class: @selectedFlight.ClassType<br />
-                Seats: @selectedFlight.SeatsAvailable<br />
-                Total: @selectedFlight.Price.ToString("0.00") @selectedFlight.Currency?.Name
+                Duration: @($"{dur.Hours}h {dur.Minutes}m")<br />
+                Class: @(selectedFlight.ClassType ?? "Economy")<br />
+                Price: @selectedFlight.Price.ToString("0.00") @selectedFlight.Currency?.Name
             </p>
-            <button class="btn btn-primary" @onclick="ChooseFlight" >Choose Flight</button>
+            <button class="btn btn-primary" @onclick="ChooseFlight">Continue to Hotels</button>
         </div>
     }
 </div>
 
-
-
 @code {
-    private bool CanProceed => selectedFlight != null;
-
-    private List<Flight>? flights;
+    private List<Flight>? allFlights;
+    private List<Flight>? filteredFlights;
     private Flight? selectedFlight;
 
-    /// <summary>
-    /// Kaldes ved indlæsning af siden og henter alle flights via service.
-    /// </summary>
+    private string selectedTab = "fastest";
+    private string? searchFrom;
+    private string? searchTo;
+    private DateTime? searchDate;
+
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            flights = (await FlightApiService.GetAllFlightsAsync()).ToList();
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine("Error loading flights: " + ex.Message);
-        }
+        allFlights = (await FlightApiService.GetAllFlightsAsync()).ToList();
+        filteredFlights = allFlights;
     }
 
-    /// <summary>
-    /// Kaldes når en bruger vælger et fly i UI'et.
-    /// </summary>
+    private void FilterFlights()
+    {
+        filteredFlights = allFlights?.Where(f =>
+            (string.IsNullOrWhiteSpace(searchFrom) || f.DepartureFromAirport?.City.Contains(searchFrom, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrWhiteSpace(searchTo) || f.ArrivalAtAirport?.City.Contains(searchTo, StringComparison.OrdinalIgnoreCase) == true) &&
+            (!searchDate.HasValue || f.DepartureTime.Date == searchDate.Value.Date)
+        ).ToList();
+    }
+
+    private void SetTab(string tab)
+    {
+        selectedTab = tab;
+        StateHasChanged();
+    }
+
     private void SelectFlight(Flight flight)
     {
         selectedFlight = flight;
-        travelPackageState.SelectedFlight = selectedFlight;
+        travelPackageState.SelectedFlight = flight;
     }
 
     private void ChooseFlight()
     {
         NavigationManager.NavigateTo("/travel-package-hotels");
     }
+
+    private IEnumerable<Flight> sortedFlights =>
+        selectedTab switch
+        {
+            "fastest" => filteredFlights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
+            "cheapest" => filteredFlights?.OrderBy(f => f.Price) ?? Enumerable.Empty<Flight>(),
+            "best" => filteredFlights?.OrderBy(f =>
+                (f.Price * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
+            _ => filteredFlights ?? Enumerable.Empty<Flight>()
+        };
 }

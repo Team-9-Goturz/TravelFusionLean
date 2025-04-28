@@ -87,6 +87,15 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         return await base.DeleteAsync(id);
     }
 
+    
+    public decimal CalculatePrice(Flight inboundFlight, Flight outboundFlight, Hotel hotel)
+    {
+        decimal priceForFlights = inboundFlight.Price + outboundFlight.Price;
+        decimal priceForHotel = hotel.Price;
+        
+        decimal totalPrice = priceForFlights + priceForHotel;
+        return totalPrice;
+    }
     public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)
     {
         var travelPackages = await GetAllAsync();
@@ -117,6 +126,62 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
 
         return filteredPackages;
     }
+    public async Task<List<TravelPackage>> SearchAvailableAsync(TravelPackageSearchDTO searchDto)
+    {
+        var query = _context.TravelPackages
+            .Include(tp => tp.OutboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Include(tp => tp.HotelStay)
+                .ThenInclude(hs => hs.Hotel)
+            .Include(tp => tp.InboundFlight)
+                .ThenInclude(f => f.DepartureFromAirport)
+            .Where(tp => tp.Status == TravelPackageStatus.Available) 
+            .AsQueryable();
+
+        // Departure location: land eller by
+        if (!string.IsNullOrWhiteSpace(searchDto.DepartureLocation))
+        {
+            query = query.Where(tp =>
+                tp.OutboundFlight.DepartureFromAirport.Country.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase) ||
+                tp.OutboundFlight.DepartureFromAirport.City.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Destination: land eller by
+        if (!string.IsNullOrWhiteSpace(searchDto.Destination))
+        {
+            query = query.Where(tp =>
+                tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+                tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Afgangs-dato
+        if (searchDto.DepartureDateEarliest != null)
+        {
+            query = query.Where(tp =>
+                DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= searchDto.DepartureDateEarliest);
+        }
+
+        // Antal rejsende
+        if (searchDto.NumberOfTravelers != null && searchDto.NumberOfTravelers > 0)
+        {
+            query = query.Where(tp =>
+                tp.NoOfTravellers == searchDto.NumberOfTravelers);
+        }
+
+        // Prisgrænser
+        if (searchDto.MinPrice != null)
+        {
+            query = query.Where(tp => tp.Price >= searchDto.MinPrice);
+        }
+
+        if (searchDto.MaxPrice != null)
+        {
+            query = query.Where(tp => tp.Price <= searchDto.MaxPrice);
+        }
+
+        return await query.ToListAsync();
+    }
+
 
 
 }

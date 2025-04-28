@@ -56,8 +56,9 @@
         searchDTO.MinPrice = priceFromSearch;
         searchDTO.MaxPrice = priceToSearch;
 
-        var result = await travelPackageService.SearchAsync(searchDTO);
+        var result = await travelPackageService.SearchAvailableAsync(searchDTO);
         _travelPackages = result.ToList();
+        resultCount = _travelPackages.Count;
           
         if (_travelPackages.Count == 0)
         {
@@ -103,7 +104,7 @@ else
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <!-- Billede - Brug placeholder hvis der ikke findes billede -->
-                        <img src="@(!string.IsNullOrEmpty(package.Base64) ? package.Base64 : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
+                        <img src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top">
 
                         <div class="card-body">
                             <h5 class="card-title">@package.Headline</h5>

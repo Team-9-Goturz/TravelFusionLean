@@ -19,7 +19,7 @@ namespace TravelFusionLeanApi.Services
         /// </summary>
         public async Task<IEnumerable<FlightData>> GetFlightsAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<FlightResponse>("api/flights");
+            var response = await _httpClient.GetFromJsonAsync<FlightResponse>("api/Flights");
             return response?.Data ?? new List<FlightData>();
         }
 

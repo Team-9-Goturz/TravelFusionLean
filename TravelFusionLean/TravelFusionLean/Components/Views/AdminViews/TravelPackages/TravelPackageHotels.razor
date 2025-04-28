@@ -1,117 +1,146 @@
 @page "/travel-package-hotels"
-@using Shared.Models
-@using TravelFusionLean.Components.Layout.Admin
-@layout AdminLayout
+@layout TravelFusionLean.Components.Layout.Admin.AdminLayout
 @inject NavigationManager NavigationManager
-@rendermode InteractiveServer
 @inject IHotelApiService HotelApiService
+@inject TravelPackageState travelPackageState
+@rendermode InteractiveServer
+@using Shared.Models
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
     <h2 class="text-center">Choose Hotel</h2>
     
+        <!-- Search Bar -->
     <div class="card p-3 mb-3-3">
         <div class="row">
             <div class="col-md-3">
-                <label>Location</label>
-                <input type="text" class="form-control" placeholder="Enter location of hotel"/>
+                <label>Location:</label>
+                <input type="text" class="form-control" @bind="searchLocation" placeholder="Enter location of hotel"/>
             </div>
-            <!-- Yderligere informationer til søgning af hotel -->
             <div class="col-md-3">
                 <label>When:</label>
-                <input type="text" class="form-control" placeholder="Select dates"/>
+                <input type="text" class="form-control" @bind="searchDate" placeholder="Select dates"/>
             </div>
             <div class="col-md-3">
                 <label>Travellers:</label>
-                <input type="text" class="form-control" placeholder="Enter number of travelers"/>
+                <input type="text" class="form-control" @bind="numberOfTravellers" placeholder="Enter number of travelers"/>
             </div>
+            <!-- Måske ikke med??-->
             <div class="col-md-2">
                 <label>Rooms:</label>
                 <input type="text" class="form-control" placeholder="Number of rooms"/>
             </div>
             <div class="col-md-1 d-flex align-items-end">
-                <button class="btn btn-primary w-100">🔍</button>
+                <button class="btn btn-primary w-100" @onclick="FilterHotels">🔍</button>
             </div>
         </div>
 
 
         <!-- Muligheder for at vælge billig, hurtig eller bedst (kombination) -->
+        <!-- #region  Tabs for sorting-->
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#fastest" role="tab">Fastest</a>
+                <!--<button class="nav-link" @(selectedTab == "fastest" ? "active" : "")"@onclick="@(() => SetTab("fastest"))>Fastest</button> -->
             </li>
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#cheapest" role="tab">Cheapest</a>
+                <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))"">Cheapest</button>
             </li>
             <li class="nav-item">
+                <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
                 <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#best" role="tab">Best</a>
             </li>
         </ul>
 
         
-        <div class="tab-content">
-            <div id="fastest" class="tab-pane fade show active p-3">
-                <div class="d-flex justify-content-between border p-2">
-                    <div><strong>DATA</strong> @if (hotelStays != null)
-                                               {
-                                                   @foreach (var stay in hotelStays)
-                                                   {
-                                                       <div class="d-flex justify-content-between border p-2 mb-2">
-                                                           <div>
-                                                               <strong>@stay.Hotel?.Name</strong><br />
-                                                               @stay.Hotel?.Address<br />
-                                                               @stay.Hotel?.Description<br />
-                                                               @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
-                                                               <strong>@stay.Price @stay.Currency?.Name</strong>
-                                                           </div>
-                                                           <button class="btn btn-primary">Select</button>
-                                                       </div>
-                                                   }
-                                               }
-                    </div>
-                    <button class="btn btn-primary">Select</button>
-                </div>
+        <div class="tab-content p-3">
+            <div><strong>DATA</strong> @if (hotelStays != null)
+                {
+                    <p><em>Loading hotels...</em></p>
+                } else if   (!filteredHotels.Any()){
+                    <p>No hotels found.</p>
+                } else {
+                    @foreach (var stay in hotelStays)
+                        {
+                            <div class="d-flex justify-content-between border p-2 mb-2">
+                                <div>
+                                    <strong>@stay.Hotel?.Name</strong>
+                                    @stay.Hotel?.Address
+                                    @stay.Hotel?.Description
+                                    @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()
+                                    
+                                    @stay.Price @stay.Currency?.Name <br/>
+                                </div>
+                                <button class="btn btn-primary">Select</button>
+                            </div>
+                        }
+                    }
             </div>
-            <div id="cheapest" class="tab-pane fade show active p-3">
-                <div class="d-flex justify-content-between border p-2">
-                    <div><strong>DATA</strong> DATA DATA DATA</div>
-                    <button class="btn btn-primary">Select</button>
-                </div>
-            </div>
-            <div id="best" class="tab-pane fade show active p-3">
-                <div class="d-flex justify-content-between border p-2">
-                    <div><strong>DATA</strong> DATA DATA DATA</div>
-                    <button class="btn btn-primary">Select</button>
-                </div>
-            </div>
+            <button class="btn btn-primary">Select</button>
         </div>
-
-        
-        <!-- Selected Hotel Summery -->
-        @if (hotelStays != null && hotelStays.Any())
-        {
-            var selected = hotelStays.First();
-
-            <div class="card mt-3 p-3">
-                <h5>Hotel: @selected.Hotel?.Name</h5>
-                <p>Description of hotel: @selected.Hotel?.Description</p>
-                <p><strong>Total: @selected.Price @selected.Currency?.Name</strong></p>
-                <button class="btn btn-primary">Choose Hotel</button>
-            </div>
-        }
-
     </div>
+
+    <!-- Selected Hotel Summery -->
+    @if (hotelStays != null)
+    {
+        var selected = hotelStays.First();
+        <div class="card mt-3 p-3">
+            <h5>Selected Hotel</h5>
+            <p>
+                <strong>@selectedHotel.Country</strong><br/>
+                City: @selectedHotel.City<br/>
+                Address: @selectedHotel.Address<br/>
+                Name: @selectedHotel.Name<br/>
+                Description: @selectedHotel.Description<br/>
+                Price: @selectedHotel.Price.ToString("0.00") @selectedHotel.Curreny?.Name
+
+            </p>
+            <button class="btn btn-primary">Choose Hotel</button>
+        </div>
+    }
 </div>
 
-
 @code {
+    private List<Hotel>? allHotels;
+    private List<Hotel>? filteredHotels;
+    private Hotel? selectedHotel;
+
+    private string? selectedTab = "cheapest"; //cheapest?
+    private string? searchLocation;
+    private DateTime? searchDate;
+    private int? numberOfTravellers;
+    //private int? numberOfRoooms;
     private List<HotelStay>? hotelStays;
 
     protected override async Task OnInitializedAsync()
     {
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
+        filteredHotels = allHotels;
     }
+
+    private void FilterHotels(){
+
+    }
+
+    private void SetTab(string tab){
+        selectedTab = tab;
+        StateHasChanged();
+    }
+
+    private void selectHotel(Hotel hotel){
+        selectedHotel = hotel;
+        travelPackageState.SelectedHotel = hotel;
+    }
+
+    public void ChooseFlight(){
+        NavigationManager.NavigateTo("/publish-travel-package");
+    }
+
+    private IEnumerable<Hotel> sortedHotels => 
+        selectedTab switch
+        {
+            "cheapest" => filteredHotels?.OrderBy(f => f.Price) ?? Enumerable.Empty<Hotel>(),
+            "best" => filteredHotels?.OrderBy((f => f.Price)),
+        };
 }
