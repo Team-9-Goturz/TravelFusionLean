@@ -106,9 +106,10 @@
     private List<Hotel>? filteredHotels;
     private Hotel? selectedHotel;
 
-    private string? selectedTab = "cheapest"; //cheapest?
+    private string? selectedTab = "cheapest";
     private string? searchLocation;
     private DateTime? searchDate;
+    private decimal? searchPrice;
     private int? numberOfTravellers;
     //private int? numberOfRoooms;
     private List<HotelStay>? hotelStays;
@@ -118,9 +119,12 @@
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
         filteredHotels = allHotels;
     }
-
+    //Filter hotels by price and location
     private void FilterHotels(){
-
+        filteredHotels = allHotels?.Where(hotelStays => 
+        (string.IsNullOrWhiteSpace(searchLocation) || h.Location?.Contains(searchLocation, StringComparison.OrdinalIgnoreCase) == true) &&
+        (!searchPrice.HasValue)
+        ).ToList();
     }
 
     private void SetTab(string tab){
