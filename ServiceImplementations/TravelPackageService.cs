@@ -30,7 +30,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     }
     public async Task<IEnumerable<TravelPackage>> GetAvailableAsync()
     {
-        return _context.TravelPackages
+        return await _context.TravelPackages
             .Include(tp => tp.OutboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
             .Include(tp => tp.HotelStay)
@@ -38,7 +38,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
             .Include(tp => tp.InboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
             .Where(tp => tp.Status == TravelPackageStatus.Available)
-            .ToList(); // eller ToListAsync hvis du bruger EF Core
+            .ToListAsync(); 
     }
 
 
@@ -120,8 +120,8 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
              tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
               
              //pris
-            (searchDto.MinPrice == null || tp.Price >= searchDto.MinPrice) &&
-            (searchDto.MaxPrice == null || tp.Price <= searchDto.MaxPrice)
+            (searchDto.MinPrice == null || tp.PriceAsDecimal >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.PriceAsDecimal <= searchDto.MaxPrice)
         ).ToList();
 
         return filteredPackages;

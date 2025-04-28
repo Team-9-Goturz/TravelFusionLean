@@ -112,6 +112,7 @@ else{
             <th>Hotel</th>
             <th>Fly (hjemrejse)</th>
             <th>Pris</th>
+            <th>Status</th>
         </tr>
     </thead>
     <tbody>
@@ -129,9 +130,13 @@ else{
                     @package.OutboundFlight?.Airline
                 </td>
                 <td>
-                    @package.HotelStay.CheckInDate.ToString("d") <br />
-                    @package.HotelStay.CheckOutDate.ToString("d") <br />
-                    @package.HotelStay.Hotel.Name <br />
+                    @if (package.HotelStay!= null)
+                    {
+                        @package.HotelStay.CheckInDate.ToString("d") <br />
+                        @package.HotelStay.CheckOutDate.ToString("d") <br />
+                        @package.HotelStay.Hotel.Name <br />
+                    }
+
                 </td>
                 <td>
                     @package.InboundFlight?.DepartureFromAirport.Name <br />
@@ -139,7 +144,9 @@ else{
                     @package.InboundFlight?.Airline<br />
                     <br />
                 </td>
-                <td>@package.Price</td>
+                <td>@package.PriceAsDecimal</td>
+                <td>@package.Status</td>
+
                 <td>
                     <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Vis</a>
                     <a class="btn btn-sm btn-primary me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
