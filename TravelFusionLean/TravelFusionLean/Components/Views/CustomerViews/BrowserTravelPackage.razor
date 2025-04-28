@@ -111,7 +111,7 @@ else
                             <p class="card-text">@package.Description</p>
                             <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
 
-                            <p><strong>Pris:</strong> @package.Price</p>
+                            <p><strong>Pris:</strong> @package.Price.ToString()</p>
 
                             <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Show more</a>
                             <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@package.Id">Book</a>

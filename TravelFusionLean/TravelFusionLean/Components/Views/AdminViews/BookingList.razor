@@ -1,0 +1,68 @@
+﻿@page "/BookingList"
+
+@using Microsoft.EntityFrameworkCore
+@using ServiceImplementations
+@using Shared.Dtos
+@using Shared.Models
+@using Data
+@using ServiceImplementations;
+@inject IBookingService bookingService
+
+@layout AdminLayout
+@rendermode InteractiveServer
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Components.Layout.Admin
+
+<h3>BookingList</h3>
+
+@code
+{
+    private List<Booking> _bookings = new List<Booking>();
+    private int resultCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await LoadBookings();
+    }
+
+    private async Task LoadBookings()
+    {
+        var result = await bookingService.GetAllAsync();
+        _bookings = result.ToList();
+        resultCount = _bookings.Count;
+    }
+}
+<table border="1" class="table">
+    <thead>
+        <tr>
+            <th>Beskrivelse</th>
+            <th>Antal Rejsende</th>
+            <th>Pris</th>
+            <th>Status</th>
+            <th>Booket den</th>
+            <th>Payment status</th>
+            <th>Handling</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in _bookings)
+        {
+            <tr>
+                <td>
+                    <strong>@booking.TravelPackage?.Headline</strong><br />
+                    @booking.TravelPackage?.Description
+                </td>
+                    <td>@booking.TravelPackage?.NoOfTravellers</td>
+                <td>@booking.Price.ToString()</td>
+                <td>@booking.Status</td>
+                <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
+                <td>@booking.Payment?.Status </td>
+                <td>
+                    <button>Cancel</button>
+                    <button>Show more</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
