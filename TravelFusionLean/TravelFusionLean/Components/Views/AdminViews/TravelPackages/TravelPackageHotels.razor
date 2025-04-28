@@ -98,8 +98,10 @@
     private Hotel? selectedHotel;
 
     private string? selectedTab = "cheapest";
-    private string? searchLocation;
+    private string? searchCountry;
+    private string? searchCity;
     private DateTime? searchDate;
+    private decimal? searchPrice;
     private int? numberOfTravellers;
     private List<HotelStay>? hotelStays;
 
@@ -108,16 +110,14 @@
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
         filteredHotels = hotelStays?.Select(hs => hs.Hotel).Where(h => h != null).ToList() ?? new List<Hotel>();
     }
-
-    private void FilterHotels()
-    {
-        if (string.IsNullOrWhiteSpace(searchLocation))
-            return;
-
-        filteredHotels = hotelStays?
-            .Where(hs => hs.Hotel?.Address?.Contains(searchLocation, StringComparison.OrdinalIgnoreCase) == true)
-            .Select(hs => hs.Hotel)
-            .ToList();
+    //Filter hotels by price and location
+        //Lige nu er der kun search location, men ikke en location variabel. 
+    private void FilterHotels(){
+        filteredHotels = allHotels?.Where(h => 
+        (string.IsNullOrWhiteSpace(searchCountry) || h.Country?.Contains(searchCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+        (string.IsNullOrWhiteSpace(searchCity) || h.City?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true) &&
+        (!searchPrice.HasValue)
+        ).ToList();
     }
 
     private void SetTab(string tab)
