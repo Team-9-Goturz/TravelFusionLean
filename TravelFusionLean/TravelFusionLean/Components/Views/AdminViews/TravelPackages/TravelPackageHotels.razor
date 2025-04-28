@@ -85,7 +85,7 @@
                 <strong>Address:</strong> @selectedHotel.Address<br />
                 <strong>Name:</strong> @selectedHotel.Name<br />
                 <strong>Description:</strong> @selectedHotel.Description<br />
-                <strong>Price:</strong> @selectedHotel.Price.ToString() @selectedHotel?.Name
+                 @selectedHotel?.Name
             </p>
             <button class="btn btn-success" @onclick="ChooseHotel">Choose Hotel</button>
         </div>
@@ -144,8 +144,8 @@
     private IEnumerable<Hotel> SortedHotels =>
         selectedTab switch
         {
-            "cheapest" => filteredHotels?.OrderBy(h => h.Price) ?? Enumerable.Empty<Hotel>(),
-            "best" => filteredHotels?.OrderByDescending(h => h.Price) ?? Enumerable.Empty<Hotel>(),
+            // "cheapest" => filteredHotels?.OrderBy(h => h.Price) ?? Enumerable.Empty<Hotel>(),
+            // "best" => filteredHotels?.OrderByDescending(h => h.Price) ?? Enumerable.Empty<Hotel>(),
             _ => filteredHotels ?? Enumerable.Empty<Hotel>()
         };
 }

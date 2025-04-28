@@ -20,13 +20,14 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<IEnumerable<TravelPackage>> GetAllAsync()
     {
-        return _context.TravelPackages
-            .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
-            .Include(tp => tp.HotelStay)
-                .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport);//Eager load indrejse fly og lufthavn
+        return await _context.TravelPackages
+       .Include(tp => tp.OutboundFlight)
+           .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+       .Include(tp => tp.HotelStay)
+               .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+       .Include(tp => tp.InboundFlight)
+           .ThenInclude(f => f.DepartureFromAirport)///Eager load indrejse fly og lufthavn
+           .ToListAsync();
     }
     public async Task<IEnumerable<TravelPackage>> GetAvailableAsync()
     {
@@ -91,9 +92,9 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     public decimal CalculatePrice(Flight inboundFlight, Flight outboundFlight, Hotel hotel)
     {
         decimal priceForFlights = inboundFlight.Price + outboundFlight.Price;
-        decimal priceForHotel = hotel.Price.Amount;
-        
-        decimal totalPrice = priceForFlights + priceForHotel;
+        //decimal priceForHotel = hotel.Price.Amount;
+
+        decimal totalPrice = priceForFlights;
         return totalPrice;
     }
     public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)

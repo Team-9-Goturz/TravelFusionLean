@@ -14,7 +14,6 @@ namespace Data
         public DbSet<User> Users { get; set; }
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Contact> Contacts { get; set; }
-        public DbSet<Currency> Currencies { get; set; }
         public DbSet<Flight> Flights { get; set; }
         public DbSet<Hotel> Hotels { get; set; }
         public DbSet<HotelStay> HotelStays { get; set; }
@@ -71,8 +70,13 @@ namespace Data
             });
 
             modelBuilder.Entity<Airport>().ToTable("Airport");
-            modelBuilder.Entity<Currency>().ToTable("Currency");
-            modelBuilder.Entity<Hotel>().ToTable("Hotel");
+            modelBuilder.Entity<Hotel>(entity =>
+            {
+                entity.ToTable("Hotel");
+                entity.HasKey(h => h.Id);
+
+              
+            });
 
             modelBuilder.Entity<Flight>(entity =>
             {
@@ -86,10 +90,6 @@ namespace Data
                 entity.HasOne(f => f.DepartureFromAirport)
                       .WithMany()
                       .HasForeignKey(f => f.DepartureFromAirportId);
-
-                entity.HasOne(f => f.Currency)
-                      .WithMany()
-                      .HasForeignKey(f => f.CurrencyId);
             });
 
             modelBuilder.Entity<HotelStay>(entity =>
@@ -100,10 +100,6 @@ namespace Data
                 entity.HasOne(hs => hs.Hotel)
                       .WithMany()
                       .HasForeignKey(hs => hs.HotelId);
-
-                entity.HasOne(hs => hs.Currency)
-                      .WithMany()
-                      .HasForeignKey(hs => hs.CurrencyId);
             });
 
             modelBuilder.Entity<TravelPackage>(entity =>
@@ -125,14 +121,17 @@ namespace Data
                       .WithMany() //et hotelophold kan optræde på flere rejsepakker
                       .HasForeignKey(tp => tp.HotelStayId); //HotelStayId er en fremmednøgle 
 
-                entity.HasOne(tp => tp.ToHotelTransfer) // en rejsepakke indeholder en transport fra lufthavnen til hotellet (i forbindelse med udrejse) 
-                      .WithMany() //en transport fra lufthavn til hotel kan optræde på mange rejsepakker
-                      .HasForeignKey(tp => tp.ToHotelTransferId); //ToHotelTransferId er en fremmednøgle
+                //entity.HasOne(tp => tp.ToHotelTransfer) // en rejsepakke indeholder en transport fra lufthavnen til hotellet (i forbindelse med udrejse) 
+                //      .WithMany() //en transport fra lufthavn til hotel kan optræde på mange rejsepakker
+                //      .HasForeignKey(tp => tp.ToHotelTransferId); //ToHotelTransferId er en fremmednøgle
 
-                entity.HasOne(tp => tp.FromHotelTransfer) //En rejsepakke indeholder en transport fra hotellet til lufthavnen (i forbindelse med hjemrejse)
-                      .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
-                      .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
-                                                                    // Mapper PriceAsDecimal til en separat tabel eller som en værdi-objekt
+                //entity.HasOne(tp => tp.FromHotelTransfer) //En rejsepakke indeholder en transport fra hotellet til lufthavnen (i forbindelse med hjemrejse)
+                //      .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
+                //      .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
+                //      
+
+
+                // Mapper PriceAsDecimal til som en værdi-objekt
                 entity.OwnsOne(p => p.Price, price =>
                 {
                     price.Property(p => p.Amount)
@@ -167,7 +166,7 @@ namespace Data
                 {
                     price.Property(p => p.Amount)
                         .HasColumnName("PriceAmount")
-                        
+
                         .HasPrecision(18, 0)
                         .IsRequired();
 
@@ -204,46 +203,41 @@ namespace Data
             });
 
             modelBuilder.Entity<Traveller>(entity =>
-                {
-                    entity.ToTable("Traveller"); // Tabellens navn
+            {
+                entity.ToTable("Traveller"); // Tabellens navn
 
-                    entity.HasKey(t => t.Id); // Primærnøgle
+                entity.HasKey(t => t.Id); // Primærnøgle
 
-                    entity.Property(t => t.FirstName)
-                          .IsRequired(); // Fornavn skal være angivet
+                entity.Property(t => t.FirstName)
+                      .IsRequired(); // Fornavn skal være angivet
 
-                    entity.Property(t => t.LastName)
-                          .IsRequired(); // Efternavn skal være angivet
+                entity.Property(t => t.LastName)
+                      .IsRequired(); // Efternavn skal være angivet
 
-                    entity.Property(t => t.DateOfBirth)
-                          .IsRequired(); // Fødselsdato er obligatorisk
+                entity.Property(t => t.DateOfBirth)
+                      .IsRequired(); // Fødselsdato er obligatorisk
 
-                    entity.Property(t => t.Gender)
-                          .IsRequired(); // Køn skal være angivet
+                entity.Property(t => t.Gender)
+                      .IsRequired(); // Køn skal være angivet
 
-                    entity.Property(t => t.Nationality)
-                          .IsRequired(); // Nationalitet er påkrævet
+                entity.Property(t => t.Nationality)
+                      .IsRequired(); // Nationalitet er påkrævet
 
-                    entity.Property(t => t.PassportNumber)
-                          .IsRequired(); // Pasnummer er påkrævet
+                entity.Property(t => t.PassportNumber)
+                      .IsRequired(); // Pasnummer er påkrævet
 
-                    entity.Property(t => t.PassportExpiry)
-                          .IsRequired(); // Udløbsdato på pas er påkrævet
+                entity.Property(t => t.PassportExpiry)
+                      .IsRequired(); // Udløbsdato på pas er påkrævet
 
-                    entity.Property(t => t.PassportIssuingCountry)
-                          .IsRequired(); // Udstedelsesland for pas er påkrævet
+                entity.Property(t => t.PassportIssuingCountry)
+                      .IsRequired(); // Udstedelsesland for pas er påkrævet
 
-                    entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
-                          .WithMany(b => b.travellers) // En booking kan have mange travellers
-                          .HasForeignKey(t => t.BookingId) // Fremmednøgle i Traveller-tabellen
-                          .IsRequired() // Hver traveller SKAL være knyttet til en booking
-                          .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
-                });
-
-
-
-
-
+                entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
+                      .WithMany(b => b.travellers) // En booking kan have mange travellers
+                      .HasForeignKey(t => t.BookingId) // Fremmednøgle i Traveller-tabellen
+                      .IsRequired() // Hver traveller SKAL være knyttet til en booking
+                      .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
+            });
         }
     }
 }
