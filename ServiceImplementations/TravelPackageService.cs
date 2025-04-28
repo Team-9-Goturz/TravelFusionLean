@@ -91,7 +91,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     public decimal CalculatePrice(Flight inboundFlight, Flight outboundFlight, Hotel hotel)
     {
         decimal priceForFlights = inboundFlight.Price + outboundFlight.Price;
-        decimal priceForHotel = hotel.Price;
+        decimal priceForHotel = hotel.Price.Amount;
         
         decimal totalPrice = priceForFlights + priceForHotel;
         return totalPrice;
@@ -120,8 +120,8 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
              tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
               
              //pris
-            (searchDto.MinPrice == null || tp.PriceAsDecimal >= searchDto.MinPrice) &&
-            (searchDto.MaxPrice == null || tp.PriceAsDecimal <= searchDto.MaxPrice)
+            (searchDto.MinPrice == null || tp.Price.Amount >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.Price.Amount <= searchDto.MaxPrice)
         ).ToList();
 
         return filteredPackages;
@@ -171,12 +171,12 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         // Prisgrænser
         if (searchDto.MinPrice != null)
         {
-            query = query.Where(tp => tp.Price >= searchDto.MinPrice);
+            query = query.Where(tp => tp.Price.Amount >= searchDto.MinPrice);
         }
 
         if (searchDto.MaxPrice != null)
         {
-            query = query.Where(tp => tp.Price <= searchDto.MaxPrice);
+            query = query.Where(tp => tp.Price.Amount <= searchDto.MaxPrice);
         }
 
         return await query.ToListAsync();
