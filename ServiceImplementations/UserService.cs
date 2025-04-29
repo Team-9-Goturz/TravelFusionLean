@@ -38,7 +38,6 @@ namespace ServiceImplementations
                 user.ContactId = user.Contact.Id;
 
                 // Gem bruger
-
                 _context.Users.Add(user);
                 await _context.SaveChangesAsync();
 
@@ -145,7 +144,7 @@ namespace ServiceImplementations
         {
             var user = await _context.Users
                 .Include(u => u.UserRole)
-                .FirstOrDefaultAsync(u => u.Email == email);
+                .FirstOrDefaultAsync(u => u.EmailForPasswordReset == email);
 
             if (user == null)
                 return null;

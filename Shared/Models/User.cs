@@ -12,7 +12,7 @@ namespace TravelFusionLean.Models
 
         [Required(ErrorMessage = "Email er påkrævet.")]
         [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "Ugyldig email.")]
-        public string Email { get; set; }
+        public string EmailForPasswordReset { get; set; }
 
         public int UserRoleId { get; set; }
         public UserRole UserRole { get; set; }

@@ -47,7 +47,7 @@ namespace Data
                 entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
                 entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(128);
                 entity.Property(u => u.PasswordSalt).IsRequired().HasMaxLength(128);
-                entity.Property(u => u.Email).IsRequired().HasMaxLength(128);
+                entity.Property(u => u.EmailForPasswordReset).IsRequired().HasMaxLength(128);
             });
 
             modelBuilder.Entity<User>()
