@@ -6,34 +6,17 @@ using Shared.Models;
 using TravelFusionLean.Components;
 using Data;
 using TravelFusionLean;
-
+using Shared.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Her henter vi connection string fra appsettings.json
 var configuration = builder.Configuration;
 
-// 1. Tilføj Stripe-konfiguration fra appsettings.json
-builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-// 2. Tilføj StripeService til Dependency Injection
-builder.Services.AddSingleton<StripeService>();
-
-// CORS-konfiguration
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowStripe", policy =>
-    {
-        policy.WithOrigins("https://dd13-192-38-145-135.ngrok-free.app","https://localhost:7177")  // Ngrok URL
-                          
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-
 // Tilføj DbContext med migrations assembly sat korrekt
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
-    sqlOptions => sqlOptions.MigrationsAssembly("Data"))); // 👈 Her specificeres migrations-projektet
+    sqlOptions => sqlOptions.MigrationsAssembly("Data"))); 
 
 /// <summary>
 /// Tilføjer Razor-komponenter (Blazor) med understøttelse for WebAssembly og Server-rendering.
@@ -49,14 +32,9 @@ builder.Services.AddScoped<TravelPackageState>();
 builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
 builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
 
-
 try
 {
-
     var app = builder.Build();
-
-    // Brug CORS politikken for at tillade de nødvendige domæner
-    app.UseCors("AllowStripe");
 
     /// <summary>
     /// Konfigurerer middleware til udvikling og produktion.
@@ -82,8 +60,6 @@ try
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode()
         .AddInteractiveWebAssemblyRenderMode();
-
-
 
     app.Run();
 }

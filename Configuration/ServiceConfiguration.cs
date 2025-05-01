@@ -29,6 +29,8 @@ namespace Configuration
             services.AddScoped<IUserRoleService, UserRoleService>();
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IBookingService, BookingService>();
+            services.AddScoped<IPaymentService, PaymentService>();
+
         }
 
         public static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)

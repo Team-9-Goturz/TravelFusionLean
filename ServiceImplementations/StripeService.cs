@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using Stripe;
-using static System.Collections.Specialized.BitVector32;
-using TravelFusionLean;
 using Shared.Models;
 using Stripe.Checkout;
+using Shared.Configuration;
+using Shared.Dtos;
+
 namespace ServiceImplementations
 {
     public class StripeService
@@ -17,12 +18,12 @@ namespace ServiceImplementations
         }
 
         // Opretter en Stripe Checkout session
-        public async Task<Session> CreateCheckoutSessionAsync(TravelPackage package)
+        public async Task<Session> CreateCheckoutSessionAsync(StripeCheckoutDTO dto)
         {
             try
             {
-                long amountInCents = (long)(package.Price.Amount * 100);
-                string currency = package.Price.Currency.ToString().ToLower();
+                long amountInCents = (long)(dto.Amount * 100);
+                string currency = dto.Currency.ToLower();
 
                 var options = new SessionCreateOptions
                 {
@@ -37,7 +38,7 @@ namespace ServiceImplementations
                         Currency = currency,
                         ProductData = new SessionLineItemPriceDataProductDataOptions
                         {
-                            Name = package.Headline,
+                            Name = dto.PackageHeadline,
                         },
                     },
                     Quantity = 1,
@@ -68,3 +69,4 @@ namespace ServiceImplementations
 
     }
 }
+

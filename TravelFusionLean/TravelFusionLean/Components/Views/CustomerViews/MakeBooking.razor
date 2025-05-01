@@ -1,4 +1,5 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
+@using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @layout CustomerLayout
 @rendermode InteractiveServer
@@ -6,12 +7,16 @@
 @using Shared.Models
 @using Data
 @using ServiceImplementations
+@using TravelFusionLeanApi.Models
+
 
 @inject ITravelPackageService travelPackageService
 @inject IContactService contactService
 @inject IBookingService bookingService
-@inject ITravelPackageService travelPackageService 
-@inject StripeService StripeService
+@inject IPaymentService paymentService
+
+@inject HttpClient Http
+
 @inject NavigationManager NavigationManager
 
 
@@ -129,17 +134,16 @@ else
 
  @code
  {
+    private Booking booking = new Booking();
+
     private async Task Create()
     {
-        Booking booking = new Booking()
-            {
-                TravelPackageId = TravelPackageId,
+        booking.TravelPackageId = TravelPackageId;
+        booking.Status = BookingStatus.Pending;
+        booking.BookingMadeAt = DateTime.Now;
+        booking.Price = travelPackage.Price;
+        booking.travellers = travellers.ToList();
 
-                Status = BookingStatus.Pending,
-                BookingMadeAt = DateTime.Now,
-
-                travellers = travellers.ToList()
-            };
         @* 
         //kræver log ind
         if(currentuser!=null){
@@ -165,22 +169,48 @@ else
 
 
 
-    @*     
+        @*     
         Deaktiveret mens vi tester Stripe
         booking = await (bookingService.AddAsync(booking));
 
         travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
         travelPackageService.UpdateAsync(travelPackage); *@
 
-        await CreateCheckoutSession(); // fortsæt til betaling
+        await HandlePayment(booking); // fortsæt til betaling
 
     }
 
-    private async Task CreateCheckoutSession()
+    private async Task HandlePayment(Booking booking)
     {
-        var session = await StripeService.CreateCheckoutSessionAsync(travelPackage);
+        booking.Id = 4;//slet mig 
 
-        // Omdiriger brugeren til Stripe Checkout
-        NavigationManager.NavigateTo(session.Url);
+        if (booking.Id.HasValue)
+        {
+           @*  // Opret payment i din database (intern)
+            Payment payment = new Payment()
+                {
+                    Price = booking.Price,
+                    BookingId = booking.Id.Value,
+                    Status = Payment.PaymentStatus.Pending,
+                };
+            payment = await paymentService.AddAsync(payment); *@
+
+            //Kald TravelFusionAPI (pga. ekstren kommúnikation med Stripe)
+
+            var stripeDto = new StripeCheckoutDTO
+                {
+                    Amount = booking.Price.Amount,
+                    Currency = booking.Price.Currency.ToString(),
+                    PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
+                };
+            var response = await Http.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeDto);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
+
+                NavigationManager.NavigateTo(stripeResponse.Url);  // Gå til Stripe Checkout
+            }
+        }
     }
 }

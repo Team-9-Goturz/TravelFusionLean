@@ -1,11 +1,10 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
 using TravelFusionLeanApi.Services;
 using Microsoft.Extensions.Options;
 using TravelFusionLeanApi.Configuration;
+using ServiceImplementations;
+using Shared.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,6 +63,9 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
         client.BaseAddress = new Uri(settings.MockHotelsApiUrl);
     }
 });
+
+builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+builder.Services.AddScoped<StripeService>();
 
 var app = builder.Build();
 

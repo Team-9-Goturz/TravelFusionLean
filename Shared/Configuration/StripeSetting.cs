@@ -1,4 +1,4 @@
-﻿namespace TravelFusionLean
+﻿namespace Shared.Configuration
 {
     public class StripeSettings
     {
