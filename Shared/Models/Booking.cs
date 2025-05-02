@@ -25,8 +25,8 @@ namespace Shared.Models
     public enum BookingStatus
     {
         Pending,         // Booking er oprettet, men ikke behandlet
-        Confirmed,       // Booking er bekræftet og godkendt
         Paid,            // Betaling er modtaget og bekræftet
+        Confirmed,       // Booking er bekræftet og godkendt
         Cancelled,       // Booking er aflyst
         Completed,       // Booking er afsluttet
         Refunded         // Betaling er refunderet

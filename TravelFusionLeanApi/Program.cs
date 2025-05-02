@@ -69,6 +69,8 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<StripeService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<StripeService>();
+builder.Services.AddScoped<IBookingService, BookingService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 Configuration.ServiceConfiguration.ConfigureServices(builder.Services, builder.Configuration);
