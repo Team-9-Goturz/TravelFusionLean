@@ -5,8 +5,10 @@ using Microsoft.Extensions.Options;
 using TravelFusionLeanApi.Configuration;
 using ServiceImplementations;
 using Shared.Configuration;
+using ServiceContracts;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 /// <summary>
 /// Binder konfigurationsafsnittet 'ApiSettings' fra appsettings.json til en stærkt typet klasse, så det kan bruges i hele applikationen.
@@ -66,6 +68,10 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
 
 builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
 builder.Services.AddScoped<StripeService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+Configuration.ServiceConfiguration.ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 

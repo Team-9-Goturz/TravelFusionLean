@@ -10,5 +10,6 @@ namespace ServiceContracts
 {
     public interface IPaymentService: ICrudService<Payment>
     {
+        public Task<Payment> GetPaymentByStripeSessionIdAsync(string sessionId);
     }
 }

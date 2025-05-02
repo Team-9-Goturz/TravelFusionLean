@@ -1,0 +1,45 @@
+﻿@page "/payment"
+@layout AdminLayout
+@rendermode InteractiveServer
+
+@using System.Security.Cryptography
+@using System.Text
+@using Microsoft.EntityFrameworkCore
+@using ServiceContracts
+@using Data
+@using Shared.Models
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Models
+@using System.ComponentModel.DataAnnotations
+@using TravelFusionLean.Components.Layout
+@using TravelFusionLean.Components.Layout.Admin
+
+@inject IPaymentService paymentService
+
+<h1>Test Payment Lookup</h1>
+@code {
+    private Payment payment;
+    private string sessionId = "cs_test_a1MlkKPvUCciBnXNTwRl4itr1TPqNia9LCLi31y40GaZbyLhqs4wpnjc1Q";
+
+    protected override async Task OnInitializedAsync()
+    {
+        payment = (await paymentService.GetPaymentByStripeSessionIdAsync(sessionId));
+        await base.OnInitializedAsync();
+    }
+}
+
+
+
+@if (payment != null)
+{
+    <div>
+        <p><strong>Payment ID:</strong> @payment.Id</p>
+        <p><strong>Stripe Session ID:</strong> @payment.StripeSessionId</p>
+        <p><strong>Amount:</strong> @payment.Price.Amount @payment.Price.Currency</p>
+        <p><strong>Status:</strong> @payment.Status</p>
+    </div>
+}
+else
+{
+    <p>No payment found for test session ID.</p>
+}

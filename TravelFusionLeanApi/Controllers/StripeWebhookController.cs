@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ServiceContracts;
+using Shared.Models;
 using Stripe;
 using Session = Stripe.Checkout.Session;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Stripe;
-using System.IO;
-using System.Threading.Tasks;
-
-
 
 namespace TravelFusionLeanApi.Controllers
 {
@@ -17,16 +12,19 @@ namespace TravelFusionLeanApi.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<StripeWebhookController> _logger;
+        private readonly IPaymentService _paymentService;
 
-        public StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger)
+        public StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IPaymentService paymentService)
         {
             _configuration = configuration;
             _logger = logger;
+            _paymentService = paymentService;
         }
 
         [HttpPost]
         public async Task<IActionResult> Handle()
         {
+            _logger.LogInformation("Webhook endpoint blev kaldt!");
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             _logger.LogInformation("Modtog Stripe webhook: {Json}", json);
 
@@ -58,8 +56,16 @@ namespace TravelFusionLeanApi.Controllers
                     }
 
                     _logger.LogInformation("Stripe session modtaget: {SessionId}", session.Id);
-
-                    // TODO: Find og opdater betaling i din database vha. session.Id
+                    var payment = await _paymentService.GetPaymentByStripeSessionIdAsync(session.Id); // hent betaling via sessionId
+                    if (payment == null)
+                    {
+                        _logger.LogWarning("Betaling ikke fundet for Stripe SessionId: {SessionId}", session.Id);
+                        return NotFound("Betaling ikke fundet");
+                    }
+                    // Opdater betalingens status
+                    payment.StripePaymentIntentId = session.PaymentIntentId;
+                    payment.Status = Payment.PaymentStatus.Succeeded; // Set status til Succeeded
+                    await _paymentService.UpdateAsync(payment);
                 }
                 catch (Exception ex)
                 {

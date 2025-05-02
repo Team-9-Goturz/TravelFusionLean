@@ -15,7 +15,6 @@ namespace Shared.Models
         //Stripe relateret
         public string? StripePaymentIntentId { get; set; }  // Stripe's Payment Intent ID
         public string? StripeSessionId { get; set; }
-        public string? PaymentMethodId { get; set; } // Stripe Payment Method ID
 
         public int BookingId { get; set; }
         public Booking? Booking { get; set; }
@@ -29,6 +28,5 @@ namespace Shared.Models
             Expired,        // Checkout session udløb uden betaling
             Refunded,       // Hele beløbet blev refunderet
         }
-
     }
 }

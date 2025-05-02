@@ -1,4 +1,5 @@
 ﻿using Data;
+using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
 using Shared.Models;
 using System;
@@ -12,6 +13,10 @@ namespace ServiceImplementations
 {
     public class PaymentService(AppDbContext context) : CrudService<Payment>(context), IPaymentService
     {
-
+        public async Task<Payment> GetPaymentByStripeSessionIdAsync(string sessionId)
+        {
+            return await context.Payments
+                             .FirstOrDefaultAsync(p => p.StripeSessionId == sessionId);
+        }
     }
 }

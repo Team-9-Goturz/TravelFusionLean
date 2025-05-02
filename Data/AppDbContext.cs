@@ -187,6 +187,10 @@ namespace Data
 
                 entity.HasKey(p => p.Id);
 
+                entity.Property(p => p.Status)
+                        .HasConversion<string>() // <-- konverter enum til string
+                        .HasMaxLength(50);       // matcher nvarchar(50) i databasen
+
                 // Mapper PriceAsDecimal til en separat tabel eller som en værdi-objekt
                 entity.OwnsOne(p => p.Price, price =>
                 {
@@ -198,6 +202,7 @@ namespace Data
                     price.Property(p => p.Currency)
                         .HasColumnName("PriceCurrency")
                         .IsRequired()
+                        .HasConversion<string>()
                         .HasMaxLength(3);
                 });
             });

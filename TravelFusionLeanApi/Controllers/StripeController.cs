@@ -28,7 +28,6 @@ namespace TravelFusionLeanApi.Controllers
                 {
                     Url = session.Url,
                     StripeSessionId = session.Id,
-                    StripePaymentIntentId = session.PaymentIntentId
                 };
 
                 return Ok(response); // URL til stripe checkout siden
