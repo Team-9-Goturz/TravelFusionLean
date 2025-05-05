@@ -3,9 +3,13 @@ using Microsoft.OpenApi.Models;
 using TravelFusionLeanApi.Services;
 using Microsoft.Extensions.Options;
 using TravelFusionLeanApi.Configuration;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using ServiceImplementations;
 using Shared.Configuration;
 using ServiceContracts;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,16 +70,38 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
     }
 });
 
-builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-builder.Services.AddScoped<StripeService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
-builder.Services.AddScoped<StripeService>();
-builder.Services.AddScoped<IBookingService, BookingService>();
+// Henter konfiguration fra appsettings (f.eks. JWT)
+var config = builder.Configuration;
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-Configuration.ServiceConfiguration.ConfigureServices(builder.Services, builder.Configuration);
+// 2. Konfigurer JWT Bearer-godkendelse
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        // hemmelig nøgle fra konfiguration
+        var secret = config["JwtSettings:Secret"];
+        
+        // Angiver regler for validering af token
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true, // Tjek at token kommer fra en godkendt udsteder
+            ValidateAudience = true, // Tjek at token er beregnet til denne API
+            ValidateLifetime = true, // Tjek at token ikke er udløbet
+            ValidateIssuerSigningKey = true, // Tjek at token-signaturen er gyldig
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+        };
+    });
+
+// kræves for at bruge [Authorize]-attributter
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+
+
+
+app.UseAuthentication();
+
+
 
 /// <summary>
 /// Aktiverer Swagger UI i både Development og Production, med korrekt endpoint afhængigt af miljø.

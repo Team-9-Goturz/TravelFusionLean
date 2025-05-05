@@ -156,5 +156,24 @@ namespace ServiceImplementations
 
             return null;
         }
+
+        public async Task<User?> AuthenticateByUsernameAsync(string username, string password)
+        {
+            var user = await _context.Users
+            .Include(u => u.UserRole)
+            .FirstOrDefaultAsync(u => u.Username == username);
+
+            if (user == null)
+                return null;
+
+            string attemptedHash = HashPasswordWithSaltAndPepper(password, user.PasswordSalt);
+
+            if (user.PasswordHash == attemptedHash)
+                return user;
+
+            return null;
+        }
+
+      
     }
 }
