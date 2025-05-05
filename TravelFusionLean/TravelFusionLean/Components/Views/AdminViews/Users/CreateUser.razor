@@ -86,8 +86,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Email *</label>
-                <InputText @bind-Value="_user.Email" class="@EmailCssClass" />
-                <ValidationMessage For="@(() => _user.Email)" />
+                <InputText @bind-Value="_user.Contact.Email" class="@EmailCssClass" />
+                <ValidationMessage For="@(() => _user.Contact.Email)" />
             </div>
 
             <button type="submit" class="btn btn-primary mt-3" disabled="@(!isFormValid)">Create</button>
@@ -101,7 +101,7 @@
     private string PasswordRepeatCssClass => $"form-control {GetCssClass(PasswordsMatch, PasswordRepeat)}";
     private string ContactNameCssClass => $"form-control {GetCssClassFor(() => _user.Contact.Name)}";
     private string PhoneCssClass => $"form-control {GetCssClassFor(() => _user.Contact.PhoneNumber)}";
-    private string EmailCssClass => $"form-control {GetCssClassFor(() => _user.Email)}";
+    private string EmailCssClass => $"form-control {GetCssClassFor(() => _user.EmailForPasswordReset)}";
 }
 
 

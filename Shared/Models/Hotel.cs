@@ -11,8 +11,7 @@ public class Hotel
 {
     [Key]
     public int Id { get; set; }
-    public decimal Price { get; set; }
-
+   
     [Required]
     [StringLength(128)]
     public string Name { get; set; }
@@ -25,6 +24,7 @@ public class Hotel
 
     //[StringLength(128)]
     //public string StayingGuests { get; set; }
+
     public string? Address { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
@@ -35,6 +35,5 @@ public class Hotel
 
     public string Country { get; set; }
     public string City { get; set; }
-    public Currency? Curreny{ get; set; }
     public int Rating;
 }
