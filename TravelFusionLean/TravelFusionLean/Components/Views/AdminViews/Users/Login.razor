@@ -5,7 +5,10 @@
 @inject ProtectedSessionStorage sessionStorage
 @using System.Net.Http.Headers
 @using Shared.DTOs
+@using TravelFusionLean.Models
 @inject IHttpClientFactory ClientFactory
+@rendermode InteractiveServer
+@inject IUserService _userService
 
 @layout AdminLayout
 
@@ -34,6 +37,8 @@
 </EditForm>
 
 
+
+
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="alert alert-danger text-center mt-3">@message</div>
@@ -44,7 +49,13 @@
     private HttpClient Http => ClientFactory.CreateClient("AuthApi");
 
     // Login form model
-    private UserLoginDto loginModel = new();
+    private UserLoginDto loginModel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loginModel = new UserLoginDto();
+        await base.OnInitializedAsync();
+    }
 
     // Error eller status message
     private string message;
@@ -55,7 +66,11 @@
         try
         {
             // Sender login til AuthController 
-            var response = await Http.PostAsJsonAsync("api/auth/login", loginModel);
+            User? currentUser =  await _userService.AuthenticateByUsernameAsync(loginModel);
+
+            Console.WriteLine("hej");
+
+            var response = await Http.PostAsJsonAsync("https://localhost:7274/api/auth/login", loginModel);
 
             if (response.IsSuccessStatusCode)
             {
