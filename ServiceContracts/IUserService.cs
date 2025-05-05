@@ -20,5 +20,8 @@ namespace ServiceContracts
         public Task ResetPasswordAsync(int userId, string newPassword);
         public Task<User?> AuthenticateUserAsync(string email, string password);
 
+        Task<User?> AuthenticateByUsernameAsync(string username, string password);
+
+
     }
 }

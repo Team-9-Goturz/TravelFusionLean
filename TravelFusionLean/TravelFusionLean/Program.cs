@@ -6,6 +6,8 @@ using Shared.Models;
 using TravelFusionLean.Components;
 using Data;
 using TravelFusionLean;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,6 +50,15 @@ builder.Services.AddScoped<TravelPackageState>();
 
 builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
 builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
+
+builder.Services.AddScoped<ProtectedSessionStorage>();
+
+builder.Services.AddHttpClient("AuthApi", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7274"); // ← use this
+});
+
+builder.Services.AddAuthorizationCore();
 
 
 try
