@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
+using Shared.DTOs;
 using Shared.Models;
 using TravelFusionLean.Models;
 
@@ -156,5 +157,24 @@ namespace ServiceImplementations
 
             return null;
         }
+
+        public async Task<User?> AuthenticateByUsernameAsync(UserLoginDto loginmodel)
+        {
+            var user = await _context.Users
+            .Include(u => u.UserRole)
+            .FirstOrDefaultAsync(u => u.Username == loginmodel.Username);
+
+            if (user == null)
+                return null;
+
+            string attemptedHash = HashPasswordWithSaltAndPepper(loginmodel.Password, user.PasswordSalt);
+
+            if (user.PasswordHash == attemptedHash)
+                return user;
+
+            return null;
+        }
+
+      
     }
 }

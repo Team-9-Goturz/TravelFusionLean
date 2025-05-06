@@ -13,12 +13,14 @@ namespace TravelFusionLeanApi.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<StripeWebhookController> _logger;
         private readonly IPaymentService _paymentService;
+        private readonly IBookingService _bookingService;
 
-        public StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IPaymentService paymentService)
+        public StripeWebhookController(IConfiguration configuration, ILogger<StripeWebhookController> logger, IPaymentService paymentService, IBookingService bookingService)
         {
             _configuration = configuration;
             _logger = logger;
             _paymentService = paymentService;
+            _bookingService = bookingService;
         }
 
         [HttpPost]
@@ -69,6 +71,11 @@ namespace TravelFusionLeanApi.Controllers
                     payment.StripePaymentIntentId = session.PaymentIntentId;
                     payment.Status = PaymentStatus.Succeeded; // Set status til Succeeded
                     await _paymentService.UpdateAsync(payment);
+
+                    //opdater Bookings status 
+                    Booking booking = await _bookingService.GetByIdAsync(payment.BookingId);
+                    booking.Status = BookingStatus.Paid;
+                    await _bookingService.UpdateAsync(booking);
                 }
                 catch (Exception ex)
                 {
