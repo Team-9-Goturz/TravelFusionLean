@@ -13,11 +13,14 @@ using ServiceContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.AddScoped<StripeService>();
 /// <summary>
 /// Binder konfigurationsafsnittet 'ApiSettings' fra appsettings.json til en stærkt typet klasse, så det kan bruges i hele applikationen.
 /// </summary>
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
+
+var config = builder.Configuration;
+builder.Services.Configure<StripeSettings>(config.GetSection("Stripe"));
 
 /// Tilf�jer controller-underst�ttelse og enum-serialisering
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -36,15 +39,17 @@ builder.Services.AddSwaggerGen(options =>
         Description = "API til integration af mock-fly og hoteller i rejsepakker"
     });
 });
-
-/// CORS konfiguration (tillader Blazor frontend adgang)
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("https://travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(
+            "https://travelfusionapp-aqbfg6e2bhenb8e3.canadacentral-01.azurewebsites.net",
+            "https://localhost:7177",
+            "http://localhost:5096"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
@@ -70,8 +75,6 @@ builder.Services.AddHttpClient<IHotelService, HotelService>((sp, client) =>
     }
 });
 
-// Henter konfiguration fra appsettings (f.eks. JWT)
-var config = builder.Configuration;
 
 // 2. Konfigurer JWT Bearer-godkendelse
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -96,13 +99,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-
-
-app.UseAuthentication();
-
-
-
 /// <summary>
 /// Aktiverer Swagger UI i både Development og Production, med korrekt endpoint afhængigt af miljø.
 /// </summary>
@@ -120,6 +116,9 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+
 app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => "TravelFusionLean API is running!");
