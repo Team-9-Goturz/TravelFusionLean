@@ -64,7 +64,7 @@ namespace TravelFusionLeanApi.Controllers
                     }
                     // Opdater betalingens status
                     payment.StripePaymentIntentId = session.PaymentIntentId;
-                    payment.Status = Payment.PaymentStatus.Succeeded; // Set status til Succeeded
+                    payment.Status = PaymentStatus.Succeeded; // Set status til Succeeded
                     await _paymentService.UpdateAsync(payment);
                 }
                 catch (Exception ex)

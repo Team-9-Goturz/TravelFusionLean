@@ -18,15 +18,14 @@ namespace Shared.Models
 
         public int BookingId { get; set; }
         public Booking? Booking { get; set; }
-
-        public enum PaymentStatus
-        {
-            Pending,        // Betalingen er endnu ikke afsluttet
-            Succeeded,      // Betalingen er gennemført med succes
-            Failed,         // Betalingen mislykkedes
-            Canceled,       // Betalingen blev annulleret
-            Expired,        // Checkout session udløb uden betaling
-            Refunded,       // Hele beløbet blev refunderet
-        }
+    }
+    public enum PaymentStatus
+    {
+        Pending,        // Betalingen er endnu ikke afsluttet
+        Succeeded,      // Betalingen er gennemført med succes
+        Failed,         // Betalingen mislykkedes
+        Canceled,       // Betalingen blev annulleret
+        Expired,        // Checkout session udløb uden betaling
+        Refunded,       // Hele beløbet blev refunderet
     }
 }

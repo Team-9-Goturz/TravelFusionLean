@@ -83,9 +83,9 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// <summary>
     /// Sletter en rejsepakke.
     /// </summary>
-    public override async Task<bool> DeleteAsync(int id)
+    public override async Task<bool> ArchiveAsync(int id)
     {
-        return await base.DeleteAsync(id);
+        return await base.ArchiveAsync(id);
     }
 
     

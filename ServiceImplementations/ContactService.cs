@@ -28,7 +28,7 @@ namespace ServiceImplementations
             }
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public Task<bool> ArchiveAsync(int id)
         {
             throw new NotImplementedException();
         }

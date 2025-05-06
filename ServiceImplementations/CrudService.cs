@@ -64,7 +64,7 @@ public abstract class CrudService<TEntity> : ReadService<TEntity>, ICrudService<
     /// <summary>
     /// Sletter en entitet med det angivne ID.
     /// </summary>
-    public virtual async Task<bool> DeleteAsync(int id)
+    public virtual async Task<bool> ArchiveAsync(int id)
     {
         try
         {

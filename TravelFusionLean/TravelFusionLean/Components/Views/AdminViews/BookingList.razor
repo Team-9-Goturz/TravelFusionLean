@@ -6,7 +6,9 @@
 @using Shared.Models
 @using Data
 @using ServiceImplementations;
+
 @inject IBookingService bookingService
+@inject NavigationManager NavManager
 
 @layout AdminLayout
 @rendermode InteractiveServer
@@ -25,12 +27,11 @@
         await base.OnInitializedAsync();
         await LoadBookings();
     }
-
-    private async Task LoadBookings()
+    private async Task LoadBookings() 
     {
-        var result = await bookingService.GetAllAsync();
+        var result = await bookingService.GetAllAsync();//hent alle bookinger fra databasen via BookingService
         _bookings = result.ToList();
-        resultCount = _bookings.Count;
+        resultCount = _bookings.Count; //antallet af bookinger hentet fra databasen
     }
 }
 <table border="1" class="table">
@@ -53,16 +54,46 @@
                     <strong>@booking.TravelPackage?.Headline</strong><br />
                     @booking.TravelPackage?.Description
                 </td>
-                    <td>@booking.TravelPackage?.NoOfTravellers</td>
+                <td>@booking.TravelPackage?.NoOfTravellers</td>
                 <td>@booking.Price.ToString()</td>
                 <td>@booking.Status</td>
                 <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
-                <td>@booking.Payment?.Status </td>
+                <td>@(booking.Payment != null ? booking.Payment.Status : "Ingen betaling")</td>
                 <td>
-                    <button>Cancel</button>
-                    <button>Show more</button>
+                    <button @onclick="@(() => NavManager.NavigateTo($"/booking-details/{booking.Id}"))">
+                        Show more
+                    </button>
+
+                    @if (booking.Status == BookingStatus.Pending || booking.Status == BookingStatus.Paid)
+                    {
+                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button>
+                    }
+
+                    @if (booking.Status == BookingStatus.Cancelled && booking.Payment?.Status == PaymentStatus.Succeeded)
+                    {
+                        <button>Refund</button>
+                    }
+
+                    @if (booking.Status == BookingStatus.Cancelled)
+                    {
+                        <button @onclick="() => ArchiveBooking(booking.Id.Value)">Archive</button>
+                    }
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@code {
+
+    private async Task CancelBooking(int id)
+    {
+        await bookingService.CancelByIdAsync(id);
+
+    }
+
+    private async Task ArchiveBooking(int id)
+    {
+        await bookingService.ArchiveAsync(id);
+    }
+}

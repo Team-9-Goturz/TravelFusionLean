@@ -9,5 +9,6 @@ namespace ServiceContracts
 {
     public interface IBookingService : ICrudService<Booking>
     {
+        public Task<Booking> CancelByIdAsync(int id);
     }
 }

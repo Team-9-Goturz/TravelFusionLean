@@ -26,41 +26,81 @@ namespace ServiceImplementations
         {
             Booking booking = _context.Bookings
                 .Include(b => b.TravelPackage)
+                .Include(b => b.TravelManagerContact)
+                .Include(b => b.travellers)
                 .FirstOrDefault(u => u.Id == id);
-            booking.Status = BookingStatus.Cancelled;
             return await UpdateAsync(booking);
         }
-        public async Task<Booking> CancelById(int id)
-        {
-            Booking booking = await this.GetByIdAsync(id);
-            booking.Status = BookingStatus.Cancelled;
 
-            return await this.UpdateAsync(booking);
-        }
-
-        public override async Task<bool> DeleteAsync(int id)
+        public async Task<Booking> CancelByIdAsync(int id)
         {
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                Booking booking = await GetByIdAsync(id);
-                if (booking == null) return false;
+                //Find Booking
+                var booking = await _context.Bookings
+                    .Include(b => b.travellers)
+                    .Include(b => b.Payment)
+                    .FirstOrDefaultAsync(b => b.Id == id);
+                booking.Status = BookingStatus.Cancelled;
 
-                //Slet payment
+                //Frigiv travelpackage
+                booking.TravelPackage.Status = TravelPackage.TravelPackageStatus.Available;
 
-                _dbSet.Remove(booking);
+                //Når booking bliver afbestilt har vi ikke længere hjemmel jævnfør GDPR artikel 6(1)(b) til at opbevare/behandle personoplysningerne 
+                _context.Travellers.RemoveRange(booking.travellers);
+
+                //Hvis betaling er gennemført
+                if (booking.Payment != null)
+                {
+                    if (booking.Payment.Status == PaymentStatus.Succeeded)
+                    {
+                        // Lav refusion (TODO) 
+                        booking.Payment.Status = PaymentStatus.Refunded;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
-                return true;
+                await transaction.CommitAsync();
+
+                return booking;
             }
-            catch (DbUpdateException dbEx)
+            catch
             {
-                Debug.WriteLine($"[DeleteAsync] DB fejl: {dbEx.Message}");
-                throw new ApplicationException("Kunne ikke slette entiteten fra databasen.", dbEx);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[DeleteAsync] Ukendt fejl: {ex.Message}");
-                throw new ApplicationException("Uventet fejl ved sletning.", ex);
+                await transaction.RollbackAsync();
+                throw;
             }
         }
+
+        public async Task<bool> ArchiveAsync(int id) // arkiver afbestilt booking 
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var booking = await _context.Bookings
+                    .Include(b => b.Payment)
+                    .FirstOrDefaultAsync(b => b.Id == id);
+
+                if (booking == null)
+                    return false;
+
+                if (booking.Status == BookingStatus.Cancelled)
+                {
+                    booking.Status = BookingStatus.Archived;
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return true;
+                }
+
+                return false;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
     }
 }

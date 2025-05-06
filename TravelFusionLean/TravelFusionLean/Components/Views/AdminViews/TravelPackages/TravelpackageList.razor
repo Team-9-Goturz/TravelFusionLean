@@ -161,7 +161,7 @@ else{
 @code {
   private async Task DeleteTravelPackageAsync(int id)
     {
-        var success = await travelPackageService.DeleteAsync(id); // kald til service
+        var success = await travelPackageService.ArchiveAsync(id); // kald til service
 
         if (success)
         {
