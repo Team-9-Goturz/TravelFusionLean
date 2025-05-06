@@ -42,6 +42,7 @@ builder.Services.AddHttpClient("AuthApi", client =>
 });
 
 builder.Services.AddAuthorizationCore();
+builder.Services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
 
 
 try
