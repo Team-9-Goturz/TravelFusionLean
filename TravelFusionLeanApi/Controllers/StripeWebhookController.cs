@@ -22,6 +22,9 @@ namespace TravelFusionLeanApi.Controllers
         }
 
         [HttpPost]
+
+        //husk "stripe listen --forward-to https://localhost:7274/api/stripewebhook i stripe CLI" 
+
         public async Task<IActionResult> Handle()
         {
             _logger.LogInformation("Webhook endpoint blev kaldt!");
