@@ -28,7 +28,8 @@ namespace ServiceImplementations
                 .Include(b => b.Payment)
                 .Include(b => b.TravelPackage)
                 .Include(b => b.TravelManagerContact)
-                .Include(b => b.travellers)
+                .Include(b => b.travellers).ThenInclude(t => t.Nationality)
+                .Include(b => b.TravelPackage)
                 .FirstOrDefault(u => u.Id == id);
             return await UpdateAsync(booking);
         }

@@ -11,23 +11,31 @@ namespace Shared.Models
     {
         public int Id { get; set; }
 
-        public int BookingId {  get; set; }
+        public int BookingId { get; set; }
         public Booking? Booking { get; set; }
         // Personlige oplysninger
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public DateOnly DateOfBirth { get; set; }
-        public string Gender { get; set; }
+        public Gender Gender { get; set; }
 
         // Rejsepapirer
-        public string Nationality { get; set; }
+        public Country? Nationality { get; set; }
+        public int NationalityId { get; set; }
         public string PassportNumber { get; set; }
         public DateOnly PassportExpiry { get; set; }
-        public string PassportIssuingCountry { get; set; }
+        public Country? PassportIssuingCountry { get; set; }
+        public int PassportIssuingCountryId { get; set; }
         public string FullName => $"{FirstName} {LastName}";
 
         // UI-property 
         [NotMapped]
         public bool ShowDetails { get; set; } = false;
+    }
+    public enum Gender
+    {
+        Male,
+        Female,
+        Other
     }
 }

@@ -30,6 +30,7 @@ namespace Configuration
             services.AddScoped<IContactService, ContactService>();
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<ICountryReadService, CountryReadService>();
 
         }
 

@@ -9,17 +9,15 @@
 @using ServiceImplementations
 @using TravelFusionLeanApi.Models
 
-
 @inject ITravelPackageService travelPackageService
 @inject IContactService contactService
 @inject IBookingService bookingService
 @inject IPaymentService paymentService
+@inject ICountryReadService countryService
 
 @inject HttpClient Http
-
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
-
-
 
 @* Opstart *@
 @code
@@ -29,9 +27,11 @@
 
     TravelPackage travelPackage;
     Traveller[] travellers;
+    List<Country> countries;
 
     protected override async Task OnInitializedAsync()
     {
+        countries = (await countryService.GetAllAsync()).OrderBy(c => c.Name).ToList();
         travelPackage = (await travelPackageService.GetByIdAsync(TravelPackageId));
         travellers = new Traveller[travelPackage.NoOfTravellers];
         for (int i = 0; i < travellers.Length; i++)
@@ -59,12 +59,24 @@
                 <InputText @bind-Value="traveller.LastName" class="form-control" placeholder="Efternavn" />
                 <label>Birthday:</label>
                 <InputDate @bind-Value="traveller.DateOfBirth" class="form-control" />
-                <label>Gender</label>
-                <InputText @bind-Value="traveller.Gender" class="form-control" placeholder="køn"/>
-
+                <div class="form-group">
+                    <label>Køn</label>
+                    <InputSelect @bind-Value="traveller.Gender" class="form-control">
+                        @foreach (var gender in Enum.GetValues<Gender>())
+                        {
+                            <option value="@gender">@gender</option>
+                        }
+                    </InputSelect>
+                </div>
                 <div class="form-group">
                     <label>Nationality</label>
-                    <InputText @bind-Value="traveller.Nationality" class="form-control" />
+                    <InputSelect @bind-Value="traveller.NationalityId" class="form-control">
+                        <option value="">-- Vælg land --</option>
+                        @foreach (Country country in countries)
+                        {
+                            <option value="@country.Id">@country.Nationality</option>
+                        }
+                    </InputSelect>
                 </div>
 
                 <div class="form-group">
@@ -77,9 +89,16 @@
                     <InputDate @bind-Value="traveller.PassportExpiry" class="form-control" />
                 </div>
 
+
                 <div class="form-group">
                     <label>Passport Issuing Country</label>
-                    <InputText @bind-Value="traveller.PassportIssuingCountry" class="form-control" />
+                    <InputSelect @bind-Value="traveller.PassportIssuingCountryId" class="form-control">
+                        <option value="">-- Vælg land --</option>
+                        @foreach (Country country in countries)
+                        {
+                            <option value="@country.Id">@country.Name</option>
+                        }
+                    </InputSelect>
                 </div>
             }
         </div>
@@ -94,6 +113,7 @@ else
     {
         traveller.ShowDetails = !traveller.ShowDetails;
     }
+    
 }
 
 @* rejseansvarlig *@ 
@@ -174,6 +194,7 @@ else
 
     }
 
+  
     private async Task HandlePayment(Booking booking)
     {
         if (booking.Id.HasValue)
@@ -253,5 +274,3 @@ else
         }
     }
  }
-    }
-}

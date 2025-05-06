@@ -21,6 +21,7 @@ namespace Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Traveller> Travellers { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Country> countries { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -67,6 +68,11 @@ namespace Data
             modelBuilder.Entity<Contact>(entity =>
             {
                 entity.ToTable("Contact");
+            });
+
+            modelBuilder.Entity<Country>(entity =>
+            {
+                entity.ToTable("Country");
             });
 
             modelBuilder.Entity<Airport>().ToTable("Airport");
@@ -223,10 +229,14 @@ namespace Data
                       .IsRequired(); // Fødselsdato er obligatorisk
 
                 entity.Property(t => t.Gender)
+                      .HasConversion<string>() // Enum gemmes som string i databasen
                       .IsRequired(); // Køn skal være angivet
 
-                entity.Property(t => t.Nationality)
-                      .IsRequired(); // Nationalitet er påkrævet
+                entity.HasOne(t => t.Nationality) // En traveller har én nationalitet (navigation property)
+                      .WithMany() // Ingen navigation fra Country til Traveller
+                      .HasForeignKey(t => t.NationalityId) // Fremmednøgle i Traveller-tabellen
+                      .IsRequired() // Nationalitet er påkrævet
+                      .OnDelete(DeleteBehavior.Restrict); // Forhindrer sletning af country med referencer
 
                 entity.Property(t => t.PassportNumber)
                       .IsRequired(); // Pasnummer er påkrævet
@@ -234,8 +244,11 @@ namespace Data
                 entity.Property(t => t.PassportExpiry)
                       .IsRequired(); // Udløbsdato på pas er påkrævet
 
-                entity.Property(t => t.PassportIssuingCountry)
-                      .IsRequired(); // Udstedelsesland for pas er påkrævet
+                entity.HasOne(t => t.PassportIssuingCountry) // En traveller har ét pasudstedelsesland (navigation property)
+                      .WithMany() // Ingen navigation fra Country til Traveller
+                      .HasForeignKey(t => t.PassportIssuingCountryId) // Fremmednøgle i Traveller-tabellen
+                      .IsRequired() // Udstedelsesland for pas er påkrævet
+                      .OnDelete(DeleteBehavior.Restrict); // Forhindrer sletning af country med referencer
 
                 entity.HasOne(t => t.Booking) // Hver traveller tilhører én booking
                       .WithMany(b => b.travellers) // En booking kan have mange travellers
@@ -243,6 +256,7 @@ namespace Data
                       .IsRequired() // Hver traveller SKAL være knyttet til en booking
                       .OnDelete(DeleteBehavior.Cascade); // Hvis en booking slettes, slettes alle tilknyttede travellers
             });
+
         }
     }
 }
