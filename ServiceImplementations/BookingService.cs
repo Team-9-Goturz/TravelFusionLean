@@ -19,7 +19,7 @@ namespace ServiceImplementations
             return await _context.Bookings
                 .Include(b => b.TravelPackage)
                 .Include(b => b.Payment)
-                .ToListAsync(); 
+                .ToListAsync();
 
         }
         public override async Task<Booking> GetByIdAsync(int id)
@@ -102,6 +102,17 @@ namespace ServiceImplementations
                 throw;
             }
         }
+        public async Task<Booking> ConfirmByIdAsync(int id) //bekræft at fly og hotel er tilgængeligt
+        {
+            //Find Booking og opdater status
+            var booking = await _context.Bookings
+                .Include(b => b.travellers)
+                .Include(b => b.Payment)
+                .FirstOrDefaultAsync(b => b.Id == id);
+            booking.Status = BookingStatus.Confirmed;
+            await _context.SaveChangesAsync();
 
+            return booking;
+        }
     }
 }

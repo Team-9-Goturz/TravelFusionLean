@@ -66,17 +66,20 @@
 
                     @if (booking.Status == BookingStatus.Pending || booking.Status == BookingStatus.Paid)
                     {
-                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button>
+                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button> //Hotelophold eller fly er alligvel ikke tilgængeligt
+                        <button @onclick="() => ConfirmBooking(booking.Id.Value)">Confirm</button> //hotel og flyselskab har bekræftet at produktet er tilgængeligt og bestilt
                     }
-
+                    @if (booking.Status == BookingStatus.Confirmed){
+                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button> //hotel eller flyselskab har måske aflyst eller er måske gået konkurs
+                    }
                     @if (booking.Status == BookingStatus.Cancelled && booking.Payment?.Status == PaymentStatus.Succeeded)
                     {
-                        <button>Refund</button>
+                        <button>Refund</button> //lav en refundering TODO
                     }
 
                     @if (booking.Status == BookingStatus.Cancelled)
                     {
-                        <button @onclick="() => ArchiveBooking(booking.Id.Value)">Archive</button>
+                        <button @onclick="() => ArchiveBooking(booking.Id.Value)">Archive</button> //Ikke slet men arkiverer bestilling
                     }
                 </td>
             </tr>
@@ -86,12 +89,14 @@
 
 @code {
 
+    private async Task ConfirmBooking(int id)
+    {
+        await bookingService.ConfirmByIdAsync(id);
+    }
     private async Task CancelBooking(int id)
     {
         await bookingService.CancelByIdAsync(id);
-
     }
-
     private async Task ArchiveBooking(int id)
     {
         await bookingService.ArchiveAsync(id);
