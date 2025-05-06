@@ -19,12 +19,13 @@ namespace ServiceImplementations
             return await _context.Bookings
                 .Include(b => b.TravelPackage)
                 .Include(b => b.Payment)
-                .ToListAsync(); // <-- Her!
+                .ToListAsync(); 
 
         }
         public override async Task<Booking> GetByIdAsync(int id)
         {
             Booking booking = _context.Bookings
+                .Include(b => b.Payment)
                 .Include(b => b.TravelPackage)
                 .Include(b => b.TravelManagerContact)
                 .Include(b => b.travellers)
