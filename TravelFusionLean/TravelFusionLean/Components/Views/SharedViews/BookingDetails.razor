@@ -66,16 +66,16 @@ else
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var t in booking.travellers)
+                    @foreach (Traveller traveller in booking.travellers)
                     {
                         <tr>
-                            <td>@t.FullName</td>
-                            <td>@t.DateOfBirth.ToString("dd-MM-yyyy")</td>
-                            <td>@t.Gender</td>
-                            <td>@t.Nationality.Nationality</td>
-                            <td>@t.PassportNumber</td>
-                            <td>@t.PassportExpiry.ToString("dd-MM-yyyy")</td>
-                            <td>@t.PassportIssuingCountry.Name</td>
+                            <td>@traveller.FullName</td>
+                            <td>@traveller.DateOfBirth.ToString("dd-MM-yyyy")</td>
+                            <td>@traveller.Gender</td>
+                            <td>@traveller.Nationality.Nationality</td>
+                            <td>@traveller.PassportNumber</td>
+                            <td>@traveller.PassportExpiry.ToString("dd-MM-yyyy")</td>
+                            <td>@traveller.PassportIssuingCountry.Name</td>
                         </tr>
                     }
                 </tbody>
