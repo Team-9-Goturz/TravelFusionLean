@@ -96,13 +96,6 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
-
-
-app.UseAuthentication();
-
-
-
 /// <summary>
 /// Aktiverer Swagger UI i både Development og Production, med korrekt endpoint afhængigt af miljø.
 /// </summary>
@@ -117,6 +110,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     });
 }
 
+app.UseAuthentication();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseCors("AllowFrontend");

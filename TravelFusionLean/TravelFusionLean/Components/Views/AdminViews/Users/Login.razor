@@ -37,17 +37,12 @@
 </EditForm>
 
 
-
-
 @if (!string.IsNullOrEmpty(message))
 {
     <div class="alert alert-danger text-center mt-3">@message</div>
 }
 
 @code {
-    // Create named HttpClient instance, som jeg har registreret i Program.cs
-    private HttpClient Http => ClientFactory.CreateClient("AuthApi");
-
     // Login form model
     private UserLoginDto loginModel { get; set; }
 
@@ -60,43 +55,39 @@
     // Error eller status message
     private string message;
 
+    private User? currentUser;
+
     // Håndtere login
     private async Task HandleLogin()
     {
         try
         {
-            // Sender login til AuthController 
-            User? currentUser =  await _userService.AuthenticateByUsernameAsync(loginModel);
-
-            Console.WriteLine("hej");
-
-            var response = await Http.PostAsJsonAsync("https://localhost:7274/api/auth/login", loginModel);
-
-            if (response.IsSuccessStatusCode)
+            // Tjekker om loginModel er null og om username og password er udfyldt
+            if (loginModel != null &&
+                !string.IsNullOrWhiteSpace(loginModel.Username) &&
+                !string.IsNullOrWhiteSpace(loginModel.Password))
             {
-                //Læser JWT response
-                var loginResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+                // Kalder UserService og metoden AuthenticateByUsernameAsync
+                var user = await _userService.AuthenticateByUsernameAsync(loginModel);
 
-                // Gemmer token i session storage
-                await sessionStorage.SetAsync("authToken", loginResponse.Token);
-
-                // Tilføjer token til Authorization header
-                Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResponse.Token);
-
-                message = "";
-
-                // Hvis login succesful sender den user til Admin home page
-                NavigationManager.NavigateTo("/AdminHome");
+                if (user != null)
+                {
+                    // Navigate til admin
+                    NavigationManager.NavigateTo("/AdminHome");
+                }
+                else
+                {
+                    message = "Invalid username or password.";
+                }
             }
             else
             {
-                message = "Invalid login credentials.";
+                message = "Please enter both username and password.";
             }
         }
         catch (Exception ex)
         {
-            
-            message = $"Error during login: {ex.Message}";
+            message = $"Login error: {ex.Message}";
         }
     }
 
