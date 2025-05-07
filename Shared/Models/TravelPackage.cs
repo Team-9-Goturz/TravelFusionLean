@@ -40,11 +40,12 @@ public class TravelPackage
     // For at uplade billeder, når man opretter travelpackages
     public string? ImagePath { get; set; }
 
-    public enum TravelPackageStatus
-    {
-        Draft,          // Endnu ikke klar til booking (kun intern brug)
-        Available,      // Klar til booking
-        Booked,         // Allerede booket af én kunde (ved 1:1 forhold)
-        Cancelled       // Tilbuddet er aflyst
-    }
+    
+}
+public enum TravelPackageStatus
+{
+    Draft,          // Endnu ikke klar til booking (kun intern brug)
+    Available,      // Klar til booking
+    Booked,         // Allerede booket af én kunde (ved 1:1 forhold)
+    Cancelled       // Tilbuddet er aflyst
 }

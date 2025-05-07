@@ -48,7 +48,7 @@ namespace ServiceImplementations
                 booking.Status = BookingStatus.Cancelled;
 
                 //Frigiv travelpackage
-                booking.TravelPackage.Status = TravelPackage.TravelPackageStatus.Available;
+                booking.TravelPackage.Status = TravelPackageStatus.Available;
 
                 //Når booking bliver afbestilt har vi ikke længere hjemmel jævnfør GDPR artikel 6(1)(b) til at opbevare/behandle personoplysningerne 
                 _context.Travellers.RemoveRange(booking.travellers);

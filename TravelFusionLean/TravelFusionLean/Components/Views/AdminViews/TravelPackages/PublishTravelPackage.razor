@@ -244,7 +244,7 @@
             if (travelPackageState.SelectedFlight != null)
             {
                 travelpackage.OutboundFlight = travelPackageState.SelectedFlight;
-                travelpackage.Status = TravelPackage.TravelPackageStatus.Available;
+                travelpackage.Status = TravelPackageStatus.Available;
             }
 
             await TravelPackageService.AddAsync(travelpackage);

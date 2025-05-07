@@ -9,7 +9,7 @@
 @layout CustomerLayout
 @rendermode InteractiveServer
 
-@inject ITravelPackageService TravelPackageService
+@inject ITravelPackageService travelPackageService
 @inject IContactService ContactService
 @inject IBookingService BookingService
 @inject IPaymentService PaymentService
@@ -34,7 +34,7 @@
         Countries = (await CountryService.GetAllAsync())
             .OrderBy(c => c.Name).ToList();
 
-        TravelPackage = await TravelPackageService.GetByIdAsync(TravelPackageId);
+        TravelPackage = await travelPackageService.GetByIdAsync(TravelPackageId);
         Travellers = Enumerable.Range(0, TravelPackage.NoOfTravellers)
                                .Select(_ => new Traveller()).ToArray();
     }
@@ -61,7 +61,11 @@
         {
             booking.TravelManagerContactId = 5; // midlertidig (log-in kræves)
         }
-       booking = await BookingService.AddAsync(booking);
+
+        booking = await BookingService.AddAsync(booking);
+        booking.TravelPackage.Status = TravelPackageStatus.Booked;
+        await travelPackageService.UpdateAsync(booking.TravelPackage);
+
         await HandlePaymentAsync(booking);
     }
 
