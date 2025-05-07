@@ -1,11 +1,11 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
 @using ServiceImplementations.Dtos
+@using Shared.DTOs
 @using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @using Shared.Models
 @using Data
 @using ServiceImplementations
-@using TravelFusionLeanApi.Models
 
 @layout CustomerLayout
 @rendermode InteractiveServer
@@ -40,12 +40,10 @@
         Travellers = Enumerable.Range(0, TravelPackage.NoOfTravellers)
                                .Select(_ => new Traveller()).ToArray();
     }
-
     private void ToggleTravellerDetails(Traveller traveller)
     {
         traveller.ShowDetails = !traveller.ShowDetails;
     }
-
     private async Task CreateBooking()
     {
         CreateBookingDTO createBookingDTO;
@@ -60,45 +58,19 @@
         }
         booking = await bookingcoordinator.CreateBookingAsync(createBookingDTO);
 
-        // await HandlePaymentAsync(booking);
+        await HandlePaymentAsync(booking);
     }
 
     private async Task HandlePaymentAsync(Booking booking)
     {
-        if (booking.Id.HasValue)
+        try
         {
-            var payment = new Payment
-                {
-                    Price = booking.Price,
-                    BookingId = booking.Id.Value,
-                    Status = PaymentStatus.Pending,
-                };
-
-            try
-            {
-                payment = await PaymentService.AddAsync(payment);
-
-                var stripeRequest = new StripeCheckoutDTO
-                    {
-                        Amount = booking.Price.Amount,
-                        Currency = booking.Price.Currency.ToString(),
-                        PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
-                    };
-
-                var response = await Http.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeRequest);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
-                    payment.StripeSessionId = stripeResponse.StripeSessionId;
-                    await PaymentService.UpdateAsync(payment);
-                    NavigationManager.NavigateTo(stripeResponse.Url);
-                }
-            }
-            catch (Exception ex)
-            {
-                // TODO: Log exception
-            }
+            var redirectUrl = await bookingcoordinator.CreatePaymentAndGetRedirectUrlAsync(booking);
+            NavigationManager.NavigateTo(redirectUrl);
+        }
+        catch (Exception ex)
+        {
+            // TODO: Log or show error to user
         }
     }
 }

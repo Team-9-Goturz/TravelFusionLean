@@ -1,4 +1,4 @@
-﻿namespace TravelFusionLeanApi.Models
+﻿namespace Shared.DTOs
 {
     public class StripeSessionResponseDTO
     {

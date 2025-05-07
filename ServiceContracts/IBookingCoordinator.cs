@@ -12,5 +12,6 @@ namespace ServiceContracts
     {
         Task HandleSuccessfulStripePaymentAsync(string stripeSessionId, string stripePaymentIntentId);
         Task<Booking> CreateBookingAsync(CreateBookingDTO bookingDTO);
+        Task<string> CreatePaymentAndGetRedirectUrlAsync(Booking booking);
     }
 }

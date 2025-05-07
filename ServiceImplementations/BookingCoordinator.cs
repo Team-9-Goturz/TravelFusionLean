@@ -2,10 +2,12 @@
 using ServiceContracts;
 using ServiceImplementations.Dtos;
 using Shared.Dtos;
+using Shared.DTOs;
 using Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,14 +20,16 @@ namespace ServiceImplementations
         private readonly IBookingService _bookingService;
         private readonly ITravelPackageService _travelPackageService;
         private readonly IContactService _contactService;
+        private readonly HttpClient _httpClient;
 
-        public BookingCoordinator(AppDbContext context, IPaymentService paymentService, IBookingService bookingService, ITravelPackageService travelPackageService, IContactService contactService)
+        public BookingCoordinator(AppDbContext context, IPaymentService paymentService, IBookingService bookingService, ITravelPackageService travelPackageService, IContactService contactService, HttpClient httpClient)
         {
             _context = context;
             _paymentService = paymentService;
             _bookingService = bookingService;
             _travelPackageService = travelPackageService;
             _contactService = contactService;
+            _httpClient = httpClient;   
         }
 
         public async Task<Booking> CreateBookingAsync(CreateBookingDTO bookingDTO)
@@ -92,5 +96,36 @@ namespace ServiceImplementations
                 throw; // bobler op til controlleren
             }
         }
+
+        public async Task<string> CreatePaymentAndGetRedirectUrlAsync(Booking booking)
+        {
+            Payment payment = new Payment
+            {
+                Price = booking.Price,
+                BookingId = booking.Id.Value,
+                Status = PaymentStatus.Pending,
+            };
+
+            payment = await _paymentService.AddAsync(payment);
+
+            var stripeRequest = new StripeCheckoutDTO
+            {
+                Amount = booking.Price.Amount,
+                Currency = booking.Price.Currency.ToString(),
+                PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
+            };
+
+            var response = await _httpClient.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeRequest);
+            
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Stripe request failed.");
+
+            var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
+            payment.StripeSessionId = stripeResponse.StripeSessionId;
+            await _paymentService.UpdateAsync(payment);
+
+            return stripeResponse.Url;
+        }
+
     }
 }

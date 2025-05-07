@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using ServiceImplementations;
 using Shared.Dtos;
+using Shared.DTOs;
 using Shared.Models;
-using TravelFusionLeanApi.Models;
 
 namespace TravelFusionLeanApi.Controllers
 {
