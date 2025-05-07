@@ -1,0 +1,24 @@
+﻿@page "/TestMarkAsPaid"
+
+@rendermode InteractiveServer
+
+@using Shared.Models
+
+@inject IBookingService bookingService
+@inject IPaymentService paymentService
+
+<h3>TestMarkAsPaid</h3>
+
+<button @onclick="Test">Test</button>
+
+@code {
+    private string sessionId = "cs_test_a1C2JEsyL7Jqv7y9OSRaxm6U2x3PBJxOn9jwwgCgaRbNT5G5Oj0O2peh6o";
+    private string IntentId = "Jeg virker";
+
+
+    private async Task Test()
+    {
+        Payment payment = await paymentService.MarkPaymentAsSucceededAsync(sessionId, IntentId);
+        // await bookingService.MarkBookingAsPaidAsync(payment.BookingId);
+    }
+}

@@ -11,5 +11,6 @@ namespace ServiceContracts
     public interface IPaymentService: ICrudService<Payment>
     {
         public Task<Payment> GetPaymentByStripeSessionIdAsync(string sessionId);
+        public Task<Payment> MarkPaymentAsSucceededAsync(string stripeSessionId, string stripePaymentIntentId);
     }
 }

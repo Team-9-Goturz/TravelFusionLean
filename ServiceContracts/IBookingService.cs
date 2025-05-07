@@ -11,5 +11,7 @@ namespace ServiceContracts
     {
         public Task<Booking> CancelByIdAsync(int id);
         public Task<Booking> ConfirmByIdAsync(int id);
+
+        public Task MarkBookingAsPaidAsync(int id);
     }
 }

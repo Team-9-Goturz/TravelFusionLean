@@ -24,9 +24,6 @@ namespace TravelFusionLeanApi.Controllers
         }
 
         [HttpPost]
-
-        //husk "stripe listen --forward-to https://localhost:7274/api/stripewebhook i stripe CLI" 
-
         public async Task<IActionResult> Handle()
         {
             _logger.LogInformation("Webhook endpoint blev kaldt!");
@@ -54,28 +51,10 @@ namespace TravelFusionLeanApi.Controllers
                 try
                 {
                     var session = stripeEvent.Data.Object as Session;
-                    if (session == null)
-                    {
-                        _logger.LogWarning("Stripe webhook modtog en CheckoutSessionCompleted, men session var null.");
-                        return BadRequest("Invalid session data");
-                    }
 
                     _logger.LogInformation("Stripe session modtaget: {SessionId}", session.Id);
-                    var payment = await _paymentService.GetPaymentByStripeSessionIdAsync(session.Id); // hent betaling via sessionId
-                    if (payment == null)
-                    {
-                        _logger.LogWarning("Betaling ikke fundet for Stripe SessionId: {SessionId}", session.Id);
-                        return NotFound("Betaling ikke fundet");
-                    }
-                    // Opdater betalingens status
-                    payment.StripePaymentIntentId = session.PaymentIntentId;
-                    payment.Status = PaymentStatus.Succeeded; // Set status til Succeeded
-                    await _paymentService.UpdateAsync(payment);
-
-                    //opdater Bookings status 
-                    Booking booking = await _bookingService.GetByIdAsync(payment.BookingId);
-                    booking.Status = BookingStatus.Paid;
-                    await _bookingService.UpdateAsync(booking);
+                   Payment payment = await _paymentService.MarkPaymentAsSucceededAsync(session.Id, session.PaymentIntentId);
+                    //await _bookingService.MarkBookingAsPaidAsync(payment.BookingId);
                 }
                 catch (Exception ex)
                 {
@@ -91,4 +70,5 @@ namespace TravelFusionLeanApi.Controllers
             return Ok();
         }
     }
+
 }

@@ -20,7 +20,6 @@ namespace ServiceImplementations
                 .Include(b => b.TravelPackage)
                 .Include(b => b.Payment)
                 .ToListAsync();
-
         }
         public override async Task<Booking> GetByIdAsync(int id)
         {
@@ -36,7 +35,6 @@ namespace ServiceImplementations
                 .FirstOrDefault(u => u.Id == id);
             return await UpdateAsync(booking);
         }
-
         public async Task<Booking> CancelByIdAsync(int id)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -64,7 +62,6 @@ namespace ServiceImplementations
                         booking.Payment.Status = PaymentStatus.Refunded;
                     }
                 }
-
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -76,7 +73,6 @@ namespace ServiceImplementations
                 throw;
             }
         }
-
         public async Task<bool> ArchiveAsync(int id) // arkiver afbestilt booking 
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -117,6 +113,13 @@ namespace ServiceImplementations
             await _context.SaveChangesAsync();
 
             return booking;
+        }
+
+        public async Task MarkBookingAsPaidAsync(int id)
+        {
+            Booking booking = await GetByIdAsync(id);
+            booking.Status = BookingStatus.Paid;
+            await UpdateAsync(booking);
         }
     }
 }

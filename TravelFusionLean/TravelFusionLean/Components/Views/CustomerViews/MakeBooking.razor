@@ -1,64 +1,127 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
 @using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
-@layout CustomerLayout
-@rendermode InteractiveServer
-
 @using Shared.Models
 @using Data
 @using ServiceImplementations
 @using TravelFusionLeanApi.Models
 
-@inject ITravelPackageService travelPackageService
-@inject IContactService contactService
-@inject IBookingService bookingService
-@inject IPaymentService paymentService
-@inject ICountryReadService countryService
+@layout CustomerLayout
+@rendermode InteractiveServer
 
+@inject ITravelPackageService TravelPackageService
+@inject IContactService ContactService
+@inject IBookingService BookingService
+@inject IPaymentService PaymentService
+@inject ICountryReadService CountryService
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
-@* Opstart *@
-@code
-{
+@code {
     [Parameter]
     public int TravelPackageId { get; set; }
 
-    TravelPackage travelPackage;
-    Traveller[] travellers;
-    List<Country> countries;
+    private TravelPackage TravelPackage;
+    private Traveller[] Travellers;
+    private List<Country> Countries;
+    private bool IsUserTravelManager = true;
+    private Contact TravelManagerContact = new();
+    private Booking Booking = new();
 
     protected override async Task OnInitializedAsync()
     {
-        countries = (await countryService.GetAllAsync()).OrderBy(c => c.Name).ToList();
-        travelPackage = (await travelPackageService.GetByIdAsync(TravelPackageId));
-        travellers = new Traveller[travelPackage.NoOfTravellers];
-        for (int i = 0; i < travellers.Length; i++)
+        Countries = (await CountryService.GetAllAsync())
+            .OrderBy(c => c.Name).ToList();
+
+        TravelPackage = await TravelPackageService.GetByIdAsync(TravelPackageId);
+        Travellers = Enumerable.Range(0, TravelPackage.NoOfTravellers)
+                               .Select(_ => new Traveller()).ToArray();
+    }
+
+    private void ToggleTravellerDetails(Traveller traveller)
+    {
+        traveller.ShowDetails = !traveller.ShowDetails;
+    }
+
+    private async Task CreateBooking()
+    {
+        Booking.TravelPackageId = TravelPackageId;
+        Booking.Status = BookingStatus.Pending;
+        Booking.BookingMadeAt = DateTime.Now;
+        Booking.Price = TravelPackage.Price;
+        Booking.travellers = Travellers.ToList();
+
+        if (!IsUserTravelManager)
         {
-            travellers[i] = new Traveller();
+            TravelManagerContact = await ContactService.AddAsync(TravelManagerContact);
+            Booking.TravelManagerContactId = TravelManagerContact.Id;
         }
-        await base.OnInitializedAsync();
+        else
+        {
+            Booking.TravelManagerContactId = 5; // midlertidig (log-in kræves)
+        }
+
+        await HandlePaymentAsync(Booking);
+    }
+
+    private async Task HandlePaymentAsync(Booking booking)
+    {
+        booking.Id = 10; // dummy-værdi til test
+
+        if (booking.Id.HasValue)
+        {
+            var payment = new Payment
+                {
+                    Price = booking.Price,
+                    BookingId = booking.Id.Value,
+                    Status = PaymentStatus.Pending,
+                };
+
+            try
+            {
+                payment = await PaymentService.AddAsync(payment);
+
+                var stripeRequest = new StripeCheckoutDTO
+                    {
+                        Amount = booking.Price.Amount,
+                        Currency = booking.Price.Currency.ToString(),
+                        PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
+                    };
+
+                var response = await Http.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeRequest);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
+                    payment.StripeSessionId = stripeResponse.StripeSessionId;
+                    await PaymentService.UpdateAsync(payment);
+                    NavigationManager.NavigateTo(stripeResponse.Url);
+                }
+            }
+            catch (Exception ex)
+            {
+                // TODO: Log exception
+            }
+        }
     }
 }
 
-@*  Rejsende *@
-@if (travelPackage != null && travellers != null)
+@if (TravelPackage != null && Travellers != null)
 {
-    @foreach (Traveller traveller in travellers)
+    @foreach (var traveller in Travellers)
     {
         <div class="mb-3">
-            <h5 class="mb-2 toggle-header" @onclick="() => ToggleTraveller(traveller)" style="cursor: pointer;">
+            <h5 class="mb-2 toggle-header" @onclick="() => ToggleTravellerDetails(traveller)" style="cursor: pointer;">
                 @((traveller.ShowDetails ? "▼" : "►") + " " + (traveller.FirstName ?? "Rejsende"))
             </h5>
+
             @if (traveller.ShowDetails)
             {
-                <label>first name</label>
                 <InputText @bind-Value="traveller.FirstName" class="form-control" placeholder="Fornavn" />
-                <label>last name:</label>
                 <InputText @bind-Value="traveller.LastName" class="form-control" placeholder="Efternavn" />
-                <label>Birthday:</label>
                 <InputDate @bind-Value="traveller.DateOfBirth" class="form-control" />
+                
                 <div class="form-group">
                     <label>Køn</label>
                     <InputSelect @bind-Value="traveller.Gender" class="form-control">
@@ -68,38 +131,28 @@
                         }
                     </InputSelect>
                 </div>
+
                 <div class="form-group">
-                    <label>Nationality</label>
+                    <label>Nationalitet</label>
                     <InputSelect @bind-Value="traveller.NationalityId" class="form-control">
                         <option value="">-- Vælg land --</option>
-                        @foreach (Country country in countries)
+                        @foreach (var country in Countries)
                         {
                             <option value="@country.Id">@country.Nationality</option>
                         }
                     </InputSelect>
                 </div>
 
-                <div class="form-group">
-                    <label>Passport Number</label>
-                    <InputText @bind-Value="traveller.PassportNumber" class="form-control" />
-                </div>
-
-                <div class="form-group">
-                    <label>Passport Expiry</label>
-                    <InputDate @bind-Value="traveller.PassportExpiry" class="form-control" />
-                </div>
-
-
-                <div class="form-group">
-                    <label>Passport Issuing Country</label>
-                    <InputSelect @bind-Value="traveller.PassportIssuingCountryId" class="form-control">
-                        <option value="">-- Vælg land --</option>
-                        @foreach (Country country in countries)
-                        {
-                            <option value="@country.Id">@country.Name</option>
-                        }
-                    </InputSelect>
-                </div>
+                <InputText @bind-Value="traveller.PassportNumber" class="form-control" placeholder="Pasnummer" />
+                <InputDate @bind-Value="traveller.PassportExpiry" class="form-control" />
+                
+                <InputSelect @bind-Value="traveller.PassportIssuingCountryId" class="form-control">
+                    <option value="">-- Vælg udstedelsesland --</option>
+                    @foreach (var country in Countries)
+                    {
+                        <option value="@country.Id">@country.Name</option>
+                    }
+                </InputSelect>
             }
         </div>
     }
@@ -108,169 +161,31 @@ else
 {
     <p>Indlæser rejsedata...</p>
 }
-@code {
-    private void ToggleTraveller(Traveller traveller)
-    {
-        traveller.ShowDetails = !traveller.ShowDetails;
-    }
-    
-}
 
-@* rejseansvarlig *@ 
-<div>
-    <label>Who is Travelmanager?:</label>
-    <br />
+<!-- Rejseansvarlig -->
+<div class="mt-4">
+    <label>Er du rejseansvarlig?</label>
     <InputRadioGroup @bind-Value="IsUserTravelManager">
-        <InputRadio Value=true /> I am<br />
-        <InputRadio Value=false /> Other<br />
+        <InputRadio Value="true" /> Ja<br />
+        <InputRadio Value="false" /> Nej<br />
     </InputRadioGroup>
 </div>
-@if (IsUserTravelManager == false)
+
+@if (!IsUserTravelManager)
 {
-    <div>
-        <label>Rejseansvarlig navn:</label>
-        <InputText @bind-Value="contact.Name" class="form-control" />
+    <div class="form-group">
+        <label>Navn:</label>
+        <InputText @bind-Value="TravelManagerContact.Name" class="form-control" />
     </div>
-    <div>
-        <label>Rejseansvarlig telefon:</label>
-        <InputText @bind-Value="contact.PhoneNumber" class="form-control" />
+    <div class="form-group">
+        <label>Telefon:</label>
+        <InputText @bind-Value="TravelManagerContact.PhoneNumber" class="form-control" />
     </div>
-
-    <div>
+    <div class="form-group">
         <label>Email:</label>
-        <InputText @bind-Value="contact.Email" class="form-control" />
+        <InputText @bind-Value="TravelManagerContact.Email" class="form-control" />
     </div>
 }
 
-@code {
-    public bool IsUserTravelManager = true;
-    private Contact contact = new Contact();
-}
+<button class="btn btn-primary mt-3" @onclick="CreateBooking">Fortsæt</button>
 
-<button class="btn btn-primary" @onclick="Create">fortsæt</button>
-
- @code
- {
-    private Booking booking = new Booking();
-
-    private async Task Create()
-    {
-        booking.TravelPackageId = TravelPackageId;
-        booking.Status = BookingStatus.Pending;
-        booking.BookingMadeAt = DateTime.Now;
-        booking.Price = travelPackage.Price;
-        booking.travellers = travellers.ToList();
-
-        @* 
-        //kræver log ind
-        if(currentuser!=null){
-            booking.User = currentUser;
-            booking.UserId = currentUser.Id;
-        } *@
-
-        if (!IsUserTravelManager)
-        {
-            contact = await contactService.AddAsync(contact);
-
-            booking.TravelManagerContact = contact;
-            booking.TravelManagerContactId = contact.Id;
-        }
-        else{
-            booking.TravelManagerContactId = 5; //Udskift mig når login kører
-        }
-        @*Kræver en log ind funktion
-            else {
-            booking.TravelManagerContact = CurrentUser.Contact;
-            booking.TravelManagerContactId = CurrentUser.Contact.Id;
-        } *@
-
-
-        booking = await (bookingService.AddAsync(booking));
-
-        travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
-        travelPackageService.UpdateAsync(travelPackage);
-
-        await HandlePayment(booking); // fortsæt til betaling
-
-    }
-
-  
-    private async Task HandlePayment(Booking booking)
-    {
-        if (booking.Id.HasValue)
-        {
-            // Opret payment i din database (intern)
-            Payment payment = new Payment()
-                {
-                    Price = booking.Price,
-                    BookingId = booking.Id.Value,
-                    Status = PaymentStatus.Pending,
-                };
-
-            try
-            {
-                payment = await paymentService.AddAsync(payment);
-
-                // Kald TravelFusionAPI (Stripe)
-                var stripeDto = new StripeCheckoutDTO
-                    {
-                        Amount = booking.Price.Amount,
-                        Currency = booking.Price.Currency.ToString(),
-                        PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
-                    };
-
-                var response = await Http.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeDto);
-
-                // Hvis anmodningen lykkedes
-                if (response.IsSuccessStatusCode)
-                {
-                    try
-                    {
-                        var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
-
-                        if (stripeResponse != null)
-                        {
-                            payment.StripeSessionId = stripeResponse.StripeSessionId;
-                            payment.StripePaymentIntentId = stripeResponse.StripePaymentIntentId;
-
-                            // Opdater betaling i din database
-                            await paymentService.UpdateAsync(payment);
-
-                            // Naviger til Stripe Checkout
-                            NavigationManager.NavigateTo(stripeResponse.Url);
-                        }
-                        else
-                        {
-                            // Hvis der ikke kom noget Stripe svar
-                            throw new Exception("Stripe API returnerede ingen session.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        // Håndter fejl ved deserialisering eller håndtering af Stripe svar
-                        Console.Error.WriteLine($"Fejl ved behandling af Stripe svar: {ex.Message}");
-                        // Overvej at vise en fejlmeddelelse til brugeren
-                    }
-                }
-                else
-                {
-                    // Håndter situationen, hvis Stripe API'et fejler
-                    Console.Error.WriteLine($"Fejl ved oprettelse af Stripe-session: {response.StatusCode}");
-                    // Vis besked til brugeren om fejlen
-                }
-            }
-            catch (Exception ex)
-            {
-                // Håndter fejl ved oprettelse af betaling i din database
-                Console.Error.WriteLine($"Fejl ved oprettelse af betaling: {ex.Message}");
-                // Vis besked til brugeren om fejlen
-            }
-        }
-        else
-        {
-            // Håndter situationen, hvis booking-id'et ikke findes
-            Console.Error.WriteLine("Booking-id er ikke sat korrekt.");
-            // Vis besked til brugeren om fejlen
-        }
-    }
- }

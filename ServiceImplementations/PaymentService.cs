@@ -18,5 +18,15 @@ namespace ServiceImplementations
             return await context.Payments
                              .FirstOrDefaultAsync(p => p.StripeSessionId == sessionId);
         }
+        public async Task<Payment> MarkPaymentAsSucceededAsync(string stripeSessionId, string stripePaymentIntentId)
+        {
+            Payment payment = await GetPaymentByStripeSessionIdAsync(stripeSessionId);
+
+            // Opdater betalingens status
+            payment.StripePaymentIntentId = stripePaymentIntentId;
+            payment.Status = PaymentStatus.Succeeded; // Set status til Succeeded
+            await this.UpdateAsync(payment);
+            return payment;
+        }
     }
 }
