@@ -1,6 +1,5 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
 @using ServiceImplementations.Dtos
-@using Shared.DTOs
 @using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @using Shared.Models
@@ -11,11 +10,9 @@
 @rendermode InteractiveServer
 
 @inject ITravelPackageService travelPackageService
-@inject IContactService ContactService
-@inject IBookingService BookingService
-@inject IPaymentService PaymentService
 @inject ICountryReadService CountryService
 @inject IBookingCoordinator bookingcoordinator
+
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
