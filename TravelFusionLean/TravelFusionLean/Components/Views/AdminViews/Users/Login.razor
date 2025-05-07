@@ -1,102 +1,69 @@
 ﻿@page "/"
-@using TravelFusionLean.Components.Layout.Admin
+
 @inject NavigationManager NavigationManager
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
-@inject ProtectedSessionStorage sessionStorage
-@using System.Net.Http.Headers
-@using Shared.DTOs
-@using TravelFusionLean.Models
-@inject IHttpClientFactory ClientFactory
-@rendermode InteractiveServer
 @inject IUserService _userService
 
-@layout AdminLayout
+@using Shared.DTOs
+@using TravelFusionLean.Models
+@using System.ComponentModel.DataAnnotations
 
 <PageTitle>Login</PageTitle>
 
-<h3 class="text-primary text-center">Admin Login</h3>
+<link href="css/CustomColors.css" rel="stylesheet" />
 
-<!-- Login Form -->
-<EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="col-md-6 col-lg-5 fade-in">
+        <div class="card p-4 shadow">
+            <h3 class="text-primary text-center mb-4">🔐 Admin Login</h3>
 
-    <div class="card bg-info-subtle p-4" style="width: 300px; margin: auto;">
-        <div class="mb-3">
-            <label for="Username" class="form-label">Username</label>
-            <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+            <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="Username" class="form-label">Username</label>
+                    <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="Password" class="form-label">Password</label>
+                    <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </EditForm>
+
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert alert-danger text-center mt-3">@message</div>
+            }
         </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
-        </div>
-
-        <button type="submit" class="btn btn-primary w-100">Login</button>
     </div>
-</EditForm>
-
-
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert alert-danger text-center mt-3">@message</div>
-}
+</div>
 
 @code {
-    // Login form model
-    private UserLoginDto loginModel { get; set; }
+    private UserLoginDto loginModel = new UserLoginDto();
+    private string? message;
 
-    protected override async Task OnInitializedAsync()
-    {
-        loginModel = new UserLoginDto();
-        await base.OnInitializedAsync();
-    }
-
-    // Error eller status message
-    private string message;
-
-    private User? currentUser;
-
-    // Håndtere login
     private async Task HandleLogin()
     {
-        try
+        if (!string.IsNullOrWhiteSpace(loginModel.Username) &&
+            !string.IsNullOrWhiteSpace(loginModel.Password))
         {
-            // Tjekker om loginModel er null og om username og password er udfyldt
-            if (loginModel != null &&
-                !string.IsNullOrWhiteSpace(loginModel.Username) &&
-                !string.IsNullOrWhiteSpace(loginModel.Password))
-            {
-                // Kalder UserService og metoden AuthenticateByUsernameAsync
-                var user = await _userService.AuthenticateByUsernameAsync(loginModel);
+            var user = await _userService.AuthenticateByUsernameAsync(loginModel);
 
-                if (user != null)
-                {
-                    // Navigate til admin
-                    NavigationManager.NavigateTo("/AdminHome");
-                }
-                else
-                {
-                    message = "Invalid username or password.";
-                }
+            if (user != null)
+            {
+                NavigationManager.NavigateTo("/AdminHome");
             }
             else
             {
-                message = "Please enter both username and password.";
+                message = "Invalid username or password.";
             }
         }
-        catch (Exception ex)
+        else
         {
-            message = $"Login error: {ex.Message}";
+            message = "Please enter both username and password.";
         }
     }
-
-    // Response objekt 
-    public class LoginResponse
-    {
-        public string Token { get; set; }
-        public string Username { get; set; }
-        public string Role { get; set; }
-    }
 }
-

@@ -1,36 +1,37 @@
 ﻿@page "/AdminHome"
-@using TravelFusionLean.Components.Layout
 @using TravelFusionLean.Components.Layout.Admin
 @layout AdminLayout
-<PageTitle>AdminHome</PageTitle>
+<PageTitle>Admin Home</PageTitle>
 
-<h1 class="text-primary text-align=center" >Welcome to Gortoz's admin site!</h1>
+<link href="css/CustomColors.css" rel="stylesheet" />
 
-Choose your next action to continue.<br>
-<br/><br/>
+<div class="container py-5">
+    <h1 class="text-primary fw-bold mb-3">Welcome to Gotorz's Admin Site!</h1>
+    <p class="lead mb-4">Choose your next action to continue.</p>
 
-<a href="/UserRoles/UserRoleList">UserRoles</a>
-
-<div class="adminCard bg-info-subtle" style="width: 250px ">
-    <div class="card-body">
-        <img src="https://cdn-icons-png.flaticon.com/512/9703/9703596.png"
-                class="card-img-top" alt="Admin Icon" style="width: 180px"/>
-        <!-- Billedet skal centreres <3-->
+    <div class="mb-4">
+        <a class="btn btn-outline-primary" href="/UserRoles/UserRoleList">Manage User Roles</a>
     </div>
-    <div>
-        <h5 class="card-title">New Admin</h5>
-    </div>
-</div>
 
-<br><br/>
+    <div class="row g-4">
+        <!-- New Admin -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card text-center p-4 fade-in">
+                <img src="https://cdn-icons-png.flaticon.com/512/9703/9703596.png"
+                     alt="Admin Icon" class="mx-auto mb-3" style="max-height: 140px;" />
+                <h5 class="fw-semibold">New Admin</h5>
+                <a href="/CreateUser" class="btn btn-primary mt-3">Create Admin</a>
+            </div>
+        </div>
 
-<!-- Employee skal flyttes til siden, i stedet for at være nedenunder  -->
-<div class="employeeCard bg-info-subtle" style="width: 250px">
-    <div class="card-body">
-        <img src="https://cdn-icons-png.flaticon.com/512/4974/4974985.png" 
-                class="card-img-bottom" alt="Employee Icon" style="width: 180px" />
-    </div>
-    <div>
-        <h5>New Employee</h5>
+        <!-- New Employee -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card text-center p-4 fade-in">
+                <img src="https://cdn-icons-png.flaticon.com/512/4974/4974985.png"
+                     alt="Employee Icon" class="mx-auto mb-3" style="max-height: 140px;" />
+                <h5 class="fw-semibold">New Employee</h5>
+                <a href="/CreateUser" class="btn btn-primary mt-3">Create Employee</a>
+            </div>
+        </div>
     </div>
 </div>
