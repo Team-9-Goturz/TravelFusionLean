@@ -24,7 +24,7 @@ namespace ServiceContracts
         /// <summary>
         /// Sletter en entitet ud fra ID.
         /// </summary>
-        Task<bool> DeleteAsync(int id);
+        Task<bool> ArchiveAsync(int id);
     }
 
 }

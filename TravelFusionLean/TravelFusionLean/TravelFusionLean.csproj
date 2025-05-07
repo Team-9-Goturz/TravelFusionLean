@@ -6,7 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>TravelFusionLean</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
+<<<<<<< HEAD
     <UserSecretsId>b1abe08b-6b46-4a29-a87a-0034e802774f</UserSecretsId>
+=======
+    <UserSecretsId>09a0034c-4c71-4321-8f36-ce8438cbf9e3</UserSecretsId>
+>>>>>>> 9f03d336df6b09cb1b78081f88ef6bc742cb6afc
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,8 +18,10 @@
     <ProjectReference Include="..\..\Data\Data.csproj" />
     <ProjectReference Include="..\..\ServiceContracts\ServiceContracts.csproj" />
     <ProjectReference Include="..\..\Shared\Shared.csproj" />
+    <ProjectReference Include="..\..\TravelFusionLeanApi\TravelFusionLeanApi.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

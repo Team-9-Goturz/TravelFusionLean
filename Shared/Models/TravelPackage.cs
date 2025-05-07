@@ -15,9 +15,7 @@ public class TravelPackage
     [StringLength(100)]
     public string? Headline { get; set; }
 
-    [Column(TypeName = "decimal(30,2)")]
-    public decimal Price { get; set; }
-
+    public Price Price { get; set; }
     public int NoOfTravellers { get; set; }
 
     [StringLength(600)]
@@ -28,20 +26,19 @@ public class TravelPackage
     public int? OutboundFlightId { get; set; }
     public int? InboundFlightId { get; set; }
     public int? HotelStayId { get; set; }
-    public int? ToHotelTransferId { get; set; }
-    public int? FromHotelTransferId { get; set; }
+    //public int? ToHotelTransferId { get; set; }
+    //public int? FromHotelTransferId { get; set; }
 
     // Navigation properties
     public Flight? OutboundFlight { get; set; }
     public Flight? InboundFlight { get; set; }
     public HotelStay? HotelStay { get; set; }
-    public Transfer? ToHotelTransfer { get; set; }
-    public Transfer? FromHotelTransfer { get; set; }
+    //public Transfer? ToHotelTransfer { get; set; }
+    //public Transfer? FromHotelTransfer { get; set; }
 
 
     // For at uplade billeder, når man opretter travelpackages
-    [NotMapped]
-    public string? Base64 { get; set; }
+    public string? ImagePath { get; set; }
 
     public enum TravelPackageStatus
     {

@@ -1,0 +1,102 @@
+﻿@page "/"
+@using TravelFusionLean.Components.Layout.Admin
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inject ProtectedSessionStorage sessionStorage
+@using System.Net.Http.Headers
+@using Shared.DTOs
+@using TravelFusionLean.Models
+@inject IHttpClientFactory ClientFactory
+@rendermode InteractiveServer
+@inject IUserService _userService
+
+@layout AdminLayout
+
+<PageTitle>Login</PageTitle>
+
+<h3 class="text-primary text-center">Admin Login</h3>
+
+<!-- Login Form -->
+<EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="card bg-info-subtle p-4" style="width: 300px; margin: auto;">
+        <div class="mb-3">
+            <label for="Username" class="form-label">Username</label>
+            <InputText id="username" class="form-control" @bind-Value="loginModel.Username" />
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Login</button>
+    </div>
+</EditForm>
+
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-danger text-center mt-3">@message</div>
+}
+
+@code {
+    // Login form model
+    private UserLoginDto loginModel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        loginModel = new UserLoginDto();
+        await base.OnInitializedAsync();
+    }
+
+    // Error eller status message
+    private string message;
+
+    private User? currentUser;
+
+    // Håndtere login
+    private async Task HandleLogin()
+    {
+        try
+        {
+            // Tjekker om loginModel er null og om username og password er udfyldt
+            if (loginModel != null &&
+                !string.IsNullOrWhiteSpace(loginModel.Username) &&
+                !string.IsNullOrWhiteSpace(loginModel.Password))
+            {
+                // Kalder UserService og metoden AuthenticateByUsernameAsync
+                var user = await _userService.AuthenticateByUsernameAsync(loginModel);
+
+                if (user != null)
+                {
+                    // Navigate til admin
+                    NavigationManager.NavigateTo("/AdminHome");
+                }
+                else
+                {
+                    message = "Invalid username or password.";
+                }
+            }
+            else
+            {
+                message = "Please enter both username and password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Login error: {ex.Message}";
+        }
+    }
+
+    // Response objekt 
+    public class LoginResponse
+    {
+        public string Token { get; set; }
+        public string Username { get; set; }
+        public string Role { get; set; }
+    }
+}
+

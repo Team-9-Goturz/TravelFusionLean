@@ -1,4 +1,5 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
+@using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @layout CustomerLayout
 @rendermode InteractiveServer
@@ -6,11 +7,19 @@
 @using Shared.Models
 @using Data
 @using ServiceImplementations
+@using TravelFusionLeanApi.Models
+
 
 @inject ITravelPackageService travelPackageService
 @inject IContactService contactService
 @inject IBookingService bookingService
-@inject ITravelPackageService travelPackageService 
+@inject IPaymentService paymentService
+
+@inject HttpClient Http
+
+@inject NavigationManager NavigationManager
+
+
 
 @* Opstart *@
 @code
@@ -87,9 +96,6 @@ else
     }
 }
 
-
-
-
 @* rejseansvarlig *@ 
 <div>
     <label>Who is Travelmanager?:</label>
@@ -125,19 +131,19 @@ else
 
  @code
  {
+    private Booking booking = new Booking();
+
     private async Task Create()
     {
-        Booking booking = new Booking()
-            {
-                TravelPackageId = TravelPackageId,
+        booking.TravelPackageId = TravelPackageId;
+        booking.Status = BookingStatus.Pending;
+        booking.BookingMadeAt = DateTime.Now;
+        booking.Price = travelPackage.Price;
+        booking.travellers = travellers.ToList();
 
-                Status = BookingStatus.Pending,
-                BookingMadeAt = DateTime.Now,
-
-                travellers = travellers.ToList()
-            };
         @* 
-        if(Bruger er logget ind){
+        //kræver log ind
+        if(currentuser!=null){
             booking.User = currentUser;
             booking.UserId = currentUser.Id;
         } *@
@@ -152,17 +158,100 @@ else
         else{
             booking.TravelManagerContactId = 5; //Udskift mig når login kører
         }
-        @* else {
+        @*Kræver en log ind funktion
+            else {
             booking.TravelManagerContact = CurrentUser.Contact;
             booking.TravelManagerContactId = CurrentUser.Contact.Id;
         } *@
 
-        
 
         booking = await (bookingService.AddAsync(booking));
 
         travelPackage.Status = TravelPackage.TravelPackageStatus.Booked;
         travelPackageService.UpdateAsync(travelPackage);
 
+        await HandlePayment(booking); // fortsæt til betaling
+
+    }
+
+    private async Task HandlePayment(Booking booking)
+    {
+        if (booking.Id.HasValue)
+        {
+            // Opret payment i din database (intern)
+            Payment payment = new Payment()
+                {
+                    Price = booking.Price,
+                    BookingId = booking.Id.Value,
+                    Status = PaymentStatus.Pending,
+                };
+
+            try
+            {
+                payment = await paymentService.AddAsync(payment);
+
+                // Kald TravelFusionAPI (Stripe)
+                var stripeDto = new StripeCheckoutDTO
+                    {
+                        Amount = booking.Price.Amount,
+                        Currency = booking.Price.Currency.ToString(),
+                        PackageHeadline = booking.TravelPackage?.Headline ?? "Rejsepakke"
+                    };
+
+                var response = await Http.PostAsJsonAsync("https://localhost:7274/api/stripe/create-checkout-session", stripeDto);
+
+                // Hvis anmodningen lykkedes
+                if (response.IsSuccessStatusCode)
+                {
+                    try
+                    {
+                        var stripeResponse = await response.Content.ReadFromJsonAsync<StripeSessionResponseDTO>();
+
+                        if (stripeResponse != null)
+                        {
+                            payment.StripeSessionId = stripeResponse.StripeSessionId;
+                            payment.StripePaymentIntentId = stripeResponse.StripePaymentIntentId;
+
+                            // Opdater betaling i din database
+                            await paymentService.UpdateAsync(payment);
+
+                            // Naviger til Stripe Checkout
+                            NavigationManager.NavigateTo(stripeResponse.Url);
+                        }
+                        else
+                        {
+                            // Hvis der ikke kom noget Stripe svar
+                            throw new Exception("Stripe API returnerede ingen session.");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Håndter fejl ved deserialisering eller håndtering af Stripe svar
+                        Console.Error.WriteLine($"Fejl ved behandling af Stripe svar: {ex.Message}");
+                        // Overvej at vise en fejlmeddelelse til brugeren
+                    }
+                }
+                else
+                {
+                    // Håndter situationen, hvis Stripe API'et fejler
+                    Console.Error.WriteLine($"Fejl ved oprettelse af Stripe-session: {response.StatusCode}");
+                    // Vis besked til brugeren om fejlen
+                }
+            }
+            catch (Exception ex)
+            {
+                // Håndter fejl ved oprettelse af betaling i din database
+                Console.Error.WriteLine($"Fejl ved oprettelse af betaling: {ex.Message}");
+                // Vis besked til brugeren om fejlen
+            }
+        }
+        else
+        {
+            // Håndter situationen, hvis booking-id'et ikke findes
+            Console.Error.WriteLine("Booking-id er ikke sat korrekt.");
+            // Vis besked til brugeren om fejlen
+        }
+    }
+ }
     }
 }

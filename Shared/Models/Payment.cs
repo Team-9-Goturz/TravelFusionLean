@@ -8,12 +8,24 @@ namespace Shared.Models
 {
     public class Payment
     {
-        public int PaymentId { get; set; }
-        public decimal Amount { get; set; } 
-        public Currency Currency { get; set; } 
-        public string PaymentMethodId { get; set; } // Stripe Payment Method ID
-        public string Status { get; set; } // Status for betalingen (f.eks. "succeeded", "failed")
-        public string StripePaymentIntentId { get; set; }  // Stripe's Payment Intent ID
+        public int? Id { get; set; }
+        public Price Price { get; set; }
+        public PaymentStatus Status { get; set; } // Status for betalingen 
 
+        //Stripe relateret
+        public string? StripePaymentIntentId { get; set; }  // Stripe's Payment Intent ID
+        public string? StripeSessionId { get; set; }
+
+        public int BookingId { get; set; }
+        public Booking? Booking { get; set; }
+    }
+    public enum PaymentStatus
+    {
+        Pending,        // Betalingen er endnu ikke afsluttet
+        Succeeded,      // Betalingen er gennemført med succes
+        Failed,         // Betalingen mislykkedes
+        Canceled,       // Betalingen blev annulleret
+        Expired,        // Checkout session udløb uden betaling
+        Refunded,       // Hele beløbet blev refunderet
     }
 }

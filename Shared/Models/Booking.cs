@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TravelFusionLean.Models;
+﻿using TravelFusionLean.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Shared.Models
 {
@@ -11,6 +7,7 @@ namespace Shared.Models
     {
         public int? Id { get; set; }
         public TravelPackage TravelPackage { get; set; }
+        public Price Price { get; set; }
         public int TravelPackageId { get; set; }
         public int? UserId { get; set; }
         public User? User { get; set; }
@@ -18,21 +15,20 @@ namespace Shared.Models
         public int TravelManagerContactId { get; set; }
         public Contact TravelManagerContact { get; set; }
 
+        public Payment? Payment { get; set; }
+
         public BookingStatus Status { get; set; }
         public DateTime BookingMadeAt { get; set; }
-
-        public int? paymentId { get; set; }
-        public Payment? Payment { get; set; }
 
         public List<Traveller> travellers { get; set;  }
     }
     public enum BookingStatus
     {
         Pending,         // Booking er oprettet, men ikke behandlet
-        Confirmed,       // Booking er bekræftet og godkendt
         Paid,            // Betaling er modtaget og bekræftet
-        Cancelled,       // Booking er aflyst
-        Completed,       // Booking er afsluttet
-        Refunded         // Betaling er refunderet
+        Confirmed,       // Booking er bekræftet og godkendt af medarbjder der har bekræftet med fly/hotel udbyder
+        Completed,       // Booking er afsluttet (kunden kom ud og rejse) 
+        Cancelled,       // Booking er aflyst, venter på eventuel refundering
+        Archived         // Booking blev aflyst, muligvis refundereret, afsluttet og arkiveret
     }
 }

@@ -5,6 +5,7 @@
 @layout AdminLayout
 @inject TravelPackageState travelPackageState
 @rendermode InteractiveServer
+@inject HttpClient Http
 
 <!-- Bootstrap og egen CSS til styling -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
@@ -98,8 +99,8 @@
                 </div>
             </EditForm>
         </div>
-
-      
+        
+        
         @if (travelPackageState.SelectedFlight != null)
         {
 
@@ -139,18 +140,24 @@
 
 
                 <!-- Hotelinformation heller ikke bindet endnu -->
-                <div class="card shadow-sm">
-                    <div class="card-header fw-bold">Selected Hotel</div>
-                    <div class="card-body">
-                        <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
-                        <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
-                        <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
-                        <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
-                        <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
-                        <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
+                @if (travelpackage.HotelStay != null)
+                {
+                    <div class="card shadow-sm mt-3">
+                        <div class="card-header fw-bold">Selected Hotel</div>
+                        <div class="card-body">
+                            <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
+                            <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
+                            <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
+                            <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
+                            <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
+                            <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
+                        </div>
                     </div>
-                </div>
-                
+                }
+                else
+                {
+                    <div class="alert alert-warning mt-2">No hotel selected.</div>
+                }
             </div>
         }
         else
@@ -180,7 +187,7 @@
     TravelPackage travelpackage = new()
         {
             OutboundFlight = new Flight(),       
-            HotelStay = new HotelStay()
+            HotelStay = null
         };
 
 
@@ -212,13 +219,13 @@
             {
                 formErrorMessages.Add("Cannot set manual price, because no flight is selected.");
             }
-            else if (travelpackage.Price <= travelPackageState.SelectedFlight.Price)
+            else if (travelpackage.Price.Amount <= travelPackageState.SelectedFlight.Price)
             {
                 formErrorMessages.Add($"Manual price must be greater than the flight price ({travelPackageState.SelectedFlight.Price:0.00}).");
             }
         }
 
-        if (string.IsNullOrWhiteSpace(travelpackage.Base64))
+        if (string.IsNullOrWhiteSpace(travelpackage.ImagePath))
         {
             formErrorMessages.Add("An image must be uploaded (PNG).");
         }
@@ -226,9 +233,20 @@
         if (formErrorMessages.Any())
             return;
 
-        //ellers gemmer den, hvis der ikke er fejl
         try
         {
+            if (travelpackage.HotelStay == null)
+            {
+                travelpackage.HotelStay = null; 
+            }
+
+
+            if (travelPackageState.SelectedFlight != null)
+            {
+                travelpackage.OutboundFlight = travelPackageState.SelectedFlight;
+                travelpackage.Status = TravelPackage.TravelPackageStatus.Available;
+            }
+
             await TravelPackageService.AddAsync(travelpackage);
         }
         catch (Exception ex)
@@ -242,21 +260,30 @@
     string ImageUploadMessage = "";
     async Task UploadImage(InputFileChangeEventArgs e)
     {
-        if (e.File.Name.ToLower().Contains(".png"))
-        {
-            var format = "image/png";
-            var resizeImage = await e.File.RequestImageFileAsync(format, 300, 300);
-            var buffer = new byte[resizeImage.Size];
-            await resizeImage.OpenReadStream().ReadAsync(buffer);
-            var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
-            ImageUploadMessage = ""; //fejlbesked
-            travelpackage.Base64 = imageData; // Gem billede i pakken
-            imageData = "";
-            return;
-        }
+        var file = e.File;
 
-        ImageUploadMessage = "PNG file needed.";
-        return;
+        using var content = new MultipartFormDataContent();
+        var stream = file.OpenReadStream(long.MaxValue); 
+        content.Add(new StreamContent(stream), "file", file.Name);
+
+        try
+        {
+            var response = await Http.PostAsync("https://localhost:7274/api/upload", content);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<UploadResult>();
+                travelpackage.ImagePath = result.ImagePath; 
+                ImageUploadMessage = "";
+            }
+            else
+            {
+                ImageUploadMessage = "Upload failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ImageUploadMessage = "Error: " + ex.Message;
+        }
     }
 
     // Arbejder på at lave en loading knap, så når data gemmes, så viser den en loading knap indtil det er gemt. ikke færdig endnu
@@ -270,8 +297,7 @@
     {  
         UpdatePrice();
     }
-
-   
+    
 
     // Opdatere prisen for, hvis markup prisen er tilføjet
     void UpdatePrice()
@@ -280,7 +306,7 @@
         {
             var basePrice = travelPackageState.SelectedFlight.Price;
             var markupAmount = basePrice * (selectedMarkup / 100m);
-            travelpackage.Price = basePrice + markupAmount;
+            travelpackage.Price.Amount = basePrice + markupAmount;
         }
     }
 
@@ -316,7 +342,7 @@
 
                 if (value)
                 {
-                    travelpackage.Price = 0;
+                    travelpackage.Price.Amount = 0;
                 }
                 else
                 {
@@ -327,7 +353,10 @@
         }
     }
 
-   
 
+    private class UploadResult
+    {
+        public string ImagePath { get; set; }
+    }
 
 }

@@ -20,17 +20,18 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<IEnumerable<TravelPackage>> GetAllAsync()
     {
-        return _context.TravelPackages
-            .Include(tp => tp.OutboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
-            .Include(tp => tp.HotelStay)
-                .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
-            .Include(tp => tp.InboundFlight)
-                .ThenInclude(f => f.DepartureFromAirport);//Eager load indrejse fly og lufthavn
+        return await _context.TravelPackages
+       .Include(tp => tp.OutboundFlight)
+           .ThenInclude(f => f.DepartureFromAirport) // Eager load udrejse fly og lufthavn
+       .Include(tp => tp.HotelStay)
+               .ThenInclude(hs => hs.Hotel) //Eager load hotelophold og hotel
+       .Include(tp => tp.InboundFlight)
+           .ThenInclude(f => f.DepartureFromAirport)///Eager load indrejse fly og lufthavn
+           .ToListAsync();
     }
     public async Task<IEnumerable<TravelPackage>> GetAvailableAsync()
     {
-        return _context.TravelPackages
+        return await _context.TravelPackages
             .Include(tp => tp.OutboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
             .Include(tp => tp.HotelStay)
@@ -38,7 +39,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
             .Include(tp => tp.InboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
             .Where(tp => tp.Status == TravelPackageStatus.Available)
-            .ToList(); // eller ToListAsync hvis du bruger EF Core
+            .ToListAsync(); 
     }
 
 
@@ -82,11 +83,20 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// <summary>
     /// Sletter en rejsepakke.
     /// </summary>
-    public override async Task<bool> DeleteAsync(int id)
+    public override async Task<bool> ArchiveAsync(int id)
     {
-        return await base.DeleteAsync(id);
+        return await base.ArchiveAsync(id);
     }
 
+    
+    public decimal CalculatePrice(Flight inboundFlight, Flight outboundFlight, Hotel hotel)
+    {
+        decimal priceForFlights = inboundFlight.Price + outboundFlight.Price;
+        //decimal priceForHotel = hotel.Price.Amount;
+
+        decimal totalPrice = priceForFlights;
+        return totalPrice;
+    }
     public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)
     {
         var travelPackages = await GetAllAsync();
@@ -111,8 +121,8 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
              tp.NoOfTravellers == searchDto.NumberOfTravelers) &&
               
              //pris
-            (searchDto.MinPrice == null || tp.Price >= searchDto.MinPrice) &&
-            (searchDto.MaxPrice == null || tp.Price <= searchDto.MaxPrice)
+            (searchDto.MinPrice == null || tp.Price.Amount >= searchDto.MinPrice) &&
+            (searchDto.MaxPrice == null || tp.Price.Amount <= searchDto.MaxPrice)
         ).ToList();
 
         return filteredPackages;
@@ -162,12 +172,12 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         // Prisgrænser
         if (searchDto.MinPrice != null)
         {
-            query = query.Where(tp => tp.Price >= searchDto.MinPrice);
+            query = query.Where(tp => tp.Price.Amount >= searchDto.MinPrice);
         }
 
         if (searchDto.MaxPrice != null)
         {
-            query = query.Where(tp => tp.Price <= searchDto.MaxPrice);
+            query = query.Where(tp => tp.Price.Amount <= searchDto.MaxPrice);
         }
 
         return await query.ToListAsync();

@@ -78,6 +78,7 @@ public partial class CreateUser
     {
         var userResults = new List<ValidationResult>();
         var contactResults = new List<ValidationResult>();
+        _user.EmailForPasswordReset = _user.Contact.Email;
 
         var userContext = new ValidationContext(_user);
         var contactContext = new ValidationContext(_user.Contact);
