@@ -1,5 +1,5 @@
 
-# 🌸 Gotorz / TravelFusion – Teknologistak
+# 🌸 Gotorz / TravelFusion – Teknologistak (3. semester øve-projekt)
 
 Velkommen til den tekniske oversigt over Gotorz-projektet 💖  
 Her får du et kærligt overblik over, hvordan hele systemet hænger sammen – fra frontend til database og alt derimellem.
@@ -71,6 +71,8 @@ Vi bruger **JWT eller sessions**, så login bliver endnu mere sikkert og profess
 
 ---
 
-Med kærlighed fra udviklerne 💗  
-Hvis du læser dette – så husk: du er fantastisk ✨
+Med kærlighed fra team 9
+Alberte, Alex, Ea, Hanisah & JOsephine💗
+
+Hvis du læser dette – så husk: du er fantastisk! ✨
 
