@@ -4,6 +4,7 @@
 @layout CustomerLayout
 
 @inject ITravelPackageService travelpackageService
+@inject ICurrencyConverter currencyConverter
 
 <h2 class="mb-4">@TravelPackage?.Headline</h2>
 
@@ -17,11 +18,32 @@ else
 {
     <div class="row">
         <div class="col-md-6">
-            <!-- Vis billede, hvis der er et billede, ellers brug fallback -->
+            <!-- Billede eller fallback -->
             <img src="@(!string.IsNullOrEmpty(TravelPackage?.ImagePath) ? TravelPackage.ImagePath : "/images/WineOnBeach.png")"
                  class="img-fluid rounded mb-3" alt="Billede af rejse" />
 
-            <p><strong>Pris:</strong> @TravelPackage.Price?.Amount.ToString("C") @TravelPackage.Price?.Currency</p>
+            <p>
+                <strong>Pris:</strong>
+                @if (ConvertedPrice != null)
+                {
+                    @ConvertedPrice.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US")) @ConvertedPrice.Currency
+                }
+                else
+                {
+                    <span>Indlæser pris...</span>
+                }
+            </p>
+
+            <label for="currencySelect"><strong>Vælg valuta:</strong></label>
+            <select id="currencySelect" class="form-select mb-3"
+                    @bind-Value="SelectedCurrency"
+                    @bind-Value:event="onchange">
+                @foreach (var currency in Enum.GetValues<Price.ISOCurrency>())
+                {
+                    <option value="@currency">@currency</option>
+                }
+            </select>
+
             <p><strong>Antal rejsende:</strong> @TravelPackage.NoOfTravellers</p>
             <p><strong>Status:</strong> @TravelPackage.Status</p>
 
@@ -92,10 +114,35 @@ else
     public int id { get; set; }
 
     public TravelPackage? TravelPackage { get; set; }
+    public Price? ConvertedPrice { get; set; }
+
+    private Price.ISOCurrency _selectedCurrency = Price.ISOCurrency.DKK;
+    public Price.ISOCurrency SelectedCurrency
+    {
+        get => _selectedCurrency;
+        set
+        {
+            if (_selectedCurrency != value)
+            {
+                _selectedCurrency = value;
+                _ = ConvertPrice();
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         TravelPackage = await travelpackageService.GetByIdAsync(id);
+        await ConvertPrice();
+    }
+
+    private async Task ConvertPrice()
+    {
+        if (TravelPackage?.Price != null)
+        {
+            ConvertedPrice = currencyConverter.Convert(TravelPackage.Price, SelectedCurrency);
+            StateHasChanged();
+        }
     }
 }
 
