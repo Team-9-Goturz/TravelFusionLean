@@ -1,0 +1,55 @@
+﻿@page "/currencytest"
+@using Shared.Models
+@inject ICurrencyConverter currencyConverter
+
+@rendermode InteractiveServer
+
+<h3>Valuta Konverter</h3>
+
+<div class="mb-3">
+    <label>Beløb:</label>
+    <input type="number" @bind="amount" step="0.01" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label>Fra valuta:</label>
+    <select @bind="fromCurrency" class="form-control">
+        @foreach (var currency in Enum.GetValues<Price.ISOCurrency>())
+        {
+            <option value="@currency">@currency</option>
+        }
+    </select>
+</div>
+
+<div class="mb-3">
+    <label>Til valuta:</label>
+    <select @bind="toCurrency" class="form-control">
+        @foreach (var currency in Enum.GetValues<Price.ISOCurrency>())
+        {
+            <option value="@currency">@currency</option>
+        }
+    </select>
+</div>
+
+<button class="btn btn-primary" @onclick="ConvertCurrency">Konverter</button>
+
+@if (result != null)
+{
+    <p class="mt-3">
+        Resultat: @amount @fromCurrency = @result.Amount @result.Currency
+    </p>
+}
+
+@code {
+    private decimal amount = 100;
+    private Price.ISOCurrency fromCurrency = Price.ISOCurrency.EUR;
+    private Price.ISOCurrency toCurrency = Price.ISOCurrency.DKK;
+    private Price? result;
+
+    private void ConvertCurrency()
+    {
+        var input = new Price(amount, fromCurrency);
+        result = currencyConverter.Convert(input, toCurrency);
+    }
+}
+

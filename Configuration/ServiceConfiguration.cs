@@ -32,6 +32,7 @@ namespace Configuration
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<ICountryReadService, CountryReadService>();
             services.AddScoped<IBookingCoordinator, BookingCoordinator>();
+            services.AddScoped<ICurrencyConverter, CurrencyConverter>();
 
         }
 
