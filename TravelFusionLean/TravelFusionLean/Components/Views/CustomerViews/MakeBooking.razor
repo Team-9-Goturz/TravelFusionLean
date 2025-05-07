@@ -27,7 +27,7 @@
     private List<Country> Countries;
     private bool IsUserTravelManager = true;
     private Contact TravelManagerContact = new();
-    private Booking Booking = new();
+    private Booking booking = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -46,29 +46,27 @@
 
     private async Task CreateBooking()
     {
-        Booking.TravelPackageId = TravelPackageId;
-        Booking.Status = BookingStatus.Pending;
-        Booking.BookingMadeAt = DateTime.Now;
-        Booking.Price = TravelPackage.Price;
-        Booking.travellers = Travellers.ToList();
+        booking.TravelPackageId = TravelPackageId;
+        booking.Status = BookingStatus.Pending;
+        booking.BookingMadeAt = DateTime.Now;
+        booking.Price = TravelPackage.Price;
+        booking.travellers = Travellers.ToList();
 
         if (!IsUserTravelManager)
         {
             TravelManagerContact = await ContactService.AddAsync(TravelManagerContact);
-            Booking.TravelManagerContactId = TravelManagerContact.Id;
+            booking.TravelManagerContactId = TravelManagerContact.Id;
         }
         else
         {
-            Booking.TravelManagerContactId = 5; // midlertidig (log-in kræves)
+            booking.TravelManagerContactId = 5; // midlertidig (log-in kræves)
         }
-
-        await HandlePaymentAsync(Booking);
+       booking = await BookingService.AddAsync(booking);
+        await HandlePaymentAsync(booking);
     }
 
     private async Task HandlePaymentAsync(Booking booking)
     {
-        booking.Id = 10; // dummy-værdi til test
-
         if (booking.Id.HasValue)
         {
             var payment = new Payment
