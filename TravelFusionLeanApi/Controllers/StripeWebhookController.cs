@@ -53,8 +53,8 @@ namespace TravelFusionLeanApi.Controllers
                     var session = stripeEvent.Data.Object as Session;
 
                     _logger.LogInformation("Stripe session modtaget: {SessionId}", session.Id);
-                   Payment payment = await _paymentService.MarkPaymentAsSucceededAsync(session.Id, session.PaymentIntentId);
-                    //await _bookingService.MarkBookingAsPaidAsync(payment.BookingId);
+                    Payment payment = await _paymentService.MarkPaymentAsSucceededAsync(session.Id, session.PaymentIntentId);
+                    await _bookingService.MarkBookingAsPaidAsync(payment.BookingId);
                 }
                 catch (Exception ex)
                 {
