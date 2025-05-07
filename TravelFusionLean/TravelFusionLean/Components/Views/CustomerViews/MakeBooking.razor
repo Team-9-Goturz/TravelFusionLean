@@ -1,4 +1,5 @@
 ﻿@page "/MakeBooking/{TravelPackageId:int}"
+@using ServiceImplementations.Dtos
 @using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @using Shared.Models
@@ -14,6 +15,7 @@
 @inject IBookingService BookingService
 @inject IPaymentService PaymentService
 @inject ICountryReadService CountryService
+@inject IBookingCoordinator bookingcoordinator
 @inject HttpClient Http
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
@@ -46,27 +48,19 @@
 
     private async Task CreateBooking()
     {
-        booking.TravelPackageId = TravelPackageId;
-        booking.Status = BookingStatus.Pending;
-        booking.BookingMadeAt = DateTime.Now;
-        booking.Price = TravelPackage.Price;
-        booking.travellers = Travellers.ToList();
-
+        CreateBookingDTO createBookingDTO;
         if (!IsUserTravelManager)
         {
-            TravelManagerContact = await ContactService.AddAsync(TravelManagerContact);
-            booking.TravelManagerContactId = TravelManagerContact.Id;
+            ContactDTO contactDTO = new ContactDTO(TravelManagerContact.Name, TravelManagerContact.PhoneNumber, TravelManagerContact.Email);
+            createBookingDTO = new CreateBookingDTO(TravelPackageId, Travellers.ToList(), contactDTO);
         }
         else
         {
-            booking.TravelManagerContactId = 5; // midlertidig (log-in kræves)
+            createBookingDTO = new CreateBookingDTO(TravelPackageId, Travellers.ToList(),5);
         }
+        booking = await bookingcoordinator.CreateBookingAsync(createBookingDTO);
 
-        booking = await BookingService.AddAsync(booking);
-        booking.TravelPackage.Status = TravelPackageStatus.Booked;
-        await travelPackageService.UpdateAsync(booking.TravelPackage);
-
-        await HandlePaymentAsync(booking);
+        // await HandlePaymentAsync(booking);
     }
 
     private async Task HandlePaymentAsync(Booking booking)

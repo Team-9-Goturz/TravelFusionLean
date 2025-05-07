@@ -31,6 +31,7 @@ namespace Configuration
             services.AddScoped<IBookingService, BookingService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<ICountryReadService, CountryReadService>();
+            services.AddScoped<IBookingCoordinator, BookingCoordinator>();
 
         }
 
