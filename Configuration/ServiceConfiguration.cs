@@ -34,8 +34,6 @@ namespace Configuration
             services.AddScoped<IBookingCoordinator, BookingCoordinator>();
             services.AddScoped<ICurrencyConverter, CurrencyConverter>();
             services.AddScoped<IAirportService, AirportService>();
-            services.AddScoped<IFlightService, FlightService>();
-            services.AddScoped<IHotelService, HotelService>();
             services.AddScoped<IHotelStayService, HotelStayService>();
 
         }

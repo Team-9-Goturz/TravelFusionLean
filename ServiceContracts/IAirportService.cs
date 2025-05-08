@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ServiceContracts
 {
-    public interface IAirportService(AppDbContext context)
+    public interface IAirportService : ICrudService<Airport>
     {
         Task<Airport> FindOrCreateAsync(Airport airport);
         Task<Airport?> GetByIdAsync(int id);
