@@ -29,7 +29,19 @@
     private Price CalulatedPrice = new Price(0, Price.ISOCurrency.DKK);
     private string TravelPackageHeadline;
     private string TravelPackageDescription;
-    private int markupPercentage = 10;
+    private int _markupPercentage = 10;
+    private int markupPercentage
+    {
+        get => _markupPercentage;
+        set
+        {
+            if (_markupPercentage != value)
+            {
+                _markupPercentage = value;
+                CalculatePrice();
+            }
+        }
+    }
 }
 
 
