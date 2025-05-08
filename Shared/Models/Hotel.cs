@@ -19,11 +19,6 @@ public class Hotel
     [StringLength(600)]
     public string? Description { get; set; }
     
-    //[StringLength(128)]
-    //public string Rooms { get; set; }
-
-    //[StringLength(128)]
-    //public string StayingGuests { get; set; }
 
     public string? Address { get; set; }
 

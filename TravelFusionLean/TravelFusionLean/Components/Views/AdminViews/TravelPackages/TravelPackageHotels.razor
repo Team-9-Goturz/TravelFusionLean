@@ -62,7 +62,7 @@
         }
         else
         {
-            foreach (var stay in hotelStays)
+            foreach (HotelStay stay in hotelStays)
             {
                 <div class="d-flex justify-content-between border p-2 mb-2">
                     <div>
@@ -72,24 +72,24 @@
                         @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
                         @stay.Price.ToString("0.00") @stay.Currency?.Name
                     </div>
-                    <button class="btn btn-primary" @onclick="() => SelectHotel(stay.Hotel)">Select</button>
+                    <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
                 </div>
             }
         }
     </div>
 
     <!-- Selected Hotel Summary -->
-    @if (selectedHotel != null)
+    @if (selectedHotelstay != null)
     {
         <div class="card mt-3 p-3">
             <h5>Selected Hotel</h5>
             <p>
-                <strong>Country:</strong> @selectedHotel.Country<br />
-                <strong>City:</strong> @selectedHotel.City<br />
-                <strong>Address:</strong> @selectedHotel.Address<br />
-                <strong>Name:</strong> @selectedHotel.Name<br />
-                <strong>Description:</strong> @selectedHotel.Description<br />
-                 @selectedHotel?.Name
+                <strong>Country:</strong> @selectedHotelstay.Hotel.Country<br />
+                <strong>City:</strong> @selectedHotelstay.Hotel.City<br />
+                <strong>Address:</strong> @selectedHotelstay.Hotel.Address<br />
+                <strong>Name:</strong> @selectedHotelstay.Hotel.Name<br />
+                <strong>Description:</strong> @selectedHotelstay.Hotel.Description<br />
+                 @selectedHotelstay?.Hotel.Name
             </p>
             <button class="btn btn-success" @onclick="ChooseHotel">Choose Hotel</button>
         </div>
@@ -97,9 +97,9 @@
 </div>
 
 @code {
-    private List<Hotel>? allHotels;
-    private List<Hotel>? filteredHotels;
-    private Hotel? selectedHotel;
+    private List<HotelStay>? allHotels;
+    private List<HotelStay>? filteredHotelStays;
+    private HotelStay? selectedHotelstay;
 
     private string? selectedTab = "cheapest";
     private string? searchCountry;
@@ -113,14 +113,14 @@
     protected override async Task OnInitializedAsync()
     {
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
-        filteredHotels = hotelStays?.Select(hs => hs.Hotel).Where(h => h != null).ToList() ?? new List<Hotel>();
+        filteredHotelStays = hotelStays;
     }
     //Filter hotels by price and location
         //Lige nu er der kun search location, men ikke en location variabel. 
     private void FilterHotels(){
-        filteredHotels = allHotels?.Where(h => 
-        (string.IsNullOrWhiteSpace(searchCountry) || h.Country?.Contains(searchCountry, StringComparison.OrdinalIgnoreCase) == true) &&
-        (string.IsNullOrWhiteSpace(searchCity) || h.City?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true) &&
+        filteredHotelStays = allHotels?.Where(hs => 
+        (string.IsNullOrWhiteSpace(searchCountry) || hs.Hotel.Country?.Contains(searchCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+        (string.IsNullOrWhiteSpace(searchCity) || hs.Hotel.City?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true) &&
         (!searchPrice.HasValue)
         ).ToList();
     }
@@ -131,12 +131,12 @@
         StateHasChanged();
     }
 
-    private void SelectHotel(Hotel? hotel)
+    private void SelectHotel(HotelStay? hotelstay)
     {
-        if (hotel != null)
+        if (hotelstay != null)
         {
-            selectedHotel = hotel;
-            travelPackageState.SelectedHotel = hotel;
+            selectedHotelstay = hotelstay;
+            travelPackageState.SelectedHotelStay = hotelstay;
         }
     }
 
@@ -150,6 +150,6 @@
         {
             // "cheapest" => filteredHotels?.OrderBy(h => h.Price) ?? Enumerable.Empty<Hotel>(),
             // "best" => filteredHotels?.OrderByDescending(h => h.Price) ?? Enumerable.Empty<Hotel>(),
-            _ => filteredHotels ?? Enumerable.Empty<Hotel>()
+            // _ => filteredHotelStays ?? Enumerable.Empty<Hotel>()
         };
 }

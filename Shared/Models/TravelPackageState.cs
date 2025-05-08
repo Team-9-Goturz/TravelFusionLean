@@ -9,7 +9,6 @@ namespace Shared.Models
     public class TravelPackageState
     {
         public Flight? SelectedFlight { get; set; }
-
-        public Hotel? SelectedHotel {get; set;}
+        public HotelStay? SelectedHotelStay { get; set;}
     }
 }
