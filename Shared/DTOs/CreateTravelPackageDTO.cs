@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Shared.Dtos
 {
-    public class TravelPackageDTO
+    public class CreateTravelPackageDTO
     {
         [StringLength(100)]
         public string? Headline { get; set; }
