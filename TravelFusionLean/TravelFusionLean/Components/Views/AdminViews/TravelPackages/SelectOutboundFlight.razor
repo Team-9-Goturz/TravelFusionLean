@@ -73,7 +73,7 @@
                         @flight.DepartureTime.ToString("HH:mm") →
                         @flight.ArrivalTime.ToString("HH:mm")
                         -
-                        @flight.Price.ToString("0.00") @flight.Currency?.Name
+                        @flight.Price
                         <br />
                         Duration: @($"{duration.Hours}h {duration.Minutes}m")<br />
                         Class: @(flight.ClassType ?? "Economy")<br />
@@ -100,7 +100,7 @@
                 Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
                 Duration: @($"{dur.Hours}h {dur.Minutes}m")<br />
                 Class: @(selectedFlight.ClassType ?? "Economy")<br />
-                Price: @selectedFlight.Price.ToString("0.00") @selectedFlight.Currency?.Name
+                Price: @selectedFlight.Price
             </p>
             <button class="btn btn-primary" @onclick="ChooseFlight">Continue to Hotels</button>
         </div>
@@ -141,7 +141,7 @@
     private void SelectFlight(Flight flight)
     {
         selectedFlight = flight;
-        travelPackageState.SelectedFlight = flight;
+        travelPackageState.OutboundFlight = flight;
     }
 
     private void ChooseFlight()
@@ -155,7 +155,7 @@
             "fastest" => filteredFlights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
             "cheapest" => filteredFlights?.OrderBy(f => f.Price) ?? Enumerable.Empty<Flight>(),
             "best" => filteredFlights?.OrderBy(f =>
-                (f.Price * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
+                (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
             _ => filteredFlights ?? Enumerable.Empty<Flight>()
         };
 }

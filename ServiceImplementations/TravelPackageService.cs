@@ -87,16 +87,6 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     {
         return await base.ArchiveAsync(id);
     }
-
-    
-    public decimal CalculatePrice(Flight inboundFlight, Flight outboundFlight, Hotel hotel)
-    {
-        decimal priceForFlights = inboundFlight.Price + outboundFlight.Price;
-        //decimal priceForHotel = hotel.Price.Amount;
-
-        decimal totalPrice = priceForFlights;
-        return totalPrice;
-    }
     public async Task<List<TravelPackage>> SearchAsync(TravelPackageSearchDTO searchDto)
     {
         var travelPackages = await GetAllAsync();

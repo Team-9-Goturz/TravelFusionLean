@@ -1,5 +1,6 @@
 ﻿using ServiceImplementations.Dtos;
 using Shared.Models;
+using static Shared.Models.Price;
 
 namespace ServiceImplementations.Mappers;
 
@@ -10,11 +11,12 @@ public static class FlightMapper
 {
     public static Flight MapToModel(FlightData dto)
     {
+        ISOCurrency iSOCurrency = MatchCurrencyOrDefault(dto.Price.Currency);
         return new Flight
         {
             Airline = dto.Airline?.Name ?? "Unknown",
             ClassType = dto.Price?.ClassType,
-            Price = dto.Price?.Amount ?? 0,
+            Price = new Price(dto.Price.Amount, iSOCurrency),
             SeatsAvailable = 100, // Mockværdi
 
             DepartureTime = DateTime.TryParse(dto.Departure?.Scheduled, out var depTime) ? depTime : DateTime.MinValue,
@@ -33,11 +35,19 @@ public static class FlightMapper
                 Country = "Unknown",
                 Latitude = 0,
                 Longitude = 0
-            },
-            Currency = new Currency
-            {
-                Name = dto.Price?.Currency ?? "EUR"
             }
         };
+    }
+    public static ISOCurrency MatchCurrencyOrDefault(string input, ISOCurrency defaultValue = ISOCurrency.DKK)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return defaultValue;
+
+        string upper = input.ToUpper();
+
+        if (Enum.TryParse(typeof(ISOCurrency), upper, out var match))
+            return (ISOCurrency)match;
+
+        return defaultValue;
     }
 }

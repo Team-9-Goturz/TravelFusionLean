@@ -70,7 +70,7 @@
                         @stay.Hotel?.Address<br />
                         @stay.Hotel?.Description<br />
                         @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
-                        @stay.Price.ToString("0.00") @stay.Currency?.Name
+                        @stay.Price
                     </div>
                     <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
                 </div>

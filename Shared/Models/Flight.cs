@@ -13,7 +13,7 @@ public class Flight
     public int Id { get; set; }
 
     [Column(TypeName = "decimal(30,2)")]
-    public decimal Price { get; set; }
+    public Price Price { get; set; }
 
     [Required]
     [StringLength(128)]
@@ -29,10 +29,9 @@ public class Flight
 
     public int DepartureFromAirportId { get; set; }
     public int ArrivalAtAirportId { get; set; }
-    public int CurrencyId { get; set; }
 
     // Navigation properties
     public Airport? ArrivalAtAirport { get; set; }
     public Airport? DepartureFromAirport { get; set; }
-    public Currency? Currency { get; set; }
+    
 }

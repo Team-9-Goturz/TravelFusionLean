@@ -2,6 +2,7 @@
 @inject ITravelPackageService TravelPackageService
 @inject TravelPackageState travelPackageState
 @inject HttpClient Http
+@inject ICurrencyConverter currencyConverter
 
 @using Shared.Models
 @using TravelFusionLean.Components.Layout.Admin
@@ -18,14 +19,40 @@
     <h2 class="text-center">Create Travel Package</h2>
 </div>
 
+@code
+{
+    // Styrer UI-knapper
+    public bool ShowBusyButton { get; set; }
+    public bool ShowSaveButton { get; set; } = true;
+    List<string> formErrorMessages = new List<string>();
+
+    private Price CalulatedPrice = new Price(0, Price.ISOCurrency.DKK);
+    private string TravelPackageHeadline;
+    private string TravelPackageDescription;
+}
+
+
 <!-- Formular og valgte oplysninger -->
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8">
-            <!-- Her kan formularfelter til travelpackage tilføjes senere -->
+            <div class="mb-3">
+                <label for="headline" class="form-label">HeadLine</label>
+                <InputText id="headline" @bind-Value="TravelPackageHeadline" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <InputText id="description" @bind-Value="TravelPackageDescription" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Total Price</label>
+                <h4>@CalulatedPrice</h4>
+            </div>
         </div>
 
-        @if (travelPackageState.SelectedFlight != null)
+        @if (travelPackageState.OutboundFlight != null)
         {
             <div class="row">
                 <div class="col-md-6 d-flex">
@@ -34,95 +61,128 @@
                         <div class="card-body">
                             <p>
                                 <strong>Flight to</strong><br />
-                                Airline: @travelPackageState.SelectedFlight.Airline<br />
-                                From: @travelPackageState.SelectedFlight.DepartureFromAirport?.City<br />
-                                To: @travelPackageState.SelectedFlight.ArrivalAtAirport?.City<br />
-                                Departure: @travelPackageState.SelectedFlight.DepartureTime.ToString("g")<br />
-                                Arrival: @travelPackageState.SelectedFlight.ArrivalTime.ToString("g")<br />
-                                Class: @travelPackageState.SelectedFlight.ClassType<br />
-                                Seats: @travelPackageState.SelectedFlight.SeatsAvailable<br />
-                                Price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
+                                Airline: @travelPackageState.OutboundFlight.Airline<br />
+                                From: @travelPackageState.OutboundFlight.DepartureFromAirport?.City<br />
+                                To: @travelPackageState.OutboundFlight.ArrivalAtAirport?.City<br />
+                                Departure: @travelPackageState.OutboundFlight.DepartureTime.ToString("g")<br />
+                                Arrival: @travelPackageState.OutboundFlight.ArrivalTime.ToString("g")<br />
+                                Class: @travelPackageState.OutboundFlight.ClassType<br />
+                                Seats: @travelPackageState.OutboundFlight.SeatsAvailable<br />
+                                Price: @travelPackageState.OutboundFlight.Price
                             </p>
                         </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="alert alert-warning">No Outboundflight selected. Please go back and choose one.</div>
+            </div>
+        }
+        @if (travelPackageState.InboundFlight != null)
+        {
+            <div class="row">
+                <div class="col-md-6 d-flex">
+                    <div class="card shadow-sm w-100 h-100">
+                        <div class="card-header fw-bold">Selected Flight</div>
                         <div class="card-body border-top">
                             <p>
                                 <strong>Flight back</strong><br />
-                                Airline: @travelPackageState.SelectedFlight.Airline<br />
-                                From: @travelPackageState.SelectedFlight.DepartureFromAirport?.City<br />
-                                To: @travelPackageState.SelectedFlight.ArrivalAtAirport?.City<br />
-                                Departure: @travelPackageState.SelectedFlight.DepartureTime.ToString("g")<br />
-                                Arrival: @travelPackageState.SelectedFlight.ArrivalTime.ToString("g")<br />
-                                Class: @travelPackageState.SelectedFlight.ClassType<br />
-                                Seats: @travelPackageState.SelectedFlight.SeatsAvailable<br />
-                                Price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
+                                Airline: @travelPackageState.InboundFlight.Airline<br />
+                                From: @travelPackageState.InboundFlight.DepartureFromAirport?.City<br />
+                                To: @travelPackageState.InboundFlight.ArrivalAtAirport?.City<br />
+                                Departure: @travelPackageState.InboundFlight.DepartureTime.ToString("g")<br />
+                                Arrival: @travelPackageState.InboundFlight.ArrivalTime.ToString("g")<br />
+                                Class: @travelPackageState.InboundFlight.ClassType<br />
+                                Seats: @travelPackageState.InboundFlight.SeatsAvailable<br />
+                                Price: @travelPackageState.InboundFlight.Price
                             </p>
                         </div>
-                    </div>
+
+                    </div> 
                 </div>
             </div>
-            }
-            else
-            {
+        }
+        else{
             <div class="col-12">
-                <div class="alert alert-warning">No flight selected. Please go back and choose one.</div>
+                <div class="alert alert-warning">No inboundflight selected. Please go back and choose one.</div>
             </div>
-            }
-
-            @if (travelPackageState.SelectedHotelStay != null)
-            {
-                <div class="col-md-6 d-flex">
-                    <div class="card shadow-sm w-100 h-100">
-                        <div class="card-header fw-bold">Selected Hotel Stay</div>
-                        <div class="card-body">
-                            <p>
-                                <strong>Hotel Information</strong><br />
-                                Hotel: @travelPackageState.SelectedHotelStay.Hotel?.Name<br />
-                                Description: @travelPackageState.SelectedHotelStay.Hotel?.Description<br />
-                                Address: @travelPackageState.SelectedHotelStay.Hotel?.Address<br />
-                                City: @travelPackageState.SelectedHotelStay.Hotel?.City<br />
-                                Country: @travelPackageState.SelectedHotelStay.Hotel?.Country<br />
-                                Rating: @travelPackageState.SelectedHotelStay.Hotel?.Rating<br />
-                                <br />
-                                <strong>Stay Details</strong><br />
-                                Check-in: @travelPackageState.SelectedHotelStay.CheckInDate.ToString("d")<br />
-                                Check-out: @travelPackageState.SelectedHotelStay.CheckOutDate.ToString("d")<br />
-                                Days: @travelPackageState.SelectedHotelStay.DaysOfStay<br />
-                                Travellers: @travelPackageState.SelectedHotelStay.NoOfTravellers<br />
-                                Price: @travelPackageState.SelectedHotelStay.Price.ToString("0.00") @travelPackageState.SelectedHotelStay.Currency?.Name
-                            </p>
-                        </div>
+        }
+        @if (travelPackageState.SelectedHotelStay != null)
+        {
+            <div class="col-md-6 d-flex">
+                <div class="card shadow-sm w-100 h-100">
+                    <div class="card-header fw-bold">Selected Hotel Stay</div>
+                    <div class="card-body">
+                        <p>
+                            <strong>Hotel Information</strong><br />
+                            Hotel: @travelPackageState.SelectedHotelStay.Hotel?.Name<br />
+                            Description: @travelPackageState.SelectedHotelStay.Hotel?.Description<br />
+                            Address: @travelPackageState.SelectedHotelStay.Hotel?.Address<br />
+                            City: @travelPackageState.SelectedHotelStay.Hotel?.City<br />
+                            Country: @travelPackageState.SelectedHotelStay.Hotel?.Country<br />
+                            Rating: @travelPackageState.SelectedHotelStay.Hotel?.Rating<br />
+                            <br />
+                            <strong>Stay Details</strong><br />
+                            Check-in: @travelPackageState.SelectedHotelStay.CheckInDate.ToString("d")<br />
+                            Check-out: @travelPackageState.SelectedHotelStay.CheckOutDate.ToString("d")<br />
+                            Days: @travelPackageState.SelectedHotelStay.DaysOfStay<br />
+                            Travellers: @travelPackageState.SelectedHotelStay.NoOfTravellers<br />
+                            Price: @travelPackageState.SelectedHotelStay.Price
+                        </p>
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="col-md-6">
-                    <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">
-                        No hotel selected.
-                    </div>
-                </div>
-            }
             </div>
+        }
+        else
+        {
+            <div class="col-md-6">
+                <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">
+                    No hotel selected.
+                </div>
+            </div>
+        }
     </div>
+</div>
 
-            <!-- Knap til at udgive pakken -->
-            <div class="container mt-4">
-                <div class="d-flex justify-content-end">
-                    @if (ShowSaveButton)
-                    {
-                        <button type="submit" form="travelPackageForm" class="btn btn-primary">
-                            <i class="fa fa-plus"></i> Publish travel package
-                        </button>
-                    }
-                </div>
-            </div>
+<!-- Knap til at udgive pakken -->
+<div class="container mt-4">
+    <div class="d-flex justify-content-end">
+        @if (ShowSaveButton)
+        {
+            <button type="submit" form="travelPackageForm" class="btn btn-primary">
+                <i class="fa fa-plus"></i> Publish travel package
+            </button>
+        }
+    </div>
+</div>
 
-            @code
-            {
-                // Styrer UI-knapper
-            public bool ShowBusyButton { get; set; }
-            public bool ShowSaveButton { get; set; } = true;
-            List<string> formErrorMessages = new List<string>();
-                }
+@code
+{
+    private bool hasRendered = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            hasRendered = true;
+            CalculatePrice(); // Kald beregning første gang komponenten vises
+            await InvokeAsync(StateHasChanged); // Sikrer UI opdateres
+        }
+    }
 
+    private void CalculatePrice() // flyt mig ud i service
+    {
+        Price outboundInDKK = currencyConverter.Convert(travelPackageState.OutboundFlight.Price, Price.ISOCurrency.DKK);
+        Price HotelStayInDKK = currencyConverter.Convert(travelPackageState.SelectedHotelStay.Price, Price.ISOCurrency.DKK);
+        // Price inboundInDKK = currencyConverter.Convert(travelPackageState.InboundFlight.Price, Price.ISOCurrency.DKK);
+
+        CalulatedPrice.Amount = outboundInDKK.Amount + HotelStayInDKK.Amount;/*  +inboundInDKK.Amount */
+    }
+}
+
+}
+          
    

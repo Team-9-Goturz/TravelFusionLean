@@ -1,5 +1,6 @@
 ﻿using ServiceImplementations.Dtos;
 using Shared.Models;
+using static Shared.Models.Price;
 
 namespace ServiceImplementations.Mappers;
 
@@ -26,15 +27,29 @@ public static class HotelMapper
         var checkInDate = checkIn ?? DateTime.Today.AddDays(7);
         var checkOutDate = checkOut ?? DateTime.Today.AddDays(10);
 
+        ISOCurrency iSOCurrency = MatchCurrencyOrDefault(currency.Name);
+
         return new HotelStay
         {
             Hotel = MapToHotel(dto),
-            Price = dto.Price?.Total ?? 0,
-            Currency = currency,
+            Price = new Price (dto.Price.Total, iSOCurrency),
             CheckInDate = checkInDate,
             CheckOutDate = checkOutDate,
             DaysOfStay = (checkOutDate - checkInDate).Days,
             NoOfTravellers = travellers
         };
+    }
+
+    public static ISOCurrency MatchCurrencyOrDefault(string input, ISOCurrency defaultValue = ISOCurrency.DKK)
+    {
+        if (string.IsNullOrWhiteSpace(input))
+            return defaultValue;
+
+        string upper = input.ToUpper();
+
+        if (Enum.TryParse(typeof(ISOCurrency), upper, out var match))
+            return (ISOCurrency)match;
+
+        return defaultValue;
     }
 }

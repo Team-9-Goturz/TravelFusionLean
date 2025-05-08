@@ -8,7 +8,8 @@ namespace Shared.Models
 {
     public class TravelPackageState
     {
-        public Flight? SelectedFlight { get; set; }
+        public Flight? OutboundFlight { get; set; }
         public HotelStay? SelectedHotelStay { get; set;}
+        public Flight? InboundFlight { get; set; }
     }
 }

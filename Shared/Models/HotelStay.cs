@@ -13,7 +13,7 @@ public class HotelStay
     public int Id { get; set; }
 
     [Column(TypeName = "decimal(30,2)")]
-    public decimal Price { get; set; }
+    public Price Price { get; set; }
 
     public DateTime CheckInDate { get; set; }
     public DateTime CheckOutDate { get; set; }
@@ -22,8 +22,7 @@ public class HotelStay
     public int NoOfTravellers { get; set; }
 
     public int HotelId { get; set; }
-    public int CurrencyId { get; set; }
 
     public Hotel? Hotel { get; set; }
-    public Currency? Currency { get; set; }
+    
 }
