@@ -2,6 +2,20 @@
 @using Shared.Models
 @inject IBookingService bookingService
 
+
+
+@* @if (loggedinAsAdmin ){ *@
+    @layout AdminLayout
+    @using TravelFusionLean.Components.Layout
+    @using TravelFusionLean.Components.Layout.Admin
+@* } *@
+
+@* @if (loggedInAsCustomer){ *@
+   @*  @using TravelFusionLean.Components.Layout.Customer
+    @layout CustomerLayout *@
+@* 
+} *@
+
 <h3>Bookingdetaljer</h3>
 
 @if (booking == null)
@@ -17,6 +31,9 @@ else
         <hr />
         <h5>Generel Information</h5>
         <dl class="row">
+            <dt class="col-sm-4">BookingID</dt>
+            <dd class="col-sm-8">@booking.Id</dd>
+
             <dt class="col-sm-4">Pris</dt>
             <dd class="col-sm-8">@booking.Price?.ToString()</dd>
 

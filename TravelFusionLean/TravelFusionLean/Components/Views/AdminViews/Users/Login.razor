@@ -1,7 +1,11 @@
-﻿@page "/"
-@layout AdminLayout
+﻿@page "/login"
+@using TravelFusionLean.Components.Layout.Customer
+@layout CustomerLayout
 @inject NavigationManager NavigationManager
 @inject IUserService _userService
+
+@rendermode InteractiveServer
+
 
 @using TravelFusionLean.Components.Layout.Admin
 @using Shared.DTOs
@@ -13,7 +17,7 @@
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container py-5">
-    <h3 class="text-primary fw-bold mb-4 text-center">🔐 Admin Login</h3>
+    <h3 class="text-primary fw-bold mb-4 text-center">🔐 Login</h3>
 
     <div class="d-flex justify-content-center">
         <div class="col-md-6 col-lg-5 fade-in">
@@ -34,6 +38,8 @@
 
                     <button type="submit" class="btn btn-primary w-100">Login</button>
                 </EditForm>
+                <br />
+                <button type="button" class="btn btn-primary w-100" @onclick="NavigateToAdmin">Login as Admin (cheat)</button>
 
                 @if (!string.IsNullOrEmpty(message))
                 {
@@ -70,4 +76,10 @@
             message = "Please enter both username and password.";
         }
     }
+
+    private void NavigateToAdmin()
+    {
+        NavigationManager.NavigateTo("/AdminHome");
+    }
+    
 }
