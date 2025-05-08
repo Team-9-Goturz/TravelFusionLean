@@ -60,26 +60,33 @@
                 <td>@booking.BookingMadeAt.ToString("dd-MM-yyyy HH:mm")</td>
                 <td>@(booking.Payment != null ? booking.Payment.Status : "Ingen betaling")</td>
                 <td>
-                    <button @onclick="@(() => NavManager.NavigateTo($"/booking-details/{booking.Id}"))">
+                    <button @onclick="@(() => NavManager.NavigateTo($"/booking-details/{booking.Id}"))" class="btn btn-sm btn-primary me-1">
                         Show more
                     </button>
 
                     @if (booking.Status == BookingStatus.Pending || booking.Status == BookingStatus.Paid)
                     {
-                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button> //Hotelophold eller fly er alligvel ikke tilgængeligt
-                        <button @onclick="() => ConfirmBooking(booking.Id.Value)">Confirm</button> //hotel og flyselskab har bekræftet at produktet er tilgængeligt og bestilt
+                        <button @onclick="() => CancelBooking(booking.Id.Value)" class="btn btn-sm btn-danger">Cancel</button>//Hotelophold eller fly er alligvel ikke tilgængeligt
+                    }
+                    @if (booking.Status == BookingStatus.Paid)
+                    {
+                        <button @onclick="() => ConfirmBooking(booking.Id.Value)" class="btn btn-sm btn-warning me-1">Confirm</button>
+                        //hotel og flyselskab har bekræftet at produktet er tilgængeligt og bestilt
                     }
                     @if (booking.Status == BookingStatus.Confirmed){
-                        <button @onclick="() => CancelBooking(booking.Id.Value)">Cancel</button> //hotel eller flyselskab har måske aflyst eller er måske gået konkurs
+                        <button @onclick="() => CancelBooking(booking.Id.Value)" class="btn btn-sm btn-danger">Cancel</button>
+                        //hotel eller flyselskab har måske aflyst eller er måske gået konkurs
                     }
                     @if (booking.Status == BookingStatus.Cancelled && booking.Payment?.Status == PaymentStatus.Succeeded)
                     {
-                        <button>Refund</button> //lav en refundering TODO
+                        <button class="btn btn-sm btn-warning me-1">Refund</button>
+                        //lav en refundering TODO
                     }
 
                     @if (booking.Status == BookingStatus.Cancelled)
                     {
-                        <button @onclick="() => ArchiveBooking(booking.Id.Value)">Archive</button> //Ikke slet men arkiverer bestilling
+                        <button @onclick="() => ArchiveBooking(booking.Id.Value)" class="btn btn-sm btn-primary me-1">Archive</button>
+                        //Ikke slet men arkiverer bestilling
                     }
                 </td>
             </tr>
