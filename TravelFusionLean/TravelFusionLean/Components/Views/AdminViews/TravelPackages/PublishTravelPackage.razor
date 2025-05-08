@@ -29,6 +29,7 @@
     private Price CalulatedPrice = new Price(0, Price.ISOCurrency.DKK);
     private string TravelPackageHeadline;
     private string TravelPackageDescription;
+    private int markupPercentage = 10;
 }
 
 
@@ -45,6 +46,9 @@
                 <label for="description" class="form-label">Description</label>
                 <InputText id="description" @bind-Value="TravelPackageDescription" class="form-control" />
             </div>
+
+            <label for="markupPercentage" class="form-label">Markup (% added to base price)</label>
+            <InputNumber id="markupPercentage" @bind-Value="markupPercentage" class="form-control" />
 
             <div class="mb-3">
                 <label class="form-label">Total Price</label>
@@ -177,9 +181,10 @@
     {
         Price outboundInDKK = currencyConverter.Convert(travelPackageState.OutboundFlight.Price, Price.ISOCurrency.DKK);
         Price HotelStayInDKK = currencyConverter.Convert(travelPackageState.SelectedHotelStay.Price, Price.ISOCurrency.DKK);
-        // Price inboundInDKK = currencyConverter.Convert(travelPackageState.InboundFlight.Price, Price.ISOCurrency.DKK);
+        Price inboundInDKK = currencyConverter.Convert(travelPackageState.InboundFlight.Price, Price.ISOCurrency.DKK);
 
-        CalulatedPrice.Amount = outboundInDKK.Amount + HotelStayInDKK.Amount;/*  +inboundInDKK.Amount */
+        Decimal price = outboundInDKK.Amount + HotelStayInDKK.Amount + inboundInDKK.Amount;
+        CalulatedPrice.Amount = price + (price * (markupPercentage / 100m));
     }
 }
 
