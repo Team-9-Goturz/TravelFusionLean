@@ -1,115 +1,37 @@
-﻿@inject ITravelPackageService TravelPackageService
-@page "/publish-travel-package"
+﻿@page "/publish-travel-package"
+@inject ITravelPackageService TravelPackageService
+@inject TravelPackageState travelPackageState
+@inject HttpClient Http
+
 @using Shared.Models
 @using TravelFusionLean.Components.Layout.Admin
 @layout AdminLayout
-@inject TravelPackageState travelPackageState
 @rendermode InteractiveServer
-@inject HttpClient Http
 
-<!-- Bootstrap og egen CSS til styling -->
+<!-- CSS og JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <link href="css/CustomColors.css" rel="stylesheet" />
 
-
+<!-- Titel -->
 <div class="container mt-4">
     <h2 class="text-center">Create Travel Package</h2>
 </div>
 
-<!--Kolonne for udfyldning af information om 'travelpackage' -->
+<!-- Formular og valgte oplysninger -->
 <div class="container mt-4">
     <div class="row">
         <div class="col-md-8">
-            <EditForm Model="travelpackage" onsubmit="handleSaveProduct" id="travelPackageForm">
-                <DataAnnotationsValidator />
-                @* Aktiverer validering fra f.eks. [Required], [StringLength], osv. i modellen *@
-                <ValidationSummary />
-                @* Viser oversigt over alle fejl i formularen *@
-
-                @* Custom Error Summary *@
-                @if (formErrorMessages.Count > 0)
-                {
-                    <div class="alert alert-danger mt-3">
-                        <ul class="mb-0">
-                            @foreach (var error in formErrorMessages)
-                            {
-                                <li>@error</li>
-                            }
-                        </ul>
-                    </div>
-                }
-
-                <div class="card shadow-sm">
-                    <div class="card-header fw-bold">Add Travel Package</div>
-                    <div class="card-body">
-                        <!-- Overskrift -->
-                        <div class="mb-3">
-                            <label class="form-label">Headline</label>
-                            <InputText @bind-Value="travelpackage.Headline" class="form-control" />
-                        </div>
-
-                        <!-- Antal rejsende -->
-                        <div class="mb-3">
-                            <label class="form-label">Number of travellers</label>
-                            <InputNumber @bind-Value="travelpackage.NoOfTravellers" class="form-control" min="0" />
-                        </div>
-
-
-                        <!-- Admin kan selv vælge samlet pris -->
-                        <div class="mb-3 form-check">
-                            <InputCheckbox @bind-Value="manualPriceOverride" class="form-check-input" id="manualPriceCheckbox" />
-                            <label class="form-check-label" for="manualPriceCheckbox">Manually set price</label>
-                        </div>
-
-                        <!-- Procent markuo -->
-                        <div class="mb-3">
-                            <label class="form-label">Markup Percentage</label>
-                            <InputSelect class="form-control" @bind-Value="selectedMarkup" disabled="@manualPriceOverride">
-                                <option value="0">No Markup</option>
-                                <option value="10">10%</option>
-                                <option value="20">20%</option>
-                                <option value="30">30%</option>
-                                <option value="40">40%</option>
-                                <option value="50">50%</option>
-                                <option value="60">60%</option>
-                            </InputSelect>
-                        </div>
-
-                        <!-- Pris -->
-                        <div class="mb-3">
-                            <label class="form-label">Price</label>
-                            <InputNumber @bind-Value="travelpackage.Price" class="form-control" readonly="@(manualPriceOverride == false)" />
-                        </div>
-
-                        <!-- Description -->
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <InputTextArea @bind-Value="travelpackage.Description" class="form-control" rows="4" />
-                        </div>
-
-                        <!-- Upload billede (kun png tilladt) -->
-                        <div class="mb-3">
-                            <label class="form-label @(string.IsNullOrEmpty(ImageUploadMessage) ? "" : "text-danger")">
-                                @(string.IsNullOrEmpty(ImageUploadMessage) ? "Upload Image" : ImageUploadMessage)
-                            </label>
-                            <InputFile class="form-control" OnChange="UploadImage" />
-                        </div>
-                    </div>
-                </div>
-            </EditForm>
+            <!-- Her kan formularfelter til travelpackage tilføjes senere -->
         </div>
-        
-        
+
         @if (travelPackageState.SelectedFlight != null)
         {
-
             <div class="col-md-4">
                 <div class="card shadow-sm">
                     <div class="card-header fw-bold">Selected Flight</div>
                     <div class="card-body">
                         <p>
-                            <!-- Viser flyinformation -->
                             <strong>Flight to</strong><br />
                             Airline: @travelPackageState.SelectedFlight.Airline<br />
                             From: @travelPackageState.SelectedFlight.DepartureFromAirport?.City<br />
@@ -118,12 +40,11 @@
                             Arrival: @travelPackageState.SelectedFlight.ArrivalTime.ToString("g")<br />
                             Class: @travelPackageState.SelectedFlight.ClassType<br />
                             Seats: @travelPackageState.SelectedFlight.SeatsAvailable<br />
-                            price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
+                            Price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
                         </p>
                     </div>
                     <div class="card-body">
                         <p>
-                            <!-- Det skal vise fly nummer 2, denne har jeg ikke bindet endnu, fordi vi ikke data til det endnu -->
                             <strong>Flight back</strong><br />
                             Airline: @travelPackageState.SelectedFlight.Airline<br />
                             From: @travelPackageState.SelectedFlight.DepartureFromAirport?.City<br />
@@ -132,27 +53,14 @@
                             Arrival: @travelPackageState.SelectedFlight.ArrivalTime.ToString("g")<br />
                             Class: @travelPackageState.SelectedFlight.ClassType<br />
                             Seats: @travelPackageState.SelectedFlight.SeatsAvailable<br />
-                            price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
+                            Price: @travelPackageState.SelectedFlight.Price.ToString("0.00") @travelPackageState.SelectedFlight.Currency?.Name
                         </p>
                     </div>
-
                 </div>
 
-
-                <!-- Hotelinformation heller ikke bindet endnu -->
-                @if (travelpackage.HotelStay != null)
+                @if (travelPackageState.SelectedHotel != null)
                 {
-                    <div class="card shadow-sm mt-3">
-                        <div class="card-header fw-bold">Selected Hotel</div>
-                        <div class="card-body">
-                            <p><strong>Price:</strong> @travelpackage.HotelStay.Price</p>
-                            <p><strong>Days of Stay:</strong> @travelpackage.HotelStay.DaysOfStay</p>
-                            <p><strong>Check-In Date:</strong> @travelpackage.HotelStay.CheckInDate</p>
-                            <p><strong>Check-Out Date:</strong> @travelpackage.HotelStay.CheckOutDate</p>
-                            <p><strong>No. of Travellers:</strong> @travelpackage.HotelStay.NoOfTravellers</p>
-                            <p><strong>Hotel ID:</strong> @travelpackage.HotelStay.HotelId</p>
-                        </div>
-                    </div>
+                    <div class="alert alert-warning mt-2">Hotel er valgt.</div>
                 }
                 else
                 {
@@ -162,15 +70,14 @@
         }
         else
         {
-            <p>No flight selected. Please go back and choose one.</p>
+            <div class="col-12">
+                <div class="alert alert-warning">No flight selected. Please go back and choose one.</div>
+            </div>
         }
-        
     </div>
 </div>
 
-
-<!-- Knap for publish travel package -->
-
+<!-- Knap til at udgive pakken -->
 <div class="container mt-4">
     <div class="d-flex justify-content-end">
         @if (ShowSaveButton)
@@ -182,181 +89,16 @@
     </div>
 </div>
 
-
 @code {
     TravelPackage travelpackage = new()
         {
-            OutboundFlight = new Flight(),       
+            OutboundFlight = new Flight(),
             HotelStay = null
         };
 
+    List<string> formErrorMessages = new();
 
-    // Kører når formularen valideres og sendes
-    List<string> formErrorMessages = new(); 
-
-    async Task handleSaveProduct()
-    {
-        formErrorMessages.Clear();
-
-        if (string.IsNullOrWhiteSpace(travelpackage.Headline))
-        {
-            formErrorMessages.Add("Headline is required.");
-        }
-
-        if (string.IsNullOrWhiteSpace(travelpackage.Description))
-        {
-            formErrorMessages.Add("Description is required.");
-        }
-
-        if (travelpackage.NoOfTravellers < 1)
-        {
-            formErrorMessages.Add("Number of travellers must be at least 1.");
-        }
-
-        if (manualPriceOverride)
-        {
-            if (travelPackageState.SelectedFlight == null)
-            {
-                formErrorMessages.Add("Cannot set manual price, because no flight is selected.");
-            }
-            else if (travelpackage.Price.Amount <= travelPackageState.SelectedFlight.Price)
-            {
-                formErrorMessages.Add($"Manual price must be greater than the flight price ({travelPackageState.SelectedFlight.Price:0.00}).");
-            }
-        }
-
-        if (string.IsNullOrWhiteSpace(travelpackage.ImagePath))
-        {
-            formErrorMessages.Add("An image must be uploaded (PNG).");
-        }
-
-        if (formErrorMessages.Any())
-            return;
-
-        try
-        {
-            if (travelpackage.HotelStay == null)
-            {
-                travelpackage.HotelStay = null; 
-            }
-
-
-            if (travelPackageState.SelectedFlight != null)
-            {
-                travelpackage.OutboundFlight = travelPackageState.SelectedFlight;
-                travelpackage.Status = TravelPackageStatus.Available;
-            }
-
-            await TravelPackageService.AddAsync(travelpackage);
-        }
-        catch (Exception ex)
-        {
-            formErrorMessages.Add("An error occurred while saving: " + ex.Message);
-        }
-
-    }
-
-    // Gemmer statusbesked for upload
-    string ImageUploadMessage = "";
-    async Task UploadImage(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-
-        using var content = new MultipartFormDataContent();
-        var stream = file.OpenReadStream(long.MaxValue); 
-        content.Add(new StreamContent(stream), "file", file.Name);
-
-        try
-        {
-            var response = await Http.PostAsync("https://localhost:7274/api/upload", content);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadFromJsonAsync<UploadResult>();
-                travelpackage.ImagePath = result.ImagePath; 
-                ImageUploadMessage = "";
-            }
-            else
-            {
-                ImageUploadMessage = "Upload failed.";
-            }
-        }
-        catch (Exception ex)
-        {
-            ImageUploadMessage = "Error: " + ex.Message;
-        }
-    }
-
-    // Arbejder på at lave en loading knap, så når data gemmes, så viser den en loading knap indtil det er gemt. ikke færdig endnu
-    // Bestemmer om busy-knappen skal vises (f.eks. loading spinner)og om “Gem”-knappen skal vises
+    // Styrer UI-knapper
     public bool ShowBusyButton { get; set; }
     public bool ShowSaveButton { get; set; } = true;
-
-
-    //skal Initialized, fordi en masse data opdateres forskellige steder
-    protected override void OnInitialized()
-    {  
-        UpdatePrice();
-    }
-    
-
-    // Opdatere prisen for, hvis markup prisen er tilføjet
-    void UpdatePrice()
-    {
-        if (travelPackageState.SelectedFlight != null)
-        {
-            var basePrice = travelPackageState.SelectedFlight.Price;
-            var markupAmount = basePrice * (selectedMarkup / 100m);
-            travelpackage.Price.Amount = basePrice + markupAmount;
-        }
-    }
-
-
-    //valg af markup
-    private int _selectedMarkup;
-   
-    public int selectedMarkup
-    {
-        get => _selectedMarkup;
-        set
-        {
-            if (_selectedMarkup != value)
-            {
-                _selectedMarkup = value;
-                UpdatePrice();
-            }
-        }
-    }
-
-    //Manuelt indtastning af samlet pris for pakken
-
-    private bool _manualPriceOverride;
-
-    public bool manualPriceOverride
-    {
-        get => _manualPriceOverride;
-        set
-        {
-            if (_manualPriceOverride != value)
-            {
-                _manualPriceOverride = value;
-
-                if (value)
-                {
-                    travelpackage.Price.Amount = 0;
-                }
-                else
-                {
-                    // Manuel er disables og den regner fra markup
-                    UpdatePrice();
-                }
-            }
-        }
-    }
-
-
-    private class UploadResult
-    {
-        public string ImagePath { get; set; }
-    }
-
 }
