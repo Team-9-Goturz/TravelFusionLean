@@ -1,4 +1,4 @@
-@page "/travel-package-flights/Outbound"
+﻿@page "/travel-package-flights/Inbound"
 @layout TravelFusionLean.Components.Layout.Admin.AdminLayout
 @inject IFlightApiService FlightApiService
 @inject NavigationManager NavigationManager
@@ -141,12 +141,12 @@
     private void SelectFlight(Flight flight)
     {
         selectedFlight = flight;
-        travelPackageState.OutboundFlight = flight;
+        travelPackageState.InboundFlight = flight;
     }
 
     private void ChooseFlight()
     {
-        NavigationManager.NavigateTo("/travel-package-hotels");
+        NavigationManager.NavigateTo("/publish-travel-package");
     }
 
     private IEnumerable<Flight> sortedFlights =>
