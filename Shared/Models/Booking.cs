@@ -19,6 +19,8 @@ namespace Shared.Models
 
         public BookingStatus Status { get; set; }
         public DateTime BookingMadeAt { get; set; }
+        public DateTime? BookingConfirmedAt { get; set; }
+        public DateTime? BookingCancelledAt { get; set; }
 
         public List<Traveller> travellers { get; set;  }
     }

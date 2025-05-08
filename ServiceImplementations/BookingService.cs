@@ -46,6 +46,7 @@ namespace ServiceImplementations
                     .Include(b => b.Payment)
                     .FirstOrDefaultAsync(b => b.Id == id);
                 booking.Status = BookingStatus.Cancelled;
+                booking.BookingCancelledAt = DateTime.Now;
 
                 //Frigiv travelpackage
                 booking.TravelPackage.Status = TravelPackageStatus.Available;
@@ -110,6 +111,7 @@ namespace ServiceImplementations
                 .Include(b => b.Payment)
                 .FirstOrDefaultAsync(b => b.Id == id);
             booking.Status = BookingStatus.Confirmed;
+            booking.BookingConfirmedAt = DateTime.Now;
             await _context.SaveChangesAsync();
 
             return booking;

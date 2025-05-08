@@ -29,6 +29,12 @@ else
             <dt class="col-sm-4">Betalingsstatus</dt>
             <dd class="col-sm-8">@(booking.Payment != null ? booking.Payment.Status : "Ingen betaling")</dd>
 
+            <dt class="col-sm-4">Bekræftet den</dt>
+            <dd class="col-sm-8">@booking.BookingConfirmedAt</dd>
+
+            <dt class="col-sm-4">Afbestilt den</dt>
+            <dd class="col-sm-8">@booking.BookingCancelledAt</dd>
+
             <dt class="col-sm-4">Antal rejsende</dt>
             <dd class="col-sm-8">@booking.TravelPackage?.NoOfTravellers</dd>
         </dl>

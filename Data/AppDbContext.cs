@@ -63,7 +63,7 @@ namespace Data
                 .WithOne()
                 .HasForeignKey<User>(u => u.ContactId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade); // ellers kunne en stored procedure der kørte dagligt fjerne alle kontakter der ikke er tilknyttet bruger eller aktiv booking 
 
             modelBuilder.Entity<Contact>(entity =>
             {
@@ -185,6 +185,10 @@ namespace Data
                 .HasOne(b => b.Payment)
                 .WithOne(p => p.Booking)
                 .HasForeignKey<Payment>(p => p.BookingId);
+
+                entity.Property(p => p.Status)
+                       .HasConversion<string>() // konverter enum til string
+                       .HasMaxLength(50);
             });
 
             modelBuilder.Entity<Payment>(entity =>
