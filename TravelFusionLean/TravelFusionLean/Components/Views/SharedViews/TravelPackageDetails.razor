@@ -2,6 +2,7 @@
 @using Shared.Models
 @using TravelFusionLean.Components.Layout.Customer
 @layout CustomerLayout
+@rendermode InteractiveServer
 
 @inject ITravelPackageService travelpackageService
 @inject ICurrencyConverter currencyConverter
@@ -26,7 +27,7 @@ else
                 <strong>Pris:</strong>
                 @if (ConvertedPrice != null)
                 {
-                    @ConvertedPrice.Amount.ToString("C", System.Globalization.CultureInfo.GetCultureInfo("en-US")) @ConvertedPrice.Currency
+                    @ConvertedPrice
                 }
                 else
                 {
