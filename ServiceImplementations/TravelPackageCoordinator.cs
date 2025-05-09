@@ -70,7 +70,6 @@ namespace ServiceImplementations
 
                 await _travelPackageService.AddAsync(travelPackage);
                 await transaction.CommitAsync();
-
                 return travelPackage;
             }
             catch
