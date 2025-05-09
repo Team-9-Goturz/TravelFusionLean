@@ -148,7 +148,7 @@ else{
                 <td>@package.Status</td>
 
                 <td>
-                    <a class="btn btn-sm btn-primary me-1" href="/TravelPackage/@package.Id">Vis</a>
+                        <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis</a>
                     <a class="btn btn-sm btn-primary me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
                         <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">Slet</button>
                 </td>

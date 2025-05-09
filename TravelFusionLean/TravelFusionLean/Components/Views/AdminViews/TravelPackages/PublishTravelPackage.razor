@@ -3,6 +3,7 @@
 @inject TravelPackageState travelPackageState
 @inject HttpClient Http
 @inject ICurrencyConverter currencyConverter
+@inject NavigationManager navigationManager
 
 @using Shared.Models
 @using Shared.Dtos
@@ -224,6 +225,8 @@
 
 
         TravelPackage travelPackage = await TravelPackageCoordinator.CreateTravelpackageAsync(packageDTO);
+
+        navigationManager.NavigateTo("/TravelPackageList");
     }
 
     private async Task HandleImageUpload(InputFileChangeEventArgs e)
