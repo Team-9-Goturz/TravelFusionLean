@@ -10,24 +10,22 @@ namespace Shared.Models;
 public class Airport
 {
     [Key]
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    [Required]
     [StringLength(128)]
-    public string Country { get; set; }
+    public string? Country { get; set; }
 
-    [Required]
     [StringLength(128)]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     [StringLength(128)]
     public string? Address { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
-    public decimal Latitude { get; set; }
+    public decimal? Latitude { get; set; }
 
     [Column(TypeName = "decimal(9,6)")]
-    public decimal Longitude { get; set; }
+    public decimal? Longitude { get; set; }
 }

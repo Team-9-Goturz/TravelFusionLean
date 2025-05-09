@@ -33,6 +33,11 @@ namespace Configuration
             services.AddScoped<ICountryReadService, CountryReadService>();
             services.AddScoped<IBookingCoordinator, BookingCoordinator>();
             services.AddScoped<ICurrencyConverter, CurrencyConverter>();
+            services.AddScoped<IAirportService, AirportService>();
+            services.AddScoped<IHotelStayService, HotelStayService>();
+            services.AddScoped<IHotelModelService, HotelModelService>();
+            services.AddScoped<IFlightModelService, FlightModelService>();
+            services.AddScoped<ITravelPackageCoordinator , TravelPackageCoordinator>();
 
         }
 

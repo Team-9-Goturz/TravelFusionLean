@@ -54,8 +54,8 @@ builder.Services.AddCors(options =>
     });
 });
 
-// Registrer HttpClient til FlightService
-builder.Services.AddHttpClient<IFlightService, FlightService>((sp, client) =>
+// Registrer HttpClient til FlightModelService
+builder.Services.AddHttpClient<IFlightService, TravelFusionLeanApi.Services.FlightService>((sp, client) =>
 {
     var settings = sp.GetRequiredService<IOptions<ApiSettings>>().Value;
     client.BaseAddress = new Uri(settings.MockFlightsApiUrl);

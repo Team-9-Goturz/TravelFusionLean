@@ -69,7 +69,15 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     /// </summary>
     public override async Task<TravelPackage> AddAsync(TravelPackage travelPackage)
     {
-        return await base.AddAsync(travelPackage);
+
+        // Tilføj TravelPackage til DbSet
+        await _context.TravelPackages.AddAsync(travelPackage);
+
+        // Gem ændringer i databasen
+        await _context.SaveChangesAsync();
+
+        return travelPackage;
+
     }
 
     /// <summary>
