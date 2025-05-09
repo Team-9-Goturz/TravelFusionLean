@@ -31,6 +31,7 @@
     private Price CalulatedPrice = new Price(0, Price.ISOCurrency.DKK);
     private string TravelPackageHeadline;
     private string TravelPackageDescription;
+    private int NoOfTravellers;
     private int _markupPercentage = 10;
     private int markupPercentage
     {
@@ -63,6 +64,9 @@
 
             <label for="markupPercentage" class="form-label">Markup (% added to base price)</label>
             <InputNumber id="markupPercentage" @bind-Value="markupPercentage" class="form-control" />
+
+            <label for="NoOfTravellers" class="form-label">Number of travellers</label>
+            <InputNumber id="NoOfTravellers" @bind-Value="NoOfTravellers" class="form-control" />
 
             <div class="mb-3">
                 <label class="form-label">Total Price</label>
@@ -180,6 +184,10 @@
     {
         if (firstRender)
         {
+            if (travelPackageState.SelectedHotelStay.NoOfTravellers != null)
+            {
+                NoOfTravellers = travelPackageState.SelectedHotelStay.NoOfTravellers;
+            }
             hasRendered = true;
             CalculatePrice(); // Kald beregning første gang komponenten vises
             await InvokeAsync(StateHasChanged); // Sikrer UI opdateres
@@ -204,6 +212,7 @@
         packageDTO.HotelStay = travelPackageState.SelectedHotelStay;
         packageDTO.OutboundFlight = travelPackageState.OutboundFlight;
         packageDTO.InboundFlight = travelPackageState.InboundFlight;
+        packageDTO.NoOfTravellers = NoOfTravellers;
 
 
         TravelPackage travelPackage = await TravelPackageCoordinator.CreateTravelpackageAsync(packageDTO);

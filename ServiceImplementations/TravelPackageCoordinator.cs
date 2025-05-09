@@ -65,6 +65,7 @@ namespace ServiceImplementations
                     Headline = travelpackageDTO.Headline,
                     Description = travelpackageDTO.Description,
                     Price = travelpackageDTO.Price,
+                    NoOfTravellers = travelpackageDTO.NoOfTravellers,
                     Status = TravelPackageStatus.Available
                 };
 
