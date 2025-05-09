@@ -1,11 +1,13 @@
 ﻿@page "/publish-travel-package"
-@inject ITravelPackageService TravelPackageService
+@inject ITravelPackageCoordinator TravelPackageCoordinator
 @inject TravelPackageState travelPackageState
 @inject HttpClient Http
 @inject ICurrencyConverter currencyConverter
 
 @using Shared.Models
+@using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Admin
+@using ServiceContracts
 @layout AdminLayout
 @rendermode InteractiveServer
 
@@ -171,9 +173,10 @@
     <div class="d-flex justify-content-end">
         @if (ShowSaveButton)
         {
-            <button type="submit" form="travelPackageForm" class="btn btn-primary">
+            <button class="btn btn-primary" @onclick="CreateTravelPackageAsync">
                 <i class="fa fa-plus"></i> Publish travel package
             </button>
+
         }
     </div>
 </div>
@@ -200,6 +203,19 @@
 
         Decimal price = outboundInDKK.Amount + HotelStayInDKK.Amount + inboundInDKK.Amount;
         CalulatedPrice.Amount = price + (price * (markupPercentage / 100m));
+    }
+    private async void CreateTravelPackageAsync()
+    {
+        CreateTravelPackageDTO packageDTO = new CreateTravelPackageDTO();
+        packageDTO.Headline = TravelPackageHeadline;
+        packageDTO.Description = TravelPackageDescription;
+        packageDTO.Price = CalulatedPrice;
+        packageDTO.HotelStay = travelPackageState.SelectedHotelStay;
+        packageDTO.OutboundFlight = travelPackageState.OutboundFlight;
+        packageDTO.InboundFlight = travelPackageState.InboundFlight;
+
+
+        TravelPackage travelPackage = await TravelPackageCoordinator.CreateTravelpackageAsync(packageDTO);
     }
 }
 

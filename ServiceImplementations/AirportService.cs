@@ -14,15 +14,31 @@ namespace ServiceImplementations
     {
         public async Task<Airport> FindOrCreateAsync(Airport airport)
         {
-            Airport existing = await context.Airports.Where(a => a.Name == airport.Name).FirstOrDefaultAsync();
+            Airport? existingAirport;
 
-
-            if (existing != null)
-                return existing;
-
-            _context.Airports.Add(airport);
-            await _context.SaveChangesAsync();
-            return airport;
+            if (airport.City != null)
+            {
+                // Tjekker, om der allerede findes et Airport i databasen med den samme City
+                 existingAirport = await context.Airports.FirstOrDefaultAsync(a => a.City == airport.City);
+                if (existingAirport != null)
+                {
+                    // Hvis der findes et eksisterende Airport med den samme City, returneres det eksisterende objekt
+                    return existingAirport;
+                }
+                else
+                { // Hvis ikke, tilføjes det nye Airport til databasen
+                    await _context.Airports.AddAsync(airport);
+                    await _context.SaveChangesAsync();
+                }
+            }
+            else
+            {
+                // Hvis ikke, tilføjes det nye Airport til databasen
+                await _context.Airports.AddAsync(airport);
+                await _context.SaveChangesAsync();
+            }
+                // Returnerer den nye eller eksisterende Airport
+                return airport;
         }
 
         public async Task<Airport?> GetByIdAsync(int id)

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ServiceContracts
 {
-    public interface ITravelpackageCoordinator
+    public interface ITravelPackageCoordinator
     {
         Task<TravelPackage> CreateTravelpackageAsync(CreateTravelPackageDTO travelpackageDTO);
     }
