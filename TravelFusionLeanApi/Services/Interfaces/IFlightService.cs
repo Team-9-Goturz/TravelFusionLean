@@ -1,7 +1,7 @@
 ﻿namespace TravelFusionLeanApi.Services
 {
     /// <summary>
-    /// Interface for FlightService, definerer funktioner til at hente flydata fra eksternt API.
+    /// Interface for FlightModelService, definerer funktioner til at hente flydata fra eksternt API.
     /// </summary>
     public interface IFlightService
     {
