@@ -8,7 +8,7 @@ namespace ServiceImplementations;
 /// <summary>
 /// Service der kommunikerer med TravelFusionLeanApi for at hente flydata som DTO’er.
 /// </summary>
-public class FlightApiService(HttpClient httpClient) : IFlightApiService
+public class FlightRouteAPIService(HttpClient httpClient) : IFlightApiService
 {
     private readonly HttpClient _httpClient = httpClient;
 

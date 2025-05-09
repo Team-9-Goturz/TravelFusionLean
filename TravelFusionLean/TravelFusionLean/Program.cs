@@ -29,8 +29,8 @@ builder.Services.AddRazorComponents()
 
 builder.Services.ConfigureServices(configuration);
 builder.Services.AddScoped<TravelPackageState>();
-builder.Services.AddHttpClient<IFlightApiService, FlightApiService>();
-builder.Services.AddHttpClient<IHotelApiService, HotelApiService>();
+builder.Services.AddHttpClient<IFlightApiService, FlightRouteAPIService>();
+builder.Services.AddHttpClient<IHotelApiService, AccommodationManagementService>();
 
 builder.Services.AddScoped<ProtectedSessionStorage>();
 builder.Services.AddAuthorizationCore();

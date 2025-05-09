@@ -10,7 +10,7 @@ namespace ServiceImplementations;
 /// <summary>
 /// Service der henter hoteldata fra TravelFusionLeanApi via HTTP.
 /// </summary>
-public class HotelApiService(HttpClient httpClient) : IHotelApiService
+public class AccommodationManagementService(HttpClient httpClient) : IHotelApiService
 {
     private readonly HttpClient _httpClient = httpClient;
 
