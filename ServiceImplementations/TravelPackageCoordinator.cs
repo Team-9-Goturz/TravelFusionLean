@@ -66,7 +66,8 @@ namespace ServiceImplementations
                     Description = travelpackageDTO.Description,
                     Price = travelpackageDTO.Price,
                     NoOfTravellers = travelpackageDTO.NoOfTravellers,
-                    Status = TravelPackageStatus.Available
+                    Status = TravelPackageStatus.Available,
+                    ImagePath = travelpackageDTO.ImagePath
                 };
 
                 await _travelPackageService.AddAsync(travelPackage);

@@ -45,6 +45,7 @@
             }
         }
     }
+    private string uploadedFileName;
 }
 
 <!-- Formular og valgte oplysninger -->
@@ -68,7 +69,11 @@
             <label for="markupPercentage" class="form-label">Markup (% added to base price)</label>
             <InputNumber id="markupPercentage" @bind-Value="markupPercentage" class="form-control" />
 
-            
+            <div class="mb-3">
+                <label for="uploadImage" class="form-label">Upload image</label>
+                <InputFile OnChange="HandleImageUpload" />
+            </div>
+
 
             <div class="mb-3">
                 <label class="form-label">Total Price</label>
@@ -215,9 +220,31 @@
         packageDTO.OutboundFlight = travelPackageState.OutboundFlight;
         packageDTO.InboundFlight = travelPackageState.InboundFlight;
         packageDTO.NoOfTravellers = NoOfTravellers;
+        packageDTO.ImagePath = uploadedFileName;
 
 
         TravelPackage travelPackage = await TravelPackageCoordinator.CreateTravelpackageAsync(packageDTO);
+    }
+
+    private async Task HandleImageUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+
+        if (file != null)
+        {
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/uploads");
+            var uniqueFileName = $"{Guid.NewGuid()}_{file.Name}";
+            var relativeImagePath = $"/images/uploads/{uniqueFileName}";
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+            await using var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // 5MB max
+            await using var fileStream = new FileStream(filePath, FileMode.Create);
+            await stream.CopyToAsync(fileStream);
+
+            uploadedFileName = relativeImagePath;
+
+            StateHasChanged();
+        }
     }
 }
 
