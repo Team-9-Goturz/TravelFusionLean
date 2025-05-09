@@ -10,101 +10,111 @@
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
-    <h2 class="text-center">Choose Flight</h2>
+    <div class="container mt-4">
+        <h2 class="text-primary-blue text-center">Choose Inbound Flight</h2>
 
-    <!-- Search Bar -->
-    <div class="card p-3 mb-3">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label>Departure:</label>
-                <input type="text" class="form-control" @bind="searchFrom" placeholder="Enter departure city" />
-            </div>
-            <div class="col-md-3">
-                <label>Destination:</label>
-                <input type="text" class="form-control" @bind="searchTo" placeholder="Enter destination city" />
-            </div>
-            <div class="col-md-3">
-                <label>When:</label>
-                <input type="date" class="form-control" @bind="searchDate" />
-            </div>
-            <div class="col-md-2">
-                <label>Travellers:</label>
-                <input type="number" class="form-control" placeholder="Enter number" disabled />
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button class="btn btn-primary w-100" @onclick="FilterFlights">
-                    🔍
-                </button>
+        <!-- Search Bar -->
+        <div class="card p-3 mb-3">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label>Departure:</label>
+                    <input type="text" class="form-control" @bind="searchFrom" placeholder="Enter departure city" />
+                </div>
+                <div class="col-md-3">
+                    <label>Destination:</label>
+                    <input type="text" class="form-control" @bind="searchTo" placeholder="Enter destination city" />
+                </div>
+                <div class="col-md-3">
+                    <label>When:</label>
+                    <input type="date" class="form-control" @bind="searchDate" />
+                </div>
+                <div class="col-md-2">
+                    <label>Travellers:</label>
+                    <input type="number" class="form-control" placeholder="Enter number" disabled />
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-primary w-100" @onclick="FilterFlights">
+                        🔍
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Tabs for sorting -->
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick="@(() => SetTab("fastest"))">Fastest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
-        </li>
-    </ul>
+        <!-- Tabs for sorting -->
+        <div class="row">
+            <!-- LEFT SIDE: Tabs + Flights -->
+            <div class="@(selectedFlight != null ? "col-md-8" : "col-md-12")">
+                <!-- Tabs for sorting -->
+                <ul class="nav nav-tabs mb-3">
+                    <li class="nav-item">
+                        <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick="@(() => SetTab("fastest"))">Fastest</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
+                    </li>
+                </ul>
 
-    <div class="tab-content p-3">
-        @if (filteredFlights == null)
-        {
-            <p><em>Loading flights...</em></p>
-        }
-        else if (!filteredFlights.Any())
-        {
-            <p>No flights found.</p>
-        }
-        else
-        {
-            foreach (var flight in sortedFlights)
+                <div class="tab-content">
+                    @if (filteredFlights == null)
+                    {
+                        <p><em>Loading flights...</em></p>
+                    }
+                    else if (!filteredFlights.Any())
+                    {
+                        <p>No flights found.</p>
+                    }
+                    else
+                    {
+                        foreach (var flight in sortedFlights)
+                        {
+                            var duration = flight.ArrivalTime - flight.DepartureTime;
+
+                            <div class="d-flex justify-content-between border p-2 mb-2">
+                                <div>
+                                    <strong>@flight.Airline</strong>
+                                    @flight.DepartureTime.ToString("HH:mm") →
+                                    @flight.ArrivalTime.ToString("HH:mm")
+                                    -
+                                    @flight.Price
+                                    <br />
+                                    Duration: @($"{duration.Hours}h {duration.Minutes}m")<br />
+                                    Class: @(flight.ClassType ?? "Economy")<br />
+                                    Route: @flight.DepartureFromAirport?.City → @flight.ArrivalAtAirport?.City
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary align-self-center" @onclick="() => SelectFlight(flight)">Select</button>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Selected Flight Summary -->
+            @if (selectedFlight != null)
             {
-                var duration = flight.ArrivalTime - flight.DepartureTime;
+                var dur = selectedFlight.ArrivalTime - selectedFlight.DepartureTime;
 
-                <div class="d-flex justify-content-between border p-2 mb-2">
-                    <div>
-                        <strong>@flight.Airline</strong>
-                        @flight.DepartureTime.ToString("HH:mm") →
-                        @flight.ArrivalTime.ToString("HH:mm")
-                        -
-                        @flight.Price
-                        <br />
-                        Duration: @($"{duration.Hours}h {duration.Minutes}m")<br />
-                        Class: @(flight.ClassType ?? "Economy")<br />
-                        Route: @flight.DepartureFromAirport?.City → @flight.ArrivalAtAirport?.City
+                <div class="col-md-4">
+                    <div class="card p-3 shadow-sm" style="background-color: #e6f0fb; border: 1px solid #c5dbf3;">
+                        <h5>Selected Flight</h5>
+                        <p>
+                            <strong>@selectedFlight.Airline</strong><br />
+                            FROM: @selectedFlight.DepartureFromAirport?.City<br />
+                            TO: @selectedFlight.ArrivalAtAirport?.City<br />
+                            Departure: @selectedFlight.DepartureTime.ToString("g")<br />
+                            Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
+                            Duration: @($"{dur.Hours}h {dur.Minutes}m")<br />
+                            Class: @(selectedFlight.ClassType ?? "Economy")<br />
+                            Price: @selectedFlight.Price
+                        </p>
+                        <button class="btn btn-warning w-100 fw-bold" @onclick="ChooseFlight">Continue to Hotels</button>
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" @onclick="() => SelectFlight(flight)">Select</button>
                 </div>
             }
-        }
-    </div>
-
-    <!-- Selected Flight Summary -->
-    @if (selectedFlight != null)
-    {
-        var dur = selectedFlight.ArrivalTime - selectedFlight.DepartureTime;
-
-        <div class="card mt-3 p-3">
-            <h5>Selected Flight</h5>
-            <p>
-                <strong>@selectedFlight.Airline</strong><br />
-                FROM: @selectedFlight.DepartureFromAirport?.City<br />
-                TO: @selectedFlight.ArrivalAtAirport?.City<br />
-                Departure: @selectedFlight.DepartureTime.ToString("g")<br />
-                Arrival: @selectedFlight.ArrivalTime.ToString("g")<br />
-                Duration: @($"{dur.Hours}h {dur.Minutes}m")<br />
-                Class: @(selectedFlight.ClassType ?? "Economy")<br />
-                Price: @selectedFlight.Price
-            </p>
-            <button class="btn btn-primary" @onclick="ChooseFlight">Continue to Hotels</button>
         </div>
-    }
+    </div>
 </div>
 
 @code {
@@ -146,7 +156,7 @@
 
     private void ChooseFlight()
     {
-        NavigationManager.NavigateTo("/publish-travel-package");
+        NavigationManager.NavigateTo("/travel-package-hotels");
     }
 
     private IEnumerable<Flight> sortedFlights =>

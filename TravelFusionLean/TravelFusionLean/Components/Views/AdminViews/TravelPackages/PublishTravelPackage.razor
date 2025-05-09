@@ -18,7 +18,7 @@
 
 <!-- Titel -->
 <div class="container mt-4">
-    <h2 class="text-center">Create Travel Package</h2>
+    <h2 class="text-primary-blue-center">Create Travel Package</h2>
 </div>
 
 @code
@@ -49,6 +49,7 @@
 <!-- Formular og valgte oplysninger -->
 <div class="container mt-4">
     <div class="row">
+        <!-- LEFT: Form -->
         <div class="col-md-8">
             <div class="mb-3">
                 <label for="headline" class="form-label">HeadLine</label>
@@ -68,13 +69,11 @@
                 <h4>@CalulatedPrice</h4>
             </div>
         </div>
-    </div>
 
-    <!-- Flight and Hotel Information -->
-    <div class="row">
-        @if (travelPackageState.OutboundFlight != null)
-        {
-            <div class="col-md-4">
+        <!-- Flights and Hotel stacked -->
+        <div class="col-md-4 d-flex flex-column gap-3">
+            @if (travelPackageState.OutboundFlight != null)
+            {
                 <div class="card shadow-sm h-100">
                     <div class="card-header fw-bold">Selected outboundFlight</div>
                     <div class="card-body">
@@ -91,20 +90,16 @@
                         </p>
                     </div>
                 </div>
-            </div>
-        }
-        else
-        {
-            <div class="col-md-4">
+            }
+            else
+            {
                 <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">
                     No Outboundflight selected. Please go back and choose one.
                 </div>
-            </div>
-        }
+            }
 
-        @if (travelPackageState.InboundFlight != null)
-        {
-            <div class="col-md-4">
+            @if (travelPackageState.InboundFlight != null)
+            {
                 <div class="card shadow-sm h-100">
                     <div class="card-header fw-bold">Selected inboundFlight</div>
                     <div class="card-body">
@@ -121,20 +116,16 @@
                         </p>
                     </div>
                 </div>
-            </div>
-        }
-        else
-        {
-            <div class="col-md-4">
+            }
+            else
+            {
                 <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">
                     No inboundflight selected. Please go back and choose one.
                 </div>
-            </div>
-        }
+            }
 
-        @if (travelPackageState.SelectedHotelStay != null)
-        {
-            <div class="col-md-4">
+            @if (travelPackageState.SelectedHotelStay != null)
+            {
                 <div class="card shadow-sm h-100">
                     <div class="card-header fw-bold">Selected Hotel Stay</div>
                     <div class="card-body">
@@ -156,18 +147,18 @@
                         </p>
                     </div>
                 </div>
-            </div>
-        }
-        else
-        {
-            <div class="col-md-4">
+            }
+            else
+            {
                 <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center">
                     No hotel selected.
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
+
+
 <!-- Knap til at udgive pakken -->
 <div class="container mt-4">
     <div class="d-flex justify-content-end">
