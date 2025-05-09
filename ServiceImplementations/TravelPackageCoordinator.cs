@@ -9,16 +9,20 @@ namespace ServiceImplementations
     public class TravelPackageCoordinator : ITravelPackageCoordinator
     {
         private readonly IAirportService _airportService;
+        private readonly IFlightModelService _flightModelService;
+        private readonly IHotelModelService _hotelModelService;
         private readonly IHotelStayService _hotelstayService;
         private readonly ITravelPackageService _travelPackageService;
         private readonly DbContext _context;
 
-        public TravelPackageCoordinator(AppDbContext context, IAirportService airportService, ITravelPackageService travelPackageService, IHotelStayService hotelStayService)
+        public TravelPackageCoordinator(AppDbContext context, IAirportService airportService, ITravelPackageService travelPackageService, IHotelStayService hotelStayService, IFlightModelService flightModelService, IHotelModelService hotelModelService)
         {
             _context = context;
             _airportService = airportService;
             _travelPackageService = travelPackageService;
             _hotelstayService = hotelStayService;
+            _flightModelService = flightModelService;
+            _hotelModelService = hotelModelService;
         }
 
         public async Task<TravelPackage> CreateTravelpackageAsync(CreateTravelPackageDTO travelpackageDTO)
@@ -34,24 +38,30 @@ namespace ServiceImplementations
                 }
                 if (travelpackageDTO.InboundFlight != null)
                 {
-                    Airport returnDepartureAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.DepartureFromAirport);
-                    Airport returnArrivalAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.ArrivalAtAirport);
+                    travelpackageDTO.InboundFlight.DepartureFromAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.DepartureFromAirport);
+                    travelpackageDTO.InboundFlight.ArrivalAtAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.ArrivalAtAirport);
                 }
 
-                //// 2. Opret flyrejser
-                //Flight outboundFlight = await _flightService.CreateWithAirportsAsync(travelpackageDTO.OutboundFlight, departureAirport, arrivalAirport);
-                //Flight inboundFlight = await _flightService.CreateWithAirportsAsync(travelpackageDTO.InboundFlight, returnDepartureAirport, returnArrivalAirport);
+                // 2. Opret flyrejser
+                travelpackageDTO.OutboundFlight = await _flightModelService.CreateWithAirportsAsync(travelpackageDTO.OutboundFlight, travelpackageDTO.OutboundFlight.DepartureFromAirport, travelpackageDTO.OutboundFlight.ArrivalAtAirport);
+                travelpackageDTO.InboundFlight = await _flightModelService.CreateWithAirportsAsync(travelpackageDTO.InboundFlight, travelpackageDTO.InboundFlight.DepartureFromAirport, travelpackageDTO.InboundFlight.ArrivalAtAirport);
 
-                //// 3. Hotel
-                //Hotel hotel = await _hotelService.FindOrCreateAsync(travelpackageDTO.HotelStay.Hotel);
-                //HotelStay hotelStay = await _hotelstayService.CreateForHotelAsync(hotel, travelpackageDTO.HotelStay);
+                // 3. Hotel
+                travelpackageDTO.HotelStay.Hotel = await _hotelModelService.FindOrCreateAsync(travelpackageDTO.HotelStay.Hotel);
+                travelpackageDTO.HotelStay = await _hotelstayService.CreateForHotelAsync(travelpackageDTO.HotelStay.Hotel, travelpackageDTO.HotelStay);
 
                 // 4. Opret TravelPackage
                 var travelPackage = new TravelPackage
                 {
-                    //OutboundFlight = outboundFlight,
-                    //InboundFlight = inboundFlight,
-                    //HotelStay = hotelStay,
+                    OutboundFlight = travelpackageDTO.OutboundFlight,
+                    OutboundFlightId = travelpackageDTO.OutboundFlight.Id,
+
+                    InboundFlight = travelpackageDTO.InboundFlight,
+                    InboundFlightId = travelpackageDTO.InboundFlight.Id,
+
+                    HotelStay = travelpackageDTO.HotelStay,
+                    HotelStayId = travelpackageDTO.HotelStay.Id,
+
                     Headline = travelpackageDTO.Headline,
                     Description = travelpackageDTO.Description,
                     Price = travelpackageDTO.Price,

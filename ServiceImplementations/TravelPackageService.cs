@@ -70,33 +70,12 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
     public override async Task<TravelPackage> AddAsync(TravelPackage travelPackage)
     {
 
-        //start transaktion 
+        // Tilføj TravelPackage til DbSet
+        await _context.TravelPackages.AddAsync(travelPackage);
 
-        //udrejsefly
-            //søg om afgangslufthavne allerede er oprettet i database
-                //hvis ja: Hent Id
-                //hvis nej: opret lufthavn i databasen 
-            //søg om ankomstlufthavne allerede er oprettet i database
-                //hvis ja: Hent Id
-                //hvis nej: opret lufthavn i databasen  
-            //opret udrejseFly i databasen 
+        // Gem ændringer i databasen
+        await _context.SaveChangesAsync();
 
-        //Indrejsefly
-            //søg om afgangslufthavne allerede er oprettet i database
-                //hvis ja: Hent Id
-                //hvis nej: opret lufthavn i databasen 
-            //søg om ankomstlufthavne allerede er oprettet i database
-                //hvis ja: Hent Id
-                //hvis nej: opret lufthavn i databasen 
-            //opret indrejsefly i databasen 
-
-        //søg om Hotel allerede findes i databasen 
-            //hvis ja: Hent Id
-            //hvis nej: opret hotel i databasen 
-
-        //opret hotelophold i databsen 
-
-        //afslut transaktion 
         return travelPackage;
 
     }

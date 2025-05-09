@@ -96,6 +96,20 @@ namespace Data
                 entity.HasOne(f => f.DepartureFromAirport)
                       .WithMany()
                       .HasForeignKey(f => f.DepartureFromAirportId);
+                // Mapper PriceAsDecimal til som en værdi-objekt
+                entity.OwnsOne(p => p.Price, price =>
+                {
+                    price.Property(p => p.Amount)
+                        .HasColumnName("PriceAmount")
+                        .IsRequired()
+                        .HasColumnType("decimal(18,2)");
+
+                    price.Property(p => p.Currency)
+                        .HasColumnName("PriceCurrency")
+                        .HasConversion<string>() // <-- Konverter enum til string
+                        .IsRequired()
+                        .HasMaxLength(3);
+                });
             });
 
             modelBuilder.Entity<HotelStay>(entity =>
@@ -106,6 +120,21 @@ namespace Data
                 entity.HasOne(hs => hs.Hotel)
                       .WithMany()
                       .HasForeignKey(hs => hs.HotelId);
+                // Mapper PriceAsDecimal til som en værdi-objekt
+                entity.OwnsOne(p => p.Price, price =>
+                {
+                    price.Property(p => p.Amount)
+                        .HasColumnName("PriceAmount")
+                        .IsRequired()
+                        .HasColumnType("decimal(18,2)");
+
+                    price.Property(p => p.Currency)
+                        .HasColumnName("PriceCurrency")
+                        .HasConversion<string>() // <-- Konverter enum til string
+                        .IsRequired()
+                        .HasMaxLength(3);
+                });
+
             });
 
             modelBuilder.Entity<TravelPackage>(entity =>
