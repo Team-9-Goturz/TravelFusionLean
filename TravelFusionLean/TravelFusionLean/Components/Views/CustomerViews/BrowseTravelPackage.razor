@@ -107,7 +107,13 @@ else
                         <img src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top"  style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">@package.Headline</h5>
-                            <p class="card-text">@package.Description</p>
+                            <p class="card-text">
+                                @if (!string.IsNullOrEmpty(package.Description))
+                                {
+                                    var truncatedDescription = package.Description.Length > 100 ? package.Description.Substring(0, 100) + "..." : package.Description;
+                                    @truncatedDescription
+                                }
+                            </p>
                             <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
 
                             <p><strong>Pris:</strong> @package.Price.ToString()</p>
