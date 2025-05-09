@@ -9,7 +9,7 @@
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
-    <h2 class="text-center">Choose Hotel</h2>
+    <h2 class="text-primary-blue text-center">Choose Hotel</h2>
 
     <!-- Search Bar -->
     <div class="card p-3 mb-3">
@@ -41,59 +41,65 @@
     </div>
 
     <!-- Tabs for sorting -->
-    <ul class="nav nav-tabs mt-3">
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
-        </li>
-    </ul>
+    <div class="row">
+        <!-- LEFT SIDE: Tabs + Hotels -->
+        <div class="@(selectedHotelstay != null ? "col-md-8" : "col-md-12")">
+            <ul class="nav nav-tabs mt-3 mb-3">
+                <li class="nav-item">
+                    <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
+                </li>
+            </ul>
 
-    <!-- Hotel list -->
-    <div class="tab-content p-3">
-        @if (hotelStays == null)
+            <!-- Hotel list -->
+            <div class="tab-content">
+                @if (hotelStays == null)
+                {
+                    <p><em>Loading hotels...</em></p>
+                }
+                else if (!hotelStays.Any())
+                {
+                    <p>No hotels found.</p>
+                }
+                else
+                {
+                    foreach (HotelStay stay in hotelStays)
+                    {
+                        <div class="d-flex justify-content-between border p-2 mb-2">
+                            <div>
+                                <strong>@stay.Hotel?.Name</strong><br />
+                                @stay.Hotel?.Address<br />
+                                @stay.Hotel?.Description<br />
+                                @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
+                                @stay.Price
+                            </div>
+                            <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Selected Hotel Summary -->
+        @if (selectedHotelstay != null)
         {
-            <p><em>Loading hotels...</em></p>
-        }
-        else if (!hotelStays.Any())
-        {
-            <p>No hotels found.</p>
-        }
-        else
-        {
-            foreach (HotelStay stay in hotelStays)
-            {
-                <div class="d-flex justify-content-between border p-2 mb-2">
-                    <div>
-                        <strong>@stay.Hotel?.Name</strong><br />
-                        @stay.Hotel?.Address<br />
-                        @stay.Hotel?.Description<br />
-                        @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
-                        @stay.Price
-                    </div>
-                    <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
+            <div class="col-md-4">
+                <div class="card p-3 shadow-sm" style="background-color: #f5f9ff; border: 1px solid #c5dbf3;">
+                    <h5>Selected Hotel</h5>
+                    <p>
+                        <strong>Country:</strong> @selectedHotelstay.Hotel.Country<br />
+                        <strong>City:</strong> @selectedHotelstay.Hotel.City<br />
+                        <strong>Address:</strong> @selectedHotelstay.Hotel.Address<br />
+                        <strong>Name:</strong> @selectedHotelstay.Hotel.Name<br />
+                        <strong>Description:</strong> @selectedHotelstay.Hotel.Description
+                    </p>
+                    <button class="btn btn-primary w-100 fw-bold" @onclick="ChooseHotel">Choose Hotel</button>
                 </div>
-            }
+            </div>
         }
     </div>
-
-    <!-- Selected Hotel Summary -->
-    @if (selectedHotelstay != null)
-    {
-        <div class="card mt-3 p-3">
-            <h5>Selected Hotel</h5>
-            <p>
-                <strong>Country:</strong> @selectedHotelstay.Hotel.Country<br />
-                <strong>City:</strong> @selectedHotelstay.Hotel.City<br />
-                <strong>Address:</strong> @selectedHotelstay.Hotel.Address<br />
-                <strong>Name:</strong> @selectedHotelstay.Hotel.Name<br />
-                <strong>Description:</strong> @selectedHotelstay.Hotel.Description<br />
-                 @selectedHotelstay?.Hotel.Name
-            </p>
-            <button class="btn btn-success" @onclick="ChooseHotel">Choose Hotel</button>
-        </div>
-    }
 </div>
 
 @code {
@@ -142,7 +148,7 @@
 
     private void ChooseHotel()
     {
-        NavigationManager.NavigateTo("/travel-package-flights/Inbound");
+        NavigationManager.NavigateTo("/publish-travel-package");
     }
 
     private IEnumerable<Hotel> SortedHotels =>

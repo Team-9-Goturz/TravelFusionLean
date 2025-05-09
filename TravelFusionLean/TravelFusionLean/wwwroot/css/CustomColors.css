@@ -15,7 +15,7 @@
 /* === Page Background === */
 body {
     background-color: var(--primary-blue-dark);
-    color: var(--text-light);
+    color: var(--text-dark);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -35,8 +35,8 @@ body {
 
 main {
     flex-grow: 1;
-    background-color: var(--primary-blue-dark);
-    color: var(--text-light);
+    background-color: var(--input-bg);
+    color: var(--text-dark);
 }
 
 /* === Top Navigation Bar === */
@@ -119,12 +119,17 @@ header {
     }
 
 .btn-outline-primary {
+    background-color: var(--secondary-blue);
     border: 2px solid var(--primary-blue);
-    color: var(--primary-blue);
+    color: white;
+    border-radius: 12px;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
     .btn-outline-primary:hover {
-        background-color: var(--primary-blue);
+        background-color: var(--primary-blue-dark);
         color: white;
     }
 
@@ -243,4 +248,8 @@ header {
     50% {
         transform: translateY(-6px);
     }
+}
+
+.text-primary-blue {
+    color: var(--primary-blue);
 }
