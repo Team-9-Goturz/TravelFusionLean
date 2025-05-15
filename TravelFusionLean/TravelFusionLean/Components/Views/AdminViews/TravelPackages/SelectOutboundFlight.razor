@@ -6,11 +6,16 @@
 @rendermode InteractiveServer
 
 @using Shared.Models
+@using TravelFusionLean.Components.SmallComponents
+
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
     <h2 class="text-primary-blue text-center">Choose Outbound Flight</h2>
+
+    
+    <TravelSummary travelPackageState="@travelPackageState" />
 
     <!-- Search Bar -->
     <div class="card p-3 mb-3">
