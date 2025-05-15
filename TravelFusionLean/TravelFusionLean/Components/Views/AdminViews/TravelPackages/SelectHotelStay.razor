@@ -152,7 +152,7 @@
             if (_selectedCurrency != value)
             {
                 _selectedCurrency = value;
-                _ = ConvertPrice();
+                ConvertPrice();
             }
         }
     }
@@ -161,6 +161,7 @@
     {
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
         filteredHotelStays = hotelStays;
+        await ConvertPrice();
     }
 
     //Filter hotels by price and location

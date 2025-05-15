@@ -18,15 +18,30 @@ namespace ServiceImplementations
         {
             _exchangeRates = new ConcurrentDictionary<(Price.ISOCurrency, Price.ISOCurrency), decimal>();
 
-            // Eksempelkurser (i virkeligheden kunne de hentes eksternt)
-            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.DKK)] = 7.45m;
-            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.EUR)] = 1 / 7.45m;
-
+            //US Dollar
             _exchangeRates[(Price.ISOCurrency.USD, Price.ISOCurrency.DKK)] = 6.80m;
             _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.USD)] = 1 / 6.80m;
 
+            //Euro
             _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.USD)] = 1.08m;
             _exchangeRates[(Price.ISOCurrency.USD, Price.ISOCurrency.EUR)] = 1 / 1.08m;
+
+            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.DKK)] = 7.45m;
+            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.EUR)] = 1 / 7.45m;
+
+            // GBP - Britiske Pund
+            _exchangeRates[(Price.ISOCurrency.GBP, Price.ISOCurrency.DKK)] = 8.60m;
+            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.GBP)] = 1 / 8.60m;
+
+            _exchangeRates[(Price.ISOCurrency.GBP, Price.ISOCurrency.EUR)] = 1.17m;
+            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.GBP)] = 1 / 1.17m;
+
+            // JPY - Japanske Yen
+            _exchangeRates[(Price.ISOCurrency.JPY, Price.ISOCurrency.DKK)] = 0.047m;
+            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.JPY)] = 1 / 0.047m;
+
+            _exchangeRates[(Price.ISOCurrency.JPY, Price.ISOCurrency.EUR)] = 0.0064m;
+            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.JPY)] = 1 / 0.0064m;
         }
         public Price Convert(Price from, Price.ISOCurrency toCurrency)
         {
