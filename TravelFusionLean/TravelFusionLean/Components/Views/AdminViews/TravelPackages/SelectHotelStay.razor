@@ -5,6 +5,7 @@
 @inject TravelPackageState travelPackageState
 @rendermode InteractiveServer
 @using Shared.Models
+@using Shared.DTOs
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
@@ -16,11 +17,11 @@
         <div class="row">
             <div class="col-md-3">
                 <label>Location:</label>
-                <input type="text" class="form-control" @bind="searchCountry" placeholder="Enter country of hotel"/>
+                <input type="text" class="form-control" @bind="searchForCountry" placeholder="Enter country of hotel"/>
             </div>
             <div class="col-md-3">
                 <label>Location:</label>
-                <input type="text" class="form-control" @bind="searchCity" placeholder="Enter city of hotel"/>
+                <input type="text" class="form-control" @bind="searchForCity" placeholder="Enter city of hotel"/>
             </div>
             <div class="col-md-3">
                 <label>When:</label>
@@ -65,15 +66,15 @@
                 }
                 else
                 {
-                    foreach (HotelStay stay in hotelStays)
+                    foreach (HotelStay stay in filteredHotelStays)
                     {
                         <div class="d-flex justify-content-between border p-2 mb-2">
                             <div>
                                 <strong>@stay.Hotel?.Name</strong><br />
-                                @stay.Hotel?.Address<br />
+                                @stay.Hotel?.City @stay.Hotel?.Country?.Name<br />
                                 @stay.Hotel?.Description<br />
                                 @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
-                                @stay.Price
+                                @stay.Price.ToString()
                             </div>
                             <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
                         </div>
@@ -108,8 +109,8 @@
     private HotelStay? selectedHotelstay;
 
     private string? selectedTab = "cheapest";
-    private string? searchCountry;
-    private string? searchCity;
+    private string? searchForCountry;
+    private string? searchForCity;
     private string? searchLocation;
     private DateTime? searchDate;
     private decimal? searchPrice;
@@ -121,14 +122,20 @@
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
         filteredHotelStays = hotelStays;
     }
+
     //Filter hotels by price and location
         //Lige nu er der kun search location, men ikke en location variabel. 
-    private void FilterHotels(){
-        filteredHotelStays = allHotels?.Where(hs => 
-        (string.IsNullOrWhiteSpace(searchCountry) || hs.Hotel.Country?.Contains(searchCountry, StringComparison.OrdinalIgnoreCase) == true) &&
-        (string.IsNullOrWhiteSpace(searchCity) || hs.Hotel.City?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true) &&
-        (!searchPrice.HasValue)
-        ).ToList();
+    private void FilterHotels()
+    {
+        filteredHotelStays = hotelStays
+            .Where(h =>
+                (string.IsNullOrWhiteSpace(searchForCountry) || h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(searchForCity) || h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) 
+                // &&
+                // // (searchDate.HasValue && h.CheckInDate.Date == searchDate.Value.Date) &&
+                // (!numberOfTravellers.HasValue || h.NoOfTravellers >= numberOfTravellers.Value)
+            )
+            .ToList();
     }
 
     private void SetTab(string tab)
