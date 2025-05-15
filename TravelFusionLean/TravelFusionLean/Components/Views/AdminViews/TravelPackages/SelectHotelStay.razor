@@ -56,7 +56,7 @@
     <!-- Tabs for sorting -->
     <div class="row">
         <!-- LEFT SIDE: Tabs + Hotels -->
-        <div class="@(selectedHotelstay != null ? "col-md-8" : "col-md-12")">
+        <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
                 <!-- Tabs -->
                 <ul class="nav nav-tabs">
@@ -79,8 +79,6 @@
                     </select>
                 </div>
             </div>
-
-
 
             <!-- Hotel list -->
             <div class="tab-content">
@@ -110,24 +108,6 @@
                 }
             </div>
         </div>
-
-        <!-- Selected Hotel Summary -->
-        @if (selectedHotelstay != null)
-        {
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm" style="background-color: #f5f9ff; border: 1px solid #c5dbf3;">
-                    <h5>Selected Hotel</h5>
-                    <p>
-                        <strong>Country:</strong> @selectedHotelstay.Hotel.Country<br />
-                        <strong>City:</strong> @selectedHotelstay.Hotel.City<br />
-                        <strong>Address:</strong> @selectedHotelstay.Hotel.Address<br />
-                        <strong>Name:</strong> @selectedHotelstay.Hotel.Name<br />
-                        <strong>Description:</strong> @selectedHotelstay.Hotel.Description
-                    </p>
-                    <button class="btn btn-primary w-100 fw-bold" @onclick="ChooseHotel">Choose Hotel</button>
-                </div>
-            </div>
-        }
     </div>
 </div>
 
@@ -224,11 +204,6 @@
             selectedHotelstay = hotelstay;
             travelPackageState.SelectedHotelStay = hotelstay;
         }
-    }
-
-    private void ChooseHotel()
-    {
-        NavigationManager.NavigateTo("/publish-travel-package");
     }
 
     private IEnumerable<Hotel> SortedHotels =>
