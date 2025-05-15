@@ -26,8 +26,14 @@ public static class HotelMapper
 
     public static HotelStay MapToHotelStay(HotelData dto, Country country, DateTime? checkIn = null, DateTime? checkOut = null, int travellers = 2)
     {
-        var checkInDate = checkIn ?? DateTime.Today.AddDays(7);
-        var checkOutDate = checkOut ?? DateTime.Today.AddDays(10);
+        var random = new Random();
+
+        // Hvis checkIn ikke er angivet, vælg en dato 5-10 dage fra i dag
+        var checkInDate = checkIn ?? DateTime.Today.AddDays(random.Next(5, 11));
+
+        // Hvis checkOut ikke er angivet, vælg en dato 1-5 dage efter checkIn
+        var checkOutDate = checkOut ?? checkInDate.AddDays(random.Next(1, 6));
+
 
         ISOCurrency iSOCurrency = MatchCurrencyOrDefault(dto.Price.Currency);
 
