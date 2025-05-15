@@ -1,0 +1,96 @@
+﻿@using Shared.Models
+
+@namespace TravelFusionLean.Components.SmallComponents
+
+<h3>TravelSummary</h3>
+
+@using System.Globalization
+
+<div class="row g-3">
+    <!-- OUTBOUND FLIGHT -->
+    <div class="col-md-4">
+        @if (travelPackageState.OutboundFlight != null)
+        {
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">Outbound Flight</div>
+                <div class="card-body small">
+                    <div><strong>From:</strong> @travelPackageState.OutboundFlight.DepartureFromAirport?.City</div>
+                    <div><strong>To:</strong> @travelPackageState.OutboundFlight.ArrivalAtAirport?.City</div>
+                    <div><strong>Departure:</strong> @travelPackageState.OutboundFlight.DepartureTime.ToString()</div>
+                    <div><strong>Arrival:</strong> @travelPackageState.OutboundFlight.ArrivalTime.ToString()</div>
+                    <div><strong>Airline:</strong> @travelPackageState.OutboundFlight.Airline</div>
+                    <div><strong>Price:</strong> @travelPackageState.OutboundFlight.Price.ToString()</div>
+                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center text-center">
+                No outbound flight selected.
+                <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Pick one</a>
+            </div>
+        }
+    </div>
+
+    <!-- HOTEL STAY -->
+    <div class="col-md-4">
+        @if (travelPackageState.SelectedHotelStay != null)
+        {
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">Hotel Stay</div>
+                <div class="card-body small">
+                    <div><strong>Hotel:</strong> @travelPackageState.SelectedHotelStay.Hotel?.Name</div>
+                    <div><strong>City:</strong> @travelPackageState.SelectedHotelStay.Hotel?.City</div>
+                    <div><strong>Check-in:</strong> @travelPackageState.SelectedHotelStay.CheckInDate.ToString()</div>
+                    <div><strong>Check-out:</strong> @travelPackageState.SelectedHotelStay.CheckOutDate.ToString()</div>
+                    <div><strong>Travellers:</strong> @travelPackageState.SelectedHotelStay.NoOfTravellers</div>
+                    <div><strong>Price:</strong> @travelPackageState.SelectedHotelStay.Price.ToString()</div>
+                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-hotels">Change</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center text-center">
+                No hotel selected.
+                <a class="btn btn-sm btn-primary me-1" href="/travel-package-hotels">Pick one</a>
+            </div>
+        }
+    </div>
+
+    <!-- INBOUND FLIGHT -->
+    <div class="col-md-4">
+        @if (travelPackageState.InboundFlight != null)
+        {
+            <div class="card shadow-sm h-100">
+                <div class="card-header fw-bold">Return Flight</div>
+                <div class="card-body small">
+                    <div><strong>From:</strong> @travelPackageState.InboundFlight.DepartureFromAirport?.City</div>
+                    <div><strong>To:</strong> @travelPackageState.InboundFlight.ArrivalAtAirport?.City</div>
+                    <div><strong>Departure:</strong> @travelPackageState.InboundFlight.DepartureTime.ToString()</div>
+                    <div><strong>Arrival:</strong> @travelPackageState.InboundFlight.ArrivalTime.ToString()</div>
+                    <div><strong>Airline:</strong> @travelPackageState.InboundFlight.Airline</div>
+                    <div><strong>Price:</strong> @travelPackageState.InboundFlight.Price.ToString()</div>
+                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Inbound">Change</a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning h-100 d-flex align-items-center justify-content-center text-center">
+                No return flight selected.
+                <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Inbound">Pick one</a>
+            </div>
+        }
+    </div>
+@if (travelPackageState.InboundFlight != null && travelPackageState.SelectedHotelStay != null && travelPackageState.OutboundFlight != null)
+{
+        <a class="btn btn-sm btn-primary me-1" href="/publish-travel-package" >Create TravelPackage</a>
+}
+</div>
+
+@code {
+    [Parameter]
+    public TravelPackageState travelPackageState { get; set; }
+}

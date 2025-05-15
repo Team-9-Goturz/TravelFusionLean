@@ -7,11 +7,14 @@
 @rendermode InteractiveServer
 @using Shared.Models
 @using Shared.DTOs
+@using TravelFusionLean.Components.SmallComponents
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
     <h2 class="text-primary-blue text-center">Choose Hotel</h2>
+
+    <TravelSummary travelPackageState="@travelPackageState" />
 
     <!-- Search Bar -->
     <div class="card p-3 mb-3">
@@ -65,7 +68,6 @@
                     </li>
                 </ul>
 
-                <!-- Currency Dropdown -->
                 <!-- Currency Dropdown -->
                 <div class="form-group mb-0">
                     <label for="currencySelector" class="form-label me-2">Currency:</label>
@@ -157,11 +159,20 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
+    private bool isFirstRender = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
-        filteredHotelStays = hotelStays;
-        await ConvertPrice();
+        if (firstRender && isFirstRender)
+        {
+            isFirstRender = false;
+
+            hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
+            filteredHotelStays = hotelStays;
+
+            await ConvertPrice();
+
+            StateHasChanged(); // Trigger rerender når data er klar
+        }
     }
 
     //Filter hotels by price and location
