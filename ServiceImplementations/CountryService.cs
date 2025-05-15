@@ -16,6 +16,12 @@ namespace ServiceImplementations
         {
 
         }
+
+        public async  Task<Country?> GetByCountryCodeAsync(string iso2Code)
+        {
+            return await _context.Countries
+           .FirstOrDefaultAsync(c => c.Iso2Code == iso2Code);
+        }
     }
 }
 

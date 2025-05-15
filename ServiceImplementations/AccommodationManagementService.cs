@@ -10,25 +10,24 @@ namespace ServiceImplementations;
 /// <summary>
 /// Service der henter hoteldata fra TravelFusionLeanApi via HTTP.
 /// </summary>
-public class AccommodationManagementService(HttpClient httpClient) : IHotelApiService
+public class AccommodationManagementService(HttpClient httpClient, ICountryReadService countryReadService) : IHotelApiService
 {
+    private readonly ICountryReadService _countryReadService = countryReadService;
     private readonly HttpClient _httpClient = httpClient;
 
     public async Task<IEnumerable<HotelStay>> GetAllHotelStaysAsync()
     {
-        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelData>>("https://localhost:7274/api/hotels");
-
         var hotelStays = new List<HotelStay>();
+
+        //Map JSON til Hoteldata
+        var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelData>>("https://localhost:7274/api/hotels");
         if (response == null) return hotelStays;
 
-        foreach (var hotelData in response)
+        foreach (HotelData hotelData in response)
         {
-            var currency = new Currency
-            {
-                Name = hotelData.Price?.Currency ?? "DKK"
-            };
+            Country? country = await _countryReadService.GetByCountryCodeAsync(hotelData.CountryCode);
 
-            hotelStays.Add(HotelMapper.MapToHotelStay(hotelData, currency));
+            hotelStays.Add(HotelMapper.MapToHotelStay(hotelData,country));
         }
 
         return hotelStays;
@@ -39,11 +38,9 @@ public class AccommodationManagementService(HttpClient httpClient) : IHotelApiSe
         var hotelData = await _httpClient.GetFromJsonAsync<HotelData>($"https://localhost:7274/api/hotels/{id}");
         if (hotelData == null) return null;
 
-        var currency = new Currency
-        {
-            Name = hotelData.Price?.Currency ?? "DKK"
-        };
+        Country country = await _countryReadService.GetByCountryCodeAsync(hotelData.CountryCode);
+   
 
-        return HotelMapper.MapToHotelStay(hotelData, currency);
+        return HotelMapper.MapToHotelStay(hotelData,country);
     }
 }

@@ -107,7 +107,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
 
             // Destination: match på land ELLER by
             (searchDto.Destination == null ||
-             tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+             tp.HotelStay.Hotel.Country.Name.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
              tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase)) &&
 
              //dato
@@ -149,7 +149,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         if (!string.IsNullOrWhiteSpace(searchDto.Destination))
         {
             query = query.Where(tp =>
-                tp.HotelStay.Hotel.Country.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
+                tp.HotelStay.Hotel.Country.Name.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
                 tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase));
         }
 

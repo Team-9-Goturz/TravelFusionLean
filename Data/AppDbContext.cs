@@ -21,7 +21,7 @@ namespace Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<Traveller> Travellers { get; set; }
         public DbSet<Payment> Payments { get; set; }
-        public DbSet<Country> countries { get; set; }
+        public DbSet<Country> Countries { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 

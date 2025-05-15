@@ -3,8 +3,10 @@
 @inject NavigationManager NavigationManager
 @inject IHotelApiService HotelApiService
 @inject TravelPackageState travelPackageState
+@inject ICurrencyConverter currencyConverter
 @rendermode InteractiveServer
 @using Shared.Models
+@using Shared.DTOs
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
@@ -15,24 +17,32 @@
     <div class="card p-3 mb-3">
         <div class="row">
             <div class="col-md-3">
-                <label>Location:</label>
-                <input type="text" class="form-control" @bind="searchCountry" placeholder="Enter country of hotel"/>
+                <label>Country:</label>
+                <input type="text" class="form-control" @bind="searchForCountry" placeholder="Enter country of hotel"/>
             </div>
             <div class="col-md-3">
-                <label>Location:</label>
-                <input type="text" class="form-control" @bind="searchCity" placeholder="Enter city of hotel"/>
+                <label>City:</label>
+                <input type="text" class="form-control" @bind="searchForCity" placeholder="Enter city of hotel"/>
             </div>
             <div class="col-md-3">
-                <label>When:</label>
-                <input type="date" class="form-control" @bind="searchDate" />
+                <label>checkin from:</label>
+                <input type="date" class="form-control" @bind="searchFromDate" />
+            </div>
+            <div class="col-md-3">
+                <label>(latest) Check out:</label>
+                <input type="date" class="form-control" @bind="searchToDate" />
             </div>
             <div class="col-md-3">
                 <label>Travellers:</label>
                 <input type="number" class="form-control" @bind="numberOfTravellers" placeholder="Enter number of travelers" />
             </div>
-            <div class="col-md-2">
-                <label>Rooms:</label>
-                <input type="number" class="form-control" placeholder="Number of rooms" />
+            <div class="col-md-3">
+                <label>Price From:</label>
+                <input type="number" class="form-control" @bind="searchPriceFrom" placeholder="0" />
+            </div>
+            <div class="col-md-3">
+                <label>Price To:</label>
+                <input type="number" class="form-control" @bind="searchPriceTo" placeholder="0" />
             </div>
             <div class="col-md-1 d-flex align-items-end">
                 <button class="btn btn-primary w-100" @onclick="FilterHotels">🔍</button>
@@ -44,14 +54,31 @@
     <div class="row">
         <!-- LEFT SIDE: Tabs + Hotels -->
         <div class="@(selectedHotelstay != null ? "col-md-8" : "col-md-12")">
-            <ul class="nav nav-tabs mt-3 mb-3">
-                <li class="nav-item">
-                    <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
-                </li>
-            </ul>
+            <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
+                <!-- Tabs -->
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
+                    </li>
+                </ul>
+
+                <!-- Currency Dropdown -->
+                <!-- Currency Dropdown -->
+                <div class="form-group mb-0">
+                    <label for="currencySelector" class="form-label me-2">Currency:</label>
+                    <select id="currencySelector" class="form-select" style="width: auto; display: inline-block;" @bind="SelectedCurrency">
+                        @foreach (Price.ISOCurrency currency in Enum.GetValues(typeof(Price.ISOCurrency)))
+                        {
+                            <option value="@currency">@currency</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+
 
             <!-- Hotel list -->
             <div class="tab-content">
@@ -65,15 +92,15 @@
                 }
                 else
                 {
-                    foreach (HotelStay stay in hotelStays)
+                    foreach (HotelStay stay in filteredHotelStays)
                     {
                         <div class="d-flex justify-content-between border p-2 mb-2">
                             <div>
                                 <strong>@stay.Hotel?.Name</strong><br />
-                                @stay.Hotel?.Address<br />
+                                @stay.Hotel?.City @stay.Hotel?.Country?.Name<br />
                                 @stay.Hotel?.Description<br />
                                 @stay.CheckInDate.ToShortDateString() - @stay.CheckOutDate.ToShortDateString()<br />
-                                @stay.Price
+                                @stay.Price.ToString()
                             </div>
                             <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
                         </div>
@@ -108,27 +135,69 @@
     private HotelStay? selectedHotelstay;
 
     private string? selectedTab = "cheapest";
-    private string? searchCountry;
-    private string? searchCity;
-    private string? searchLocation;
-    private DateTime? searchDate;
-    private decimal? searchPrice;
+    private string? searchForCountry;
+    private string? searchForCity;
+    private DateTime? searchFromDate;
+    private DateTime? searchToDate;
+    private decimal? searchPriceFrom = 0;
+    private decimal? searchPriceTo;
     private int? numberOfTravellers;
     private List<HotelStay>? hotelStays;
+    private Price.ISOCurrency _selectedCurrency = Price.ISOCurrency.DKK;
+    public Price.ISOCurrency SelectedCurrency
+    {
+        get => _selectedCurrency;
+        set
+        {
+            if (_selectedCurrency != value)
+            {
+                _selectedCurrency = value;
+                ConvertPrice();
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
         filteredHotelStays = hotelStays;
+        await ConvertPrice();
     }
+
     //Filter hotels by price and location
-        //Lige nu er der kun search location, men ikke en location variabel. 
-    private void FilterHotels(){
-        filteredHotelStays = allHotels?.Where(hs => 
-        (string.IsNullOrWhiteSpace(searchCountry) || hs.Hotel.Country?.Contains(searchCountry, StringComparison.OrdinalIgnoreCase) == true) &&
-        (string.IsNullOrWhiteSpace(searchCity) || hs.Hotel.City?.Contains(searchCity, StringComparison.OrdinalIgnoreCase) == true) &&
-        (!searchPrice.HasValue)
-        ).ToList();
+    //Lige nu er der kun search location, men ikke en location variabel. 
+    private void FilterHotels()
+    {
+        filteredHotelStays = hotelStays
+         .Where(h =>
+             // Land
+             (string.IsNullOrWhiteSpace(searchForCountry) ||
+              h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
+
+             // By
+             (string.IsNullOrWhiteSpace(searchForCity) ||
+              h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) &&
+
+             // Dato fra
+             (!searchFromDate.HasValue ||
+              h.CheckInDate.Date >= searchFromDate.Value.Date) &&
+
+             // Dato til
+             (!searchToDate.HasValue ||
+              h.CheckOutDate.Date <= searchToDate.Value.Date) &&
+
+             // Pris fra
+             (!searchPriceFrom.HasValue ||
+              h.Price.Amount >= searchPriceFrom.Value) &&
+
+             // Pris til
+             (!searchPriceTo.HasValue ||
+              h.Price.Amount <= searchPriceTo.Value) &&
+
+             // Antal rejsende
+             (!numberOfTravellers.HasValue ||
+              h.NoOfTravellers >= numberOfTravellers.Value))
+         .ToList();
     }
 
     private void SetTab(string tab)
@@ -158,4 +227,13 @@
             // "best" => filteredHotels?.OrderByDescending(h => h.Price) ?? Enumerable.Empty<Hotel>(),
             // _ => filteredHotelStays ?? Enumerable.Empty<Hotel>()
         };
+
+    private async Task ConvertPrice()
+    {
+        foreach (HotelStay hotelStay in filteredHotelStays)
+        {
+            hotelStay.Price = currencyConverter.Convert(hotelStay.Price, SelectedCurrency);
+            StateHasChanged();
+        }
+    }
 }

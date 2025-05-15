@@ -9,6 +9,6 @@ namespace ServiceContracts
 {
     public interface ICountryReadService: IReadService<Country>
     {
-
+        Task<Country?> GetByCountryCodeAsync(string landCode);
     }
 }

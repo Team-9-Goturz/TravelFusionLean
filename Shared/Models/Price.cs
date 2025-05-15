@@ -29,7 +29,8 @@ namespace Shared.Models
             DKK, // Dansk Krone
             EUR, // Euro
             USD, // US Dollar
-            GBP  // British Pound
+            GBP, // British Pound
+            JPY // Japansk Yen
         }
     }
 }
