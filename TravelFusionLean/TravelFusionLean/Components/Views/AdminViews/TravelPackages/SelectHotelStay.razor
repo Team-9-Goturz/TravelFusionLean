@@ -17,19 +17,19 @@
     <div class="card p-3 mb-3">
         <div class="row">
             <div class="col-md-3">
-                <label>Location:</label>
+                <label>Country:</label>
                 <input type="text" class="form-control" @bind="searchForCountry" placeholder="Enter country of hotel"/>
             </div>
             <div class="col-md-3">
-                <label>Location:</label>
+                <label>City:</label>
                 <input type="text" class="form-control" @bind="searchForCity" placeholder="Enter city of hotel"/>
             </div>
             <div class="col-md-3">
-                <label>From date:</label>
+                <label>checkin from:</label>
                 <input type="date" class="form-control" @bind="searchFromDate" />
             </div>
             <div class="col-md-3">
-                <label>To date:</label>
+                <label>(latest) Check out:</label>
                 <input type="date" class="form-control" @bind="searchToDate" />
             </div>
             <div class="col-md-3">
@@ -137,7 +137,6 @@
     private string? selectedTab = "cheapest";
     private string? searchForCountry;
     private string? searchForCity;
-    private string? searchLocation;
     private DateTime? searchFromDate;
     private DateTime? searchToDate;
     private decimal? searchPriceFrom = 0;
@@ -165,18 +164,39 @@
     }
 
     //Filter hotels by price and location
-        //Lige nu er der kun search location, men ikke en location variabel. 
+    //Lige nu er der kun search location, men ikke en location variabel. 
     private void FilterHotels()
     {
         filteredHotelStays = hotelStays
-            .Where(h =>
-                (string.IsNullOrWhiteSpace(searchForCountry) || h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrWhiteSpace(searchForCity) || h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) 
-                // &&
-                // // (searchDate.HasValue && h.CheckInDate.Date == searchDate.Value.Date) &&
-                // (!numberOfTravellers.HasValue || h.NoOfTravellers >= numberOfTravellers.Value)
-            )
-            .ToList();
+         .Where(h =>
+             // Land
+             (string.IsNullOrWhiteSpace(searchForCountry) ||
+              h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
+
+             // By
+             (string.IsNullOrWhiteSpace(searchForCity) ||
+              h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) &&
+
+             // Dato fra
+             (!searchFromDate.HasValue ||
+              h.CheckInDate.Date >= searchFromDate.Value.Date) &&
+
+             // Dato til
+             (!searchToDate.HasValue ||
+              h.CheckOutDate.Date <= searchToDate.Value.Date) &&
+
+             // Pris fra
+             (!searchPriceFrom.HasValue ||
+              h.Price.Amount >= searchPriceFrom.Value) &&
+
+             // Pris til
+             (!searchPriceTo.HasValue ||
+              h.Price.Amount <= searchPriceTo.Value) &&
+
+             // Antal rejsende
+             (!numberOfTravellers.HasValue ||
+              h.NoOfTravellers >= numberOfTravellers.Value))
+         .ToList();
     }
 
     private void SetTab(string tab)
