@@ -1,60 +1,61 @@
 ﻿using ServiceContracts;
 using Shared.Models;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceImplementations
 {
     public class CurrencyConverter : ICurrencyConverter
     {
-        // Thread-safe opslagsstruktur til valutakurser
         private readonly ConcurrentDictionary<(Price.ISOCurrency From, Price.ISOCurrency To), decimal> _exchangeRates;
 
         public CurrencyConverter()
         {
             _exchangeRates = new ConcurrentDictionary<(Price.ISOCurrency, Price.ISOCurrency), decimal>();
 
-            //US Dollar
-            _exchangeRates[(Price.ISOCurrency.USD, Price.ISOCurrency.DKK)] = 6.80m;
-            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.USD)] = 1 / 6.80m;
-
-            //Euro
-            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.USD)] = 1.08m;
-            _exchangeRates[(Price.ISOCurrency.USD, Price.ISOCurrency.EUR)] = 1 / 1.08m;
-
-            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.DKK)] = 7.45m;
-            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.EUR)] = 1 / 7.45m;
-
-            // GBP - Britiske Pund
-            _exchangeRates[(Price.ISOCurrency.GBP, Price.ISOCurrency.DKK)] = 8.60m;
-            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.GBP)] = 1 / 8.60m;
-
-            _exchangeRates[(Price.ISOCurrency.GBP, Price.ISOCurrency.EUR)] = 1.17m;
-            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.GBP)] = 1 / 1.17m;
-
-            // JPY - Japanske Yen
-            _exchangeRates[(Price.ISOCurrency.JPY, Price.ISOCurrency.DKK)] = 0.047m;
-            _exchangeRates[(Price.ISOCurrency.DKK, Price.ISOCurrency.JPY)] = 1 / 0.047m;
-
-            _exchangeRates[(Price.ISOCurrency.JPY, Price.ISOCurrency.EUR)] = 0.0064m;
-            _exchangeRates[(Price.ISOCurrency.EUR, Price.ISOCurrency.JPY)] = 1 / 0.0064m;
+            // Tilføj rater (automatisk i begge retninger)
+            AddRate(Price.ISOCurrency.USD, Price.ISOCurrency.DKK, 6.80m);
+            AddRate(Price.ISOCurrency.EUR, Price.ISOCurrency.USD, 1.08m);
+            AddRate(Price.ISOCurrency.EUR, Price.ISOCurrency.DKK, 7.45m);
+            AddRate(Price.ISOCurrency.GBP, Price.ISOCurrency.DKK, 8.60m);
+            AddRate(Price.ISOCurrency.GBP, Price.ISOCurrency.EUR, 1.17m);
+            AddRate(Price.ISOCurrency.JPY, Price.ISOCurrency.DKK, 0.047m);
+            AddRate(Price.ISOCurrency.JPY, Price.ISOCurrency.EUR, 0.0064m);
         }
+
+        private void AddRate(Price.ISOCurrency from, Price.ISOCurrency to, decimal rate)
+        {
+            _exchangeRates[(from, to)] = rate;
+            _exchangeRates[(to, from)] = 1 / rate; // automatisk modsat retning
+        }
+
         public Price Convert(Price from, Price.ISOCurrency toCurrency)
         {
             if (from.Currency == toCurrency)
                 return from;
 
+            // Prøv direkte konvertering først
             if (_exchangeRates.TryGetValue((from.Currency, toCurrency), out var rate))
             {
-                decimal convertedAmount = from.Amount * rate;
-                return new Price(decimal.Round(convertedAmount, 2), toCurrency);
+                return new Price(Math.Round(from.Amount * rate, 2), toCurrency);
             }
 
-            throw new ArgumentException($"Exchange rate from {from.Currency} to {toCurrency} not found.");
+            // Prøv indirekte konvertering via mellemvaluta
+            foreach (var intermediary in Enum.GetValues<Price.ISOCurrency>())
+            {
+                if (intermediary == from.Currency || intermediary == toCurrency)
+                    continue;
+
+                if (_exchangeRates.TryGetValue((from.Currency, intermediary), out var toIntermediaryRate) &&
+                    _exchangeRates.TryGetValue((intermediary, toCurrency), out var fromIntermediaryRate))
+                {
+                    decimal intermediateAmount = from.Amount * toIntermediaryRate;
+                    decimal finalAmount = intermediateAmount * fromIntermediaryRate;
+                    return new Price(Math.Round(finalAmount, 2), toCurrency);
+                }
+            }
+
+            throw new ArgumentException($"Exchange rate from {from.Currency} to {toCurrency} not found, either directly or via intermediary.");
         }
     }
 }
+
