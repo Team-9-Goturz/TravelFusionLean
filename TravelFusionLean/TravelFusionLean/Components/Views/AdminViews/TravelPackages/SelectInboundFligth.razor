@@ -133,10 +133,20 @@
     private string? searchTo;
     private DateTime? searchDate;
 
-    protected override async Task OnInitializedAsync()
+    private bool isFirstRender = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        allFlights = (await FlightApiService.GetAllFlightsAsync()).ToList();
-        filteredFlights = allFlights;
+        if (firstRender && isFirstRender)
+        {
+            isFirstRender = false;
+
+            allFlights = (await FlightApiService.GetAllFlightsAsync()).ToList();
+            filteredFlights = allFlights;
+
+            // await ConvertPrice();
+
+            StateHasChanged(); // Trigger rerender når data er klar
+        }
     }
 
     private void FilterFlights()
