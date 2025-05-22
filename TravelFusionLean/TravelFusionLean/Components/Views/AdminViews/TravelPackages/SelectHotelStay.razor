@@ -63,7 +63,7 @@
                         <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
                     </li>
                     <li class="nav-item">
-                        <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
+                        <button class="nav-link @(selectedTab == "hotelName" ? "active" : "")" @onclick="@(() => SetTab("hotelName"))">Hotel name</button>
                     </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
@@ -202,7 +202,29 @@
     private void SetTab(string tab)
     {
         selectedTab = tab;
+        ApplySorting();
         StateHasChanged();
+    }
+
+    private void ApplySorting()
+    {
+        if (filteredHotelStays == null) return;
+
+        switch (selectedTab)
+        {
+            case "cheapest":
+                // Sorter på pris stigende (laveste pris først)
+                filteredHotelStays = filteredHotelStays.OrderBy(h => h.Price.Amount).ToList();
+                break;
+
+            case "hotelName":
+                // Sorter på hotelnavn alfabetisk
+                filteredHotelStays = filteredHotelStays.OrderBy(h => h.Hotel.Name).ToList();
+                break;
+
+            default:
+                break;
+        }
     }
 
     private void SelectHotel(HotelStay? hotelstay)
