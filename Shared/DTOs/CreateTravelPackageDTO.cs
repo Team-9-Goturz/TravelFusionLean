@@ -19,6 +19,8 @@ namespace Shared.Dtos
         [StringLength(600)]
         public string? Description { get; set; }
 
+        public bool IsRecommended { get; set; }
+
         // Navigation properties
         public Flight OutboundFlight { get; set; }
         public Flight InboundFlight { get; set; }

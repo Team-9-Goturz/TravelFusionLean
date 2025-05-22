@@ -25,7 +25,7 @@ namespace ServiceImplementations
             _hotelModelService = hotelModelService;
         }
 
-        public async Task<TravelPackage> CreateTravelpackageAsync(CreateTravelPackageDTO travelpackageDTO)
+        public async Task<TravelPackage> CreateTravelpackageAsync(CreateTravelPackageDTO travelpackageDTO, TravelPackageStatus status)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -66,7 +66,7 @@ namespace ServiceImplementations
                     Description = travelpackageDTO.Description,
                     Price = travelpackageDTO.Price,
                     NoOfTravellers = travelpackageDTO.NoOfTravellers,
-                    Status = TravelPackageStatus.Available,
+                    Status = status,
                     ImagePath = travelpackageDTO.ImagePath
                 };
 
