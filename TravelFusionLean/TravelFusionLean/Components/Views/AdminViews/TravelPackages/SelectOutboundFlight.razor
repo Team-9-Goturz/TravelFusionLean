@@ -7,190 +7,41 @@
 
 @using Shared.Models
 @using TravelFusionLean.Components.SmallComponents
+@using Shared.DTOs
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
-    <h2 class="text-primary-blue text-center">Choose Outbound Flight</h2>
+    <h2 class="text-primary-blue text-center">Choose Inbound Flight</h2>
 
     <TravelSummary travelPackageState="@travelPackageState" />
+    <br />
 
-    <!-- Search Bar -->
-    <div class="card p-3 mb-3">
-        <div class="row g-3">
-            <div class="col-md-3">
-                <label>Departure:</label>
-                <input type="text" class="form-control" @bind="searchFrom" placeholder="Enter departure city" />
-            </div>
-            <div class="col-md-3">
-                <label>Destination:</label>
-                <input type="text" class="form-control" @bind="searchTo" placeholder="Enter destination city" />
-            </div>
-            <div class="col-md-3">
-                <label>When:</label>
-                <input type="date" class="form-control" @bind="searchDate" />
-            </div>
-            <div class="col-md-2">
-                <label>Travellers:</label>
-                <input type="number" class="form-control" placeholder="Enter number" disabled />
-            </div>
-            <div class="col-md-1 d-flex align-items-end">
-                <button class="btn btn-primary w-100" @onclick="FilterFlights">🔍</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabs for sorting and page size -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <ul class="nav nav-tabs">
-            <li class="nav-item">
-                <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick='() => SetTab("fastest")'>Fastest</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>Cheapest</button>
-            </li>
-            <li class="nav-item">
-                <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick='() => SetTab("best")'>Best</button>
-            </li>
-        </ul>
-        <div>
-            <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
-            <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
-                <option value="10" selected>10</option>
-                <option value="20">20</option>
-                <option value="50">50</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="tab-content">
-        @if (filteredFlights == null)
-        {
-            <p><em>Loading flights...</em></p>
-        }
-        else if (!filteredFlights.Any())
-        {
-            <p>No flights found.</p>
-        }
-        else
-        {
-            foreach (var flight in PagedFlights)
-            {
-                var duration = flight.ArrivalTime - flight.DepartureTime;
-                <div class="d-flex justify-content-between border p-2 mb-2">
-                    <div>
-                        <strong>@flight.Airline</strong>
-                        @flight.DepartureTime.ToString("HH:mm") →
-                        @flight.ArrivalTime.ToString("HH:mm") - @flight.Price<br />
-                        Duration: @($"{duration.Hours}h {duration.Minutes}m")<br />
-                        Class: @(flight.ClassType ?? "Economy")<br />
-                        Route: @flight.DepartureFromAirport?.City → @flight.ArrivalAtAirport?.City
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary align-self-center" @onclick="() => SelectFlight(flight)">Select</button>
-                </div>
-            }
-
-            <div class="d-flex justify-content-center mt-3">
-                <nav>
-                    <ul class="pagination">
-                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                            <button class="page-link" @onclick="PrevPage">Previous</button>
-                        </li>
-                        @for (int i = 1; i <= TotalPages; i++)
-                        {
-                            var pageIndex = i;
-                            <li class="page-item @(pageIndex == currentPage ? "active" : "")">
-                                <button class="page-link" @onclick='() => GoToPage(pageIndex)'>@pageIndex</button>
-                            </li>
-                        }
-                        <li class="page-item @(currentPage == TotalPages ? "disabled" : "")">
-                            <button class="page-link" @onclick="NextPage">Next</button>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-        }
-    </div>
+    <FlightSearchForm SearchModel="@SearchModel" OnSearch="FilterFlights" />
+    <FlightSelector Flights="filteredFlights" OnFlightSelected="HandleOutboundSelected" />
 </div>
 
 @code {
-    private List<Flight>? allFlights;
-    private List<Flight>? filteredFlights;
-    private Flight? selectedFlight;
+    private List<Flight> allFlights = new();
+    private List<Flight> filteredFlights = new();
+    private FligthSearchDTO SearchModel = new();
 
-    private string selectedTab = "fastest";
-    private string? searchFrom;
-    private string? searchTo;
-    private DateTime? searchDate;
-
-    private int currentPage = 1;
-    private int pageSize = 10;
-    private int TotalPages => (int)Math.Ceiling((double)(filteredFlights?.Count ?? 0) / pageSize);
-
-    private IEnumerable<Flight> PagedFlights =>
-        SortedFlights.Skip((currentPage - 1) * pageSize).Take(pageSize);
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (firstRender && allFlights == null)
-        {
-            allFlights = (await FlightApiService.GetAllFlightsAsync()).ToList();
-            filteredFlights = allFlights;
-            StateHasChanged();
-        }
+        allFlights = (await FlightApiService.GetAllFlightsAsync()).ToList();
+        filteredFlights = allFlights; // Vis alt fra start
     }
 
     private void FilterFlights()
     {
-        currentPage = 1;
-        filteredFlights = allFlights?.Where(f =>
-            (string.IsNullOrWhiteSpace(searchFrom) || f.DepartureFromAirport?.City.Contains(searchFrom, StringComparison.OrdinalIgnoreCase) == true) &&
-            (string.IsNullOrWhiteSpace(searchTo) || f.ArrivalAtAirport?.City.Contains(searchTo, StringComparison.OrdinalIgnoreCase) == true) &&
-            (!searchDate.HasValue || f.DepartureTime.Date == searchDate.Value.Date)
+        filteredFlights = allFlights.Where(f =>
+            (string.IsNullOrWhiteSpace(SearchModel.SearchFrom) || f.DepartureFromAirport?.City?.Contains(SearchModel.SearchFrom, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrWhiteSpace(SearchModel.SearchTo) || f.ArrivalAtAirport?.City?.Contains(SearchModel.SearchTo, StringComparison.OrdinalIgnoreCase) == true) &&
+            (!SearchModel.SearchDate.HasValue || f.DepartureTime.Date == SearchModel.SearchDate.Value.Date)
         ).ToList();
     }
-
-    private void SetTab(string tab)
+    private void HandleOutboundSelected(Flight flight)
     {
-        selectedTab = tab;
-        StateHasChanged();
-    }
-
-    private void SelectFlight(Flight flight)
-    {
-        selectedFlight = flight;
         travelPackageState.OutboundFlight = flight;
     }
-
-    private void GoToPage(int page)
-    {
-        if (page >= 1 && page <= TotalPages)
-        {
-            currentPage = page;
-            StateHasChanged();
-        }
-    }
-
-    private void NextPage() => GoToPage(currentPage + 1);
-    private void PrevPage() => GoToPage(currentPage - 1);
-
-    private void OnPageSizeChange(ChangeEventArgs e)
-    {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
-        {
-            pageSize = newSize;
-            currentPage = 1;
-            StateHasChanged();
-        }
-    }
-
-    private IEnumerable<Flight> SortedFlights =>
-        selectedTab switch
-        {
-            "fastest" => filteredFlights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
-            "cheapest" => filteredFlights?.OrderBy(f => f.Price) ?? Enumerable.Empty<Flight>(),
-            "best" => filteredFlights?.OrderBy(f =>
-                (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
-            _ => filteredFlights ?? Enumerable.Empty<Flight>()
-        };
 }
