@@ -117,8 +117,7 @@ else
             @foreach (var package in _travelPackages)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <!-- Billede - Brug placeholder hvis der ikke findes billede -->
+                    <div class="card @(package.IsRecommended == true ? "recommended-package" : "")">
                         <img loading="lazy" src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">@package.Headline</h5>
@@ -130,9 +129,7 @@ else
                                 }
                             </p>
                             <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
-
                             <p><strong>Pris:</strong> @package.Price.ToString()</p>
-
                             <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Show more</a>
                             <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@package.Id">Book</a>
                         </div>
