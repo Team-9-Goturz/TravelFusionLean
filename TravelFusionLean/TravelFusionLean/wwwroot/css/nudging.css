@@ -1,0 +1,20 @@
+﻿.card.recommended-package {
+    position: relative;
+}
+
+    .card.recommended-package::before {
+        content: "Recommended";
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 30px; /* tykkelse af stripen */
+        width: 100%;
+        font-weight: bold;
+        color: black;
+        background-color: gold; /* gul farve */
+        line-height: 30px; /* Vertikal centrering */
+        font-family: sans-serif; /* Du kan vælge anden font hvis ønsket */
+        font-size: 14px;
+        border-top-left-radius: 0.25rem;
+        border-top-right-radius: 0.25rem;
+    }

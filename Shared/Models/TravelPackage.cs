@@ -29,6 +29,10 @@ public class TravelPackage
     //public int? ToHotelTransferId { get; set; }
     //public int? FromHotelTransferId { get; set; }
 
+    //nudging
+    public bool? IsRecommended { get; set; } = true;
+
+
     // Navigation properties
     public Flight? OutboundFlight { get; set; }
     public Flight? InboundFlight { get; set; }
@@ -40,7 +44,7 @@ public class TravelPackage
     // For at uplade billeder, når man opretter travelpackages
     public string? ImagePath { get; set; }
 
-    
+
 }
 public enum TravelPackageStatus
 {
