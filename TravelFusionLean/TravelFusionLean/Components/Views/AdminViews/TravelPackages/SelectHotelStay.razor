@@ -19,13 +19,14 @@
     <!-- Search Bar -->
     <div class="card p-3 mb-3">
         <div class="row">
+            <!-- Existing search fields -->
             <div class="col-md-3">
                 <label>Country:</label>
-                <input type="text" class="form-control" @bind="searchForCountry" placeholder="Enter country of hotel"/>
+                <input type="text" class="form-control" @bind="searchForCountry" placeholder="Enter country of hotel" />
             </div>
             <div class="col-md-3">
                 <label>City:</label>
-                <input type="text" class="form-control" @bind="searchForCity" placeholder="Enter city of hotel"/>
+                <input type="text" class="form-control" @bind="searchForCity" placeholder="Enter city of hotel" />
             </div>
             <div class="col-md-3">
                 <label>checkin from:</label>
@@ -55,10 +56,8 @@
 
     <!-- Tabs for sorting -->
     <div class="row">
-        <!-- LEFT SIDE: Tabs + Hotels -->
         <div class="col-md-12">
             <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
-                <!-- Tabs -->
                 <ul class="nav nav-tabs">
                     <li class="nav-item">
                         <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick="@(() => SetTab("cheapest"))">Cheapest</button>
@@ -67,32 +66,39 @@
                         <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick="@(() => SetTab("best"))">Best</button>
                     </li>
                 </ul>
-
-                <!-- Currency Dropdown -->
-                <div class="form-group mb-0">
-                    <label for="currencySelector" class="form-label me-2">Currency:</label>
-                    <select id="currencySelector" class="form-select" style="width: auto; display: inline-block;" @bind="SelectedCurrency">
-                        @foreach (Price.ISOCurrency currency in Enum.GetValues(typeof(Price.ISOCurrency)))
-                        {
-                            <option value="@currency">@currency</option>
-                        }
-                    </select>
+                <div class="d-flex align-items-center gap-3">
+                    <div>
+                        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
+                        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="currencySelector" class="form-label me-2">Currency:</label>
+                        <select id="currencySelector" class="form-select" style="width: auto; display: inline-block;" @bind="SelectedCurrency">
+                            @foreach (Price.ISOCurrency currency in Enum.GetValues(typeof(Price.ISOCurrency)))
+                            {
+                                <option value="@currency">@currency</option>
+                            }
+                        </select>
+                    </div>
                 </div>
             </div>
 
-            <!-- Hotel list -->
             <div class="tab-content">
-                @if (hotelStays == null)
+                @if (filteredHotelStays == null)
                 {
                     <p><em>Loading hotels...</em></p>
                 }
-                else if (!hotelStays.Any())
+                else if (!filteredHotelStays.Any())
                 {
                     <p>No hotels found.</p>
                 }
                 else
                 {
-                    foreach (HotelStay stay in filteredHotelStays)
+                    @foreach (HotelStay stay in PagedHotelStays)
                     {
                         <div class="d-flex justify-content-between border p-2 mb-2">
                             <div>
@@ -105,6 +111,26 @@
                             <button class="btn btn-primary" @onclick="() => SelectHotel(stay)">Select</button>
                         </div>
                     }
+
+                    <div class="d-flex justify-content-center mt-3">
+                        <nav>
+                            <ul class="pagination">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <button class="page-link" @onclick="PrevPage">Previous</button>
+                                </li>
+                                @for (int i = 1; i <= TotalPages; i++)
+                                {
+                                    var pageIndex = i;
+                                    <li class="page-item @(pageIndex == currentPage ? "active" : "")">
+                                        <button class="page-link" @onclick="@(() => GoToPage(pageIndex))">@pageIndex</button>
+                                    </li>
+                                }
+                                <li class="page-item @(currentPage == TotalPages ? "disabled" : "")">
+                                    <button class="page-link" @onclick="NextPage">Next</button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                 }
             </div>
         </div>
@@ -124,7 +150,6 @@
     private decimal? searchPriceFrom = 0;
     private decimal? searchPriceTo;
     private int? numberOfTravellers;
-    private List<HotelStay>? hotelStays;
     private Price.ISOCurrency _selectedCurrency = Price.ISOCurrency.DKK;
     public Price.ISOCurrency SelectedCurrency
     {
@@ -139,55 +164,38 @@
         }
     }
 
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int TotalPages => (int)Math.Ceiling((double)(filteredHotelStays?.Count ?? 0) / pageSize);
+
+    private IEnumerable<HotelStay> PagedHotelStays =>
+        filteredHotelStays?.Skip((currentPage - 1) * pageSize).Take(pageSize) ?? Enumerable.Empty<HotelStay>();
+
     private bool isFirstRender = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && isFirstRender)
         {
             isFirstRender = false;
-
-            hotelStays = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
-            filteredHotelStays = hotelStays;
-
+            allHotels = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
+            filteredHotelStays = allHotels;
             await ConvertPrice();
-
-            StateHasChanged(); // Trigger rerender når data er klar
+            StateHasChanged();
         }
     }
 
-    //Filter hotels by price and location
-    //Lige nu er der kun search location, men ikke en location variabel. 
     private void FilterHotels()
     {
-        filteredHotelStays = hotelStays
+        currentPage = 1;
+        filteredHotelStays = allHotels
          .Where(h =>
-             // Land
-             (string.IsNullOrWhiteSpace(searchForCountry) ||
-              h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
-
-             // By
-             (string.IsNullOrWhiteSpace(searchForCity) ||
-              h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) &&
-
-             // Dato fra
-             (!searchFromDate.HasValue ||
-              h.CheckInDate.Date >= searchFromDate.Value.Date) &&
-
-             // Dato til
-             (!searchToDate.HasValue ||
-              h.CheckOutDate.Date <= searchToDate.Value.Date) &&
-
-             // Pris fra
-             (!searchPriceFrom.HasValue ||
-              h.Price.Amount >= searchPriceFrom.Value) &&
-
-             // Pris til
-             (!searchPriceTo.HasValue ||
-              h.Price.Amount <= searchPriceTo.Value) &&
-
-             // Antal rejsende
-             (!numberOfTravellers.HasValue ||
-              h.NoOfTravellers >= numberOfTravellers.Value))
+             (string.IsNullOrWhiteSpace(searchForCountry) || h.Hotel.Country.Name.Contains(searchForCountry, StringComparison.OrdinalIgnoreCase)) &&
+             (string.IsNullOrWhiteSpace(searchForCity) || h.Hotel.City.Contains(searchForCity, StringComparison.OrdinalIgnoreCase)) &&
+             (!searchFromDate.HasValue || h.CheckInDate.Date >= searchFromDate.Value.Date) &&
+             (!searchToDate.HasValue || h.CheckOutDate.Date <= searchToDate.Value.Date) &&
+             (!searchPriceFrom.HasValue || h.Price.Amount >= searchPriceFrom.Value) &&
+             (!searchPriceTo.HasValue || h.Price.Amount <= searchPriceTo.Value) &&
+             (!numberOfTravellers.HasValue || h.NoOfTravellers >= numberOfTravellers.Value))
          .ToList();
     }
 
@@ -206,20 +214,33 @@
         }
     }
 
-    private IEnumerable<Hotel> SortedHotels =>
-        selectedTab switch
+    private void GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages)
         {
-            // "cheapest" => filteredHotels?.OrderBy(h => h.Price) ?? Enumerable.Empty<Hotel>(),
-            // "best" => filteredHotels?.OrderByDescending(h => h.Price) ?? Enumerable.Empty<Hotel>(),
-            // _ => filteredHotelStays ?? Enumerable.Empty<Hotel>()
-        };
+            currentPage = page;
+            StateHasChanged();
+        }
+    }
+
+    private void NextPage() => GoToPage(currentPage + 1);
+    private void PrevPage() => GoToPage(currentPage - 1);
+
+    private void OnPageSizeChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        {
+            pageSize = newSize;
+            currentPage = 1;
+            StateHasChanged();
+        }
+    }
 
     private async Task ConvertPrice()
     {
         foreach (HotelStay hotelStay in filteredHotelStays)
         {
             hotelStay.Price = currencyConverter.Convert(hotelStay.Price, SelectedCurrency);
-            StateHasChanged();
         }
     }
 }
