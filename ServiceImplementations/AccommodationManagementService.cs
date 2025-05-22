@@ -3,6 +3,7 @@ using Shared.Models;
 using System.Net.Http.Json;
 using ServiceImplementations.Dtos;
 using ServiceImplementations.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace ServiceImplementations;
@@ -23,11 +24,14 @@ public class AccommodationManagementService(HttpClient httpClient, ICountryReadS
         var response = await _httpClient.GetFromJsonAsync<IEnumerable<HotelData>>("https://localhost:7274/api/hotels");
         if (response == null) return hotelStays;
 
+        // Find unikke landekoder
+        var countryCodes = response.Select(h => h.CountryCode).Distinct().ToList();
+        var countries = await _countryReadService.GetCountriesByCodeAsync(countryCodes); 
+
         foreach (HotelData hotelData in response)
         {
-            Country? country = await _countryReadService.GetByCountryCodeAsync(hotelData.CountryCode);
-
-            hotelStays.Add(HotelMapper.MapToHotelStay(hotelData,country));
+            countries.TryGetValue(hotelData.CountryCode, out Country country);
+            hotelStays.Add(HotelMapper.MapToHotelStay(hotelData, country));
         }
 
         return hotelStays;

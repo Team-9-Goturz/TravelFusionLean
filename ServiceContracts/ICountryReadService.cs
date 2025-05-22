@@ -10,5 +10,6 @@ namespace ServiceContracts
     public interface ICountryReadService: IReadService<Country>
     {
         Task<Country?> GetByCountryCodeAsync(string landCode);
+        Task<Dictionary<string, Country>> GetCountriesByCodeAsync(IEnumerable<string> countryCodes);
     }
 }

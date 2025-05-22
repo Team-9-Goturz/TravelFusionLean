@@ -28,11 +28,11 @@ public static class HotelMapper
     {
         var random = new Random();
 
-        // Hvis checkIn ikke er angivet, vælg en dato 5-10 dage fra i dag
-        var checkInDate = checkIn ?? DateTime.Today.AddDays(random.Next(5, 11));
+        // Hvis checkIn ikke er angivet, vælg en dato 3-30 dage fra i dag
+        var checkInDate = checkIn ?? DateTime.Today.AddDays(random.Next(3, 31));
 
-        // Hvis checkOut ikke er angivet, vælg en dato 1-5 dage efter checkIn
-        var checkOutDate = checkOut ?? checkInDate.AddDays(random.Next(1, 6));
+        // Hvis checkOut ikke er angivet, vælg en dato 1-7 dage efter checkIn
+        var checkOutDate = checkOut ?? checkInDate.AddDays(random.Next(1, 8));
 
 
         ISOCurrency iSOCurrency = MatchCurrencyOrDefault(dto.Price.Currency);

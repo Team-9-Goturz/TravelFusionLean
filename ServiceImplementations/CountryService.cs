@@ -22,6 +22,13 @@ namespace ServiceImplementations
             return await _context.Countries
            .FirstOrDefaultAsync(c => c.Iso2Code == iso2Code);
         }
+
+        public async Task<Dictionary<string, Country>> GetCountriesByCodeAsync(IEnumerable<string> countryCodes)
+        {
+            return await _context.Countries
+                .Where(c => countryCodes.Contains(c.Iso2Code))
+                .ToDictionaryAsync(c => c.Iso2Code);
+        }
     }
 }
 

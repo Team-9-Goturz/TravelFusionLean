@@ -76,6 +76,7 @@ namespace Data
             });
 
             modelBuilder.Entity<Airport>().ToTable("Airport");
+
             modelBuilder.Entity<Hotel>(entity =>
             {
                 entity.ToTable("Hotel");
