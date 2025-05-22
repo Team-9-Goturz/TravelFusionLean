@@ -44,9 +44,11 @@
     private decimal priceToSearch = 10000;
 
     private string noResultsMessage = "";
+    private bool IsSearching = false;
 
     private async Task SearchTravelPackages() 
     {
+        IsSearching = true;
         TravelPackageSearchDTO searchDTO = new TravelPackageSearchDTO();
 
         searchDTO.DepartureLocation = DepartureLocation;
@@ -59,7 +61,8 @@
         var result = await travelPackageService.SearchAvailableAsync(searchDTO);
         _travelPackages = result.ToList();
         resultCount = _travelPackages.Count;
-          
+        IsSearching = false; 
+
         if (_travelPackages.Count == 0)
         {
             noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
@@ -71,28 +74,40 @@
     }
 }
 
-@code
-{
-    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
+@code {
+    private List<TravelPackage> _travelPackages;
     private int resultCount;
+    private bool _hasLoaded = false;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
-        await LoadTravelPackages();
+        if (firstRender)
+        {
+            await LoadTravelPackages();
+            StateHasChanged(); // Tving re-render efter data er hentet
+            _hasLoaded = true;
+        }
     }
+
     private async Task LoadTravelPackages()
     {
         _travelPackages = (await travelPackageService.GetAvailableAsync()).ToList();
         resultCount = _travelPackages.Count;
     }
-
 }
 
 
-@if (!string.IsNullOrEmpty(noResultsMessage))
+
+  @if (_travelPackages == null)
 {
-    <p>@noResultsMessage</p>
+    <p><em>Loading travelpackages...</em></p>
+}
+else if (IsSearching == true){
+    <p><em>Searching</em></p>
+}
+else if (!_travelPackages.Any())
+{
+    <p>No hotels found.</p>
 }
 else
 {
@@ -104,7 +119,7 @@ else
                 <div class="col-md-4 mb-4">
                     <div class="card">
                         <!-- Billede - Brug placeholder hvis der ikke findes billede -->
-                        <img src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top"  style="height: 200px; object-fit: cover;">
+                        <img loading="lazy" src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title">@package.Headline</h5>
                             <p class="card-text">
