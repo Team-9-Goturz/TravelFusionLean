@@ -9,29 +9,43 @@
 @using ServiceImplementations;
 @inject ITravelPackageService travelPackageService
 
-<h3>Browse TravelPackage</h3>
+<link href="css/CustomColors.css" rel="stylesheet" />
 
-<div>
-    <label for="departureLocation">Afrejsested (by eller land):</label>
-    <input type="text" id="departureLocation" @bind="DepartureLocation" placeholder="F.eks. Danmark eller København" />
+<h3 class="text-primary-blue text-center">Browse Travelpackages</h3>
 
-    <label for="destination">Destination (by eller land):</label>
-    <input type="text" id="destination" @bind="destinationSearch" placeholder="F.eks. Paris eller Frankrig" />
 
-    <label for="dateFrom">Tidligste afrejsedato:</label>
-    <input type="date" id="dateFrom" @bind="startDateSearch" />
-
-    <label for="travelers">Antal rejsende:</label>
-    <input type="number" id="travelers" @bind="NoOfTravelers" min="1" />
-
-    <label for="priceFrom">Pris (min):</label>
-    <input type="number" id="priceFrom" @bind="priceFromSearch" />
-
-    <label for="priceTo">Pris (maks):</label>
-    <input type="number" id="priceTo" @bind="priceToSearch" />
-
-    <br />
-    <button @onclick="SearchTravelPackages">Søg</button>
+<div class="card p-3 mb-3 shadow-sm w-100 rounded-3" style="margin-left: 0; margin-right: 0; border-radius: 12px;">
+    <div class="row g-2 align-items-end px-3">
+        <div class="col-md">
+            <label for="departureLocation" class="form-label">Afrejsested</label>
+            <input type="text" id="departureLocation" class="form-control" @bind="DepartureLocation" placeholder="F.eks. Danmark eller København" />
+        </div>
+        <div class="col-md">
+            <label for="destination" class="form-label">Destination</label>
+            <input type="text" id="destination" class="form-control" @bind="destinationSearch" placeholder="F.eks. Paris eller Frankrig" />
+        </div>
+        <div class="col-md">
+            <label for="dateFrom" class="form-label">Afrejsedato</label>
+            <input type="date" id="dateFrom" class="form-control" @bind="startDateSearch" />
+        </div>
+        <div class="col-md">
+            <label for="travelers" class="form-label">Rejsende</label>
+            <input type="number" id="travelers" class="form-control" @bind="NoOfTravelers" min="1" />
+        </div>
+        <div class="col-md">
+            <label for="priceFrom" class="form-label">Pris (min)</label>
+            <input type="number" id="priceFrom" class="form-control" @bind="priceFromSearch" />
+        </div>
+        <div class="col-md">
+            <label for="priceTo" class="form-label">Pris (maks)</label>
+            <input type="number" id="priceTo" class="form-control" @bind="priceToSearch" />
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-warning btn-sm d-flex align-items-center gap-1" @onclick="SearchTravelPackages">
+                🔍 Søg
+            </button>
+        </div>
+    </div>
 </div>
 <br />
 
