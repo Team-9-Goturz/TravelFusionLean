@@ -7,15 +7,77 @@
 @using Shared.Models
 @using Data
 @using ServiceImplementations;
+@using TravelFusionLean.Components.SmallComponents
 @inject ITravelPackageService travelPackageService
 
 <link href="css/CustomColors.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <h3 class="text-primary-blue text-center">Browse Travelpackages</h3>
 
 <TravelFusionLean.Components.SmallComponents.TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelFusionLean.Components.SmallComponents.TravelPackageSearch>
-
 <br />
+<!-- Tabs for sorting and page size -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Tabs for sorting -->
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <button class="nav-link @(selectedTab == "earliest" ? "active" : "")" @onclick='() => SetTab("earliest")'>
+                <i class="bi bi-clock"></i> Tidligst afrejse
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>
+                <i class="bi bi-currency-dollar"></i> Billigste
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(selectedTab == "newest" ? "active" : "")" @onclick='() => SetTab("newest")'>
+                <i class="bi bi-star"></i> Nyeste
+            </button>
+        </li>
+    </ul>
+
+    <!-- Dropdown for page size -->
+    <div>
+        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
+        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
+    </div>
+</div>
+@code {
+    private string selectedTab = "fastest";
+
+    private void SetTab(string tab)
+    {
+        selectedTab = tab;
+        CurrentPage = 1;
+        StateHasChanged();
+    }
+
+    private void OnPageSizeChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        {
+            PageSize = newSize;
+            CurrentPage = 1;
+            StateHasChanged();
+        }
+    }
+
+    private IEnumerable<TravelPackage> SortedFlights =>
+        selectedTab switch
+        {
+            "earliest" => SearchResults?.OrderBy(tp => tp.OutboundFlight.DepartureTime) ?? Enumerable.Empty<TravelPackage>(),
+            "cheapest" => SearchResults?.OrderBy(tp => tp.Price.Amount) ?? Enumerable.Empty<TravelPackage>(),
+            // "newest" => SearchResults?.OrderBy
+        };
+}
+
+
 @code 
 {
     private TravelPackageSearchDTO SearchModel = new()
@@ -52,70 +114,6 @@
     }
 }
 
-<!-- Tabs for sorting and page size -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>Cheapest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "New" ? "active" : "")" @onclick='() => SetTab("News")'>Best</button>
-        </li>
-    </ul>
-    <div>
-        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
-        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-        </select>
-    </div>
-</div>
-@code {
-    private string selectedTab = "fastest";
-    private void SetTab(string tab)
-    {
-        selectedTab = tab;
-        // CurrentPage = 1;
-        StateHasChanged();
-    }
-
-
-    private int CurrentPage { get; set; } = 1;
-    private int PageSize { get; set; } = 10;
-    private int TotalPages => (int)Math.Ceiling((double)(SearchResults?.Count ?? 0) / PageSize);
-
-    private IEnumerable<TravelPackage> PagedFlights =>
-        SearchResults?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
-
-    private void GoToPage(int page)
-    {
-        if (page >= 1 && page <= TotalPages)
-            CurrentPage = page;
-    }
-
-    private void NextPage()
-    {
-        if (CurrentPage < TotalPages)
-            CurrentPage++;
-    }
-
-    private void PreviousPage()
-    {
-        if (CurrentPage > 1)
-            CurrentPage--;
-    }
-
-    private void OnPageSizeChange(ChangeEventArgs e)
-    {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
-        {
-            PageSize = newSize;
-            CurrentPage = 1;
-            StateHasChanged();
-        }
-    }
-}
 
   @if (isLoading)
 {
@@ -158,4 +156,19 @@ else
             }
         </div>
     </div>
+    <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" OnPageChanged="HandlePageChanged" />
 }
+
+ @code {
+    private int TotalPages => (int)Math.Ceiling((double)(SearchResults?.Count ?? 0) / PageSize);
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10;
+
+    private async Task HandlePageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await InvokeAsync(StateHasChanged);
+    }
+    private IEnumerable<TravelPackage> PagedTravelPackages =>
+      SearchResults?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
+ }

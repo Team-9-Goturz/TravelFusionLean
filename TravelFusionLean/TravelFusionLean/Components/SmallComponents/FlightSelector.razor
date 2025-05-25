@@ -3,6 +3,7 @@
 
 <!-- Tabs for sorting and page size -->
 <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- Tabs for sorting -->
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick='() => SetTab("fastest")'>Fastest</button>
@@ -14,6 +15,7 @@
             <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick='() => SetTab("best")'>Best</button>
         </li>
     </ul>
+    <!-- Dropdown for page size -->
     <div>
         <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
         <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
@@ -35,7 +37,7 @@
     }
     else
     {
-        foreach (var flight in PagedFlights)
+        foreach (Flight flight in PagedFlights)
         {
             var duration = flight.ArrivalTime - flight.DepartureTime;
             <div class="d-flex justify-content-between border rounded p-3 mb-3 shadow-sm">
@@ -56,27 +58,21 @@
             </div>
         }
 
-        <div class="d-flex justify-content-center mt-3">
-            <nav>
-                <ul class="pagination">
-                    <li class="page-item @(CurrentPage == 1 ? "disabled" : "")">
-                        <button class="page-link" @onclick="PreviousPage">Previous</button>
-                    </li>
-                    @for (int i = 1; i <= TotalPages; i++)
-                    {
-                        var pageIndex = i;
-                        <li class="page-item @(pageIndex == CurrentPage ? "active" : "")">
-                            <button class="page-link" @onclick='() => GoToPage(pageIndex)'>@pageIndex</button>
-                        </li>
-                    }
-                    <li class="page-item @(CurrentPage == TotalPages ? "disabled" : "")">
-                        <button class="page-link" @onclick="NextPage">Next</button>
-                    </li>
-                </ul>
-            </nav>
-        </div>
+        <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" OnPageChanged="HandlePageChanged" />
     }
 </div>
+@code {
+    private int TotalPages => (int)Math.Ceiling((double)(Flights?.Count ?? 0) / PageSize);
+
+    private async Task HandlePageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await InvokeAsync(StateHasChanged);
+    }
+    private IEnumerable<Flight> PagedFlights =>
+      SortedFlights?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<Flight>();
+}
+
 
 @code {
     [Parameter]
@@ -84,6 +80,11 @@
 
     [Parameter]
     public EventCallback<Flight> OnFlightSelected { get; set; }
+
+    private string selectedTab = "fastest";
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10;
+
     private async Task SelectFlight(Flight flight)
     {
         if (OnFlightSelected.HasDelegate)
@@ -92,48 +93,11 @@
         }
     }
 
-
-    private string selectedTab = "fastest";
     private void SetTab(string tab)
     {
         selectedTab = tab;
         CurrentPage = 1;
         StateHasChanged();
-    }
-    private IEnumerable<Flight> SortedFlights =>
-        selectedTab switch
-        {
-            "fastest" => Flights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
-            "cheapest" => Flights?.OrderBy(f => f.Price.Amount) ?? Enumerable.Empty<Flight>(),
-            "best" => Flights?.OrderBy(f =>
-                (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
-            _ => Flights ?? Enumerable.Empty<Flight>()
-        };
-
-
-    private int CurrentPage { get; set; } = 1;
-    private int PageSize { get; set; } = 10;
-    private int TotalPages => (int)Math.Ceiling((double)(Flights?.Count ?? 0) / PageSize);
-
-    private IEnumerable<Flight> PagedFlights =>
-       SortedFlights?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<Flight>();
-
-    private void GoToPage(int page)
-    {
-        if (page >= 1 && page <= TotalPages)
-            CurrentPage = page;
-    }
-
-    private void NextPage()
-    {
-        if (CurrentPage < TotalPages)
-            CurrentPage++;
-    }
-
-    private void PreviousPage()
-    {
-        if (CurrentPage > 1)
-            CurrentPage--;
     }
 
     private void OnPageSizeChange(ChangeEventArgs e)
@@ -146,4 +110,13 @@
         }
     }
 
+    private IEnumerable<Flight> SortedFlights =>
+        selectedTab switch
+        {
+            "fastest" => Flights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
+            "cheapest" => Flights?.OrderBy(f => f.Price.Amount) ?? Enumerable.Empty<Flight>(),
+            "best" => Flights?.OrderBy(f =>
+                (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
+            _ => Flights ?? Enumerable.Empty<Flight>()
+        };
 }
