@@ -76,13 +76,8 @@
                         </select>
                     </div>
                     <div>
-                        <label for="currencySelector" class="form-label me-2">Currency:</label>
-                        <select id="currencySelector" class="form-select" style="width: auto; display: inline-block;" @bind="SelectedCurrency">
-                            @foreach (Price.ISOCurrency currency in Enum.GetValues(typeof(Price.ISOCurrency)))
-                            {
-                                <option value="@currency">@currency</option>
-                            }
-                        </select>
+      
+                        <CurrencySelector SelectedCurrency="@SelectedCurrency" OnCurrencyChanged="HandleCurrencyChanged" />
                     </div>
                 </div>
             </div>
@@ -150,19 +145,8 @@
     private decimal? searchPriceFrom = 0;
     private decimal? searchPriceTo;
     private int? numberOfTravellers;
-    private Price.ISOCurrency _selectedCurrency = Price.ISOCurrency.DKK;
-    public Price.ISOCurrency SelectedCurrency
-    {
-        get => _selectedCurrency;
-        set
-        {
-            if (_selectedCurrency != value)
-            {
-                _selectedCurrency = value;
-                ConvertPrice();
-            }
-        }
-    }
+    private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
+   
 
     private int currentPage = 1;
     private int pageSize = 10;
@@ -179,7 +163,6 @@
             isFirstRender = false;
             allHotels = (await HotelApiService.GetAllHotelStaysAsync()).ToList();
             filteredHotelStays = allHotels;
-            await ConvertPrice();
             StateHasChanged();
         }
     }
@@ -257,12 +240,11 @@
             StateHasChanged();
         }
     }
-
-    private async Task ConvertPrice()
+    private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
     {
         foreach (HotelStay hotelStay in filteredHotelStays)
         {
-            hotelStay.Price = currencyConverter.Convert(hotelStay.Price, SelectedCurrency);
+            hotelStay.Price = currencyConverter.Convert(hotelStay.Price, newCurrency);
         }
     }
 }

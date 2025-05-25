@@ -9,6 +9,7 @@
 @using ServiceImplementations;
 @using TravelFusionLean.Components.SmallComponents
 @inject ITravelPackageService travelPackageService
+@inject ICurrencyConverter currencyConverter
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
@@ -16,21 +17,21 @@
 
 <TravelFusionLean.Components.SmallComponents.TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelFusionLean.Components.SmallComponents.TravelPackageSearch>
 <br />
-<!-- Tabs for sorting and page size -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <!-- Tabs for sorting -->
-    <TravelPackageSortTab SelectedTab="@selectedTab" OnTabChanged="@SetTab" />
-
+    <div class="flex-grow-1 me-3">
+        <TravelPackageSortTab SelectedTab="@selectedTab" OnTabChanged="@SetTab" />
+    </div>
+    <!-- Dropdown for valuta -->
+    <div class="me-3" style="min-width: 150px; max-width: 200px; flex-shrink: 0;">
+        <CurrencySelector SelectedCurrency="@SelectedCurrency" OnCurrencyChanged="HandleCurrencyChanged" />
+    </div>
     <!-- Dropdown for page size -->
-    <div>
-        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
-        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-        </select>
+    <div style="min-width: 100px; flex-shrink: 0;">
+        <PageSizeSelector PageSize="@PageSize" OnPageSizeChanged="@(size => OnPageSizeChange(size))" />
     </div>
 </div>
+
 @code {
     private string selectedTab = "earliest";
 
@@ -40,15 +41,11 @@
         CurrentPage = 1;
         StateHasChanged();
     }
-
-    private void OnPageSizeChange(ChangeEventArgs e)
+    private void OnPageSizeChange(int newSize)
     {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
-        {
-            PageSize = newSize;
-            CurrentPage = 1;
-            StateHasChanged();
-        }
+        PageSize = newSize;
+        CurrentPage = 1;
+        StateHasChanged();
     }
     private IEnumerable<TravelPackage> PagedTravelPackages => SearchResults?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
     private IEnumerable<TravelPackage> SortedTravelpackages =>
@@ -153,5 +150,13 @@ else
         CurrentPage = newPage;
         await InvokeAsync(StateHasChanged);
     }
-    
+
+    private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
+    private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
+    {
+        foreach (TravelPackage travelPackage in SortedTravelpackages)
+        {
+            travelPackage.Price = currencyConverter.Convert(travelPackage.Price, newCurrency);
+        }
+    }
  }

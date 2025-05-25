@@ -1,6 +1,7 @@
 ﻿@page "/travelpackages/details/{id:int}"
 @using Shared.Models
 @using TravelFusionLean.Components.Layout.Customer
+@using TravelFusionLean.Components.SmallComponents
 @layout CustomerLayout
 @rendermode InteractiveServer
 
@@ -24,27 +25,9 @@ else
             <img src="@(!string.IsNullOrEmpty(TravelPackage?.ImagePath) ? TravelPackage.ImagePath : "/images/WineOnBeach.png")"
                  class="img-fluid rounded mb-3" alt="Billede af rejse" />
 
-            <p>
-                <strong>Pris:</strong>
-                @if (ConvertedPrice != null)
-                {
-                    @ConvertedPrice
-                }
-                else
-                {
-                    <span>Indlæser pris...</span>
-                }
-            </p>
+            <p> <strong>Pris:</strong> @TravelPackage.Price.ToString() </p>
 
-            <label for="currencySelect"><strong>Vælg valuta:</strong></label>
-            <select id="currencySelect" class="form-select mb-3"
-                    @bind-Value="SelectedCurrency"
-                    @bind-Value:event="onchange">
-                @foreach (var currency in Enum.GetValues<Price.ISOCurrency>())
-                {
-                    <option value="@currency">@currency</option>
-                }
-            </select>
+            <CurrencySelector SelectedCurrency="@SelectedCurrency" OnCurrencyChanged="HandleCurrencyChanged" />
 
             <p><strong>Antal rejsende:</strong> @TravelPackage.NoOfTravellers</p>
             <p><strong>Status:</strong> @TravelPackage.Status</p>
@@ -127,7 +110,6 @@ else
             if (_selectedCurrency != value)
             {
                 _selectedCurrency = value;
-                _ = ConvertPrice();
             }
         }
     }
@@ -135,16 +117,18 @@ else
     protected override async Task OnInitializedAsync()
     {
         TravelPackage = await travelpackageService.GetByIdAsync(id);
-        await ConvertPrice();
     }
-
-    private async Task ConvertPrice()
+    private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
     {
-        if (TravelPackage?.Price != null)
-        {
-            ConvertedPrice = currencyConverter.Convert(TravelPackage.Price, SelectedCurrency);
-            StateHasChanged();
-        }
+        TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, newCurrency);
     }
+    // private async Task ConvertPrice()
+    // {
+    //     if (TravelPackage?.Price != null)
+    //     {
+    //         TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, SelectedCurrency);
+    //         StateHasChanged();
+    //     }
+    // }
 }
 

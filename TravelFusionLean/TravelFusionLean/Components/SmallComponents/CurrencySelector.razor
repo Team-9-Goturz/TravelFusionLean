@@ -1,0 +1,25 @@
+﻿@using Shared.Models
+
+<label for="currencySelector" class="form-label me-2">Currency:</label>
+<select class="form-select"
+        @onchange="OnCurrencyChangedHandler">
+    @foreach (var currency in Enum.GetValues<Price.ISOCurrency>())
+    {
+        <option value="@currency" selected="@(currency == SelectedCurrency)">
+            @currency
+        </option>
+    }
+</select>
+
+@code {
+    [Parameter] public Price.ISOCurrency SelectedCurrency { get; set; }
+    [Parameter] public EventCallback<Price.ISOCurrency> OnCurrencyChanged { get; set; }
+
+    private async Task OnCurrencyChangedHandler(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<Price.ISOCurrency>(e.Value?.ToString(), out var newCurrency))
+        {
+            await OnCurrencyChanged.InvokeAsync(newCurrency);
+        }
+    }
+}
