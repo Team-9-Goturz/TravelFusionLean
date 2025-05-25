@@ -2,26 +2,6 @@
     [Parameter] public int CurrentPage { get; set; }
     [Parameter] public int TotalPages { get; set; }
     [Parameter] public EventCallback<int> OnPageChanged { get; set; }
-
-    private async Task GoToPage(int page)
-    {
-        if (page >= 1 && page <= TotalPages && page != CurrentPage)
-        {
-            await OnPageChanged.InvokeAsync(page);
-        }
-    }
-
-    private async Task PreviousPage()
-    {
-        if (CurrentPage > 1)
-            await GoToPage(CurrentPage - 1);
-    }
-
-    private async Task NextPage()
-    {
-        if (CurrentPage < TotalPages)
-            await GoToPage(CurrentPage + 1);
-    }
 }
 <div class="d-flex justify-content-center mt-3">
     <nav>
@@ -42,3 +22,25 @@
         </ul>
     </nav>
 </div>
+
+@code{
+    private async Task GoToPage(int page)
+    {
+        if (page >= 1 && page <= TotalPages && page != CurrentPage)
+        {
+            await OnPageChanged.InvokeAsync(page);
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (CurrentPage > 1)
+            await GoToPage(CurrentPage - 1);
+    }
+
+    private async Task NextPage()
+    {
+        if (CurrentPage < TotalPages)
+            await GoToPage(CurrentPage + 1);
+    }
+}

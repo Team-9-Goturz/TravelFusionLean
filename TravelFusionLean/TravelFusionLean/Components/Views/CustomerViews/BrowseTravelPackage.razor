@@ -20,23 +20,7 @@
 <!-- Tabs for sorting and page size -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <!-- Tabs for sorting -->
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "earliest" ? "active" : "")" @onclick='() => SetTab("earliest")'>
-                <i class="bi bi-clock"></i> Tidligst afrejse
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>
-                <i class="bi bi-currency-dollar"></i> Billigste
-            </button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "newest" ? "active" : "")" @onclick='() => SetTab("newest")'>
-                <i class="bi bi-star"></i> Nyeste
-            </button>
-        </li>
-    </ul>
+    <TravelPackageSortTab SelectedTab="@selectedTab" OnTabChanged="@SetTab" />
 
     <!-- Dropdown for page size -->
     <div>

@@ -47,7 +47,6 @@
                 </div>
             </div>
         }
-
         <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" OnPageChanged="HandlePageChanged" />
     }
 </div>
@@ -65,8 +64,8 @@
         {
             "fastest" => Flights?.OrderBy(f => (f.ArrivalTime - f.DepartureTime).TotalMinutes) ?? Enumerable.Empty<Flight>(),
             "cheapest" => Flights?.OrderBy(f => f.Price.Amount) ?? Enumerable.Empty<Flight>(),
-            "best" => Flights?.OrderBy(f =>
-                (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
+            "best" => Flights?.OrderBy(f => (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
+            "earliest" => Flights?.OrderBy(f => f.DepartureTime) ?? Enumerable.Empty<Flight>(),
             _ => Flights ?? Enumerable.Empty<Flight>()
         };
 

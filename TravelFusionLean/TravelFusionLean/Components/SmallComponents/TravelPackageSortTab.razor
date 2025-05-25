@@ -1,0 +1,33 @@
+﻿@code {
+    [Parameter] public string SelectedTab { get; set; } = "fastest";
+    [Parameter] public EventCallback<string> OnTabChanged { get; set; }
+}
+
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <button class="nav-link @(SelectedTab == "earliest" ? "active" : "")" @onclick='() => ChangeTab("earliest")'>
+            <i class="bi bi-clock"></i> Tidligst afrejse
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(SelectedTab == "cheapest" ? "active" : "")" @onclick='() => ChangeTab("cheapest")'>
+            <i class="bi bi-currency-dollar"></i> Billigste
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link @(SelectedTab == "newest" ? "active" : "")" @onclick='() => ChangeTab("newest")'>
+            <i class="bi bi-star"></i> Nyeste
+        </button>
+    </li>
+</ul>
+
+@code {
+    private async Task ChangeTab(string tab)
+    {
+        if (SelectedTab != tab)
+        {
+            SelectedTab = tab;
+            await OnTabChanged.InvokeAsync(tab);
+        }
+    }
+}

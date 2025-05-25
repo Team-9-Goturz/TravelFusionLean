@@ -1,15 +1,6 @@
 ﻿@code {
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
-
-    private async Task HandleChange(ChangeEventArgs e)
-    {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
-        {
-            PageSize = newSize;
-            await OnPageSizeChanged.InvokeAsync(newSize);
-        }
-    }
 }
 
 <div>
@@ -24,3 +15,14 @@
         <option value="50">50</option>
     </select>
 </div>
+
+@code{
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        {
+            PageSize = newSize;
+            await OnPageSizeChanged.InvokeAsync(newSize);
+        }
+    }
+}

@@ -2,6 +2,14 @@
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
+@code {
+    [Parameter]
+    public TravelPackageSearchDTO searchDTO { get; set; }
+
+    [Parameter]
+    public EventCallback OnSearch { get; set; }
+}
+
 <div class="card p-3 mb-3 shadow-sm w-100 rounded-3" style="margin-left: 0; margin-right: 0; border-radius: 12px;">
     <div class="row g-2 align-items-end px-3">
         <div class="col-md">
@@ -37,12 +45,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public TravelPackageSearchDTO searchDTO { get; set; }
-
-    [Parameter]
-    public EventCallback OnSearch { get; set; }
-
     private async Task OnSearchClicked()
     {
         await OnSearch.InvokeAsync(null);

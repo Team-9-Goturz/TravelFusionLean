@@ -6,15 +6,16 @@
 @rendermode InteractiveServer
 
 @using Shared.Models
+@using TravelFusionLean.Components.SmallComponents.Flight
 @using TravelFusionLean.Components.SmallComponents
 @using Shared.DTOs
 
 <link href="css/CustomColors.css" rel="stylesheet" />
 
 <div class="container mt-4">
-    <h2 class="text-primary-blue text-center">Choose Inbound Flight</h2>
+    <h2 class="text-primary-blue text-center">Choose outbound Flight</h2>
 
-    <TravelSummary travelPackageState="@travelPackageState" />
+     <TravelSummary travelPackageState="@travelPackageState" />
     <br />
 
     <FlightSearchForm SearchModel="@SearchModel" OnSearch="FilterFlights" />
