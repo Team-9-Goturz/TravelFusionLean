@@ -10,6 +10,7 @@
             style="width: auto; display: inline-block;"
             @onchange="HandleChange"
             value="@PageSize">
+        <option value="5">5</option>
         <option value="10">10</option>
         <option value="20">20</option>
         <option value="50">50</option>
@@ -19,7 +20,7 @@
 @code{
     private async Task HandleChange(ChangeEventArgs e)
     {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 5)
         {
             PageSize = newSize;
             await OnPageSizeChanged.InvokeAsync(newSize);

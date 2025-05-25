@@ -47,7 +47,7 @@
         CurrentPage = 1;
         StateHasChanged();
     }
-    private IEnumerable<TravelPackage> PagedTravelPackages => SearchResults?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
+    private IEnumerable<TravelPackage> PagedTravelPackages => SortedTravelpackages?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
     private IEnumerable<TravelPackage> SortedTravelpackages =>
         selectedTab switch
         {
@@ -113,7 +113,7 @@ else
     <p>Results: <strong>@resultCount</strong></p>
     <div class="container">
         <div class="row">
-            @foreach (TravelPackage package in SortedTravelpackages)
+            @foreach (TravelPackage package in PagedTravelPackages)
             {
                 <div class="col-md-4 mb-4">
                     <div class="card @(package.IsRecommended == true ? "recommended-package" : "")">
@@ -154,7 +154,7 @@ else
     private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
     private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
     {
-        foreach (TravelPackage travelPackage in SortedTravelpackages)
+        foreach (TravelPackage travelPackage in PagedTravelPackages)
         {
             travelPackage.Price = currencyConverter.Convert(travelPackage.Price, newCurrency);
         }
