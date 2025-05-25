@@ -1,29 +1,19 @@
 ﻿@using Shared.Models
 @using Microsoft.AspNetCore.Components
 
+@code {
+    [Parameter]
+    public List<Flight> Flights { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<Flight> OnFlightSelected { get; set; }
+}
 <!-- Tabs for sorting and page size -->
 <div class="d-flex justify-content-between align-items-center mb-3">
     <!-- Tabs for sorting -->
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "fastest" ? "active" : "")" @onclick='() => SetTab("fastest")'>Fastest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>Cheapest</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link @(selectedTab == "best" ? "active" : "")" @onclick='() => SetTab("best")'>Best</button>
-        </li>
-    </ul>
+    <FlightSortTabs SelectedTab="@selectedTab" OnTabChanged="@SetTab" />
     <!-- Dropdown for page size -->
-    <div>
-        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
-        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
-            <option value="10" selected>10</option>
-            <option value="20">20</option>
-            <option value="50">50</option>
-        </select>
-    </div>
+    <PageSizeSelector PageSize="@PageSize" OnPageSizeChanged="@(size => OnPageSizeChange(size))" />
 </div>
 
 <div class="tab-content">
@@ -62,53 +52,13 @@
     }
 </div>
 @code {
-    private int TotalPages => (int)Math.Ceiling((double)(Flights?.Count ?? 0) / PageSize);
-
-    private async Task HandlePageChanged(int newPage)
-    {
-        CurrentPage = newPage;
-        await InvokeAsync(StateHasChanged);
-    }
-    private IEnumerable<Flight> PagedFlights =>
-      SortedFlights?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<Flight>();
-}
-
-
-@code {
-    [Parameter]
-    public List<Flight> Flights { get; set; } = new();
-
-    [Parameter]
-    public EventCallback<Flight> OnFlightSelected { get; set; }
-
     private string selectedTab = "fastest";
     private int CurrentPage { get; set; } = 1;
     private int PageSize { get; set; } = 10;
 
-    private async Task SelectFlight(Flight flight)
-    {
-        if (OnFlightSelected.HasDelegate)
-        {
-            await OnFlightSelected.InvokeAsync(flight);
-        }
-    }
+    private int TotalPages => (int)Math.Ceiling((double)(Flights?.Count ?? 0) / PageSize);
 
-    private void SetTab(string tab)
-    {
-        selectedTab = tab;
-        CurrentPage = 1;
-        StateHasChanged();
-    }
-
-    private void OnPageSizeChange(ChangeEventArgs e)
-    {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
-        {
-            PageSize = newSize;
-            CurrentPage = 1;
-            StateHasChanged();
-        }
-    }
+    private IEnumerable<Flight> PagedFlights => SortedFlights?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<Flight>();
 
     private IEnumerable<Flight> SortedFlights =>
         selectedTab switch
@@ -119,4 +69,29 @@
                 (f.Price.Amount * 0.6m) + ((decimal)(f.ArrivalTime - f.DepartureTime).TotalMinutes * 0.4m)) ?? Enumerable.Empty<Flight>(),
             _ => Flights ?? Enumerable.Empty<Flight>()
         };
+
+    private async Task SelectFlight(Flight flight) 
+    {
+        if (OnFlightSelected.HasDelegate)
+        {
+            await OnFlightSelected.InvokeAsync(flight);
+        }
+    }
+    private void SetTab(string tab)
+    {
+        selectedTab = tab;
+        CurrentPage = 1;
+        StateHasChanged();
+    }
+    private void OnPageSizeChange(int newSize)
+    {
+        PageSize = newSize;
+        CurrentPage = 1;
+        StateHasChanged();
+    }
+    private async Task HandlePageChanged(int newPage)
+    {
+        CurrentPage = newPage;
+        await InvokeAsync(StateHasChanged);
+    }
 }

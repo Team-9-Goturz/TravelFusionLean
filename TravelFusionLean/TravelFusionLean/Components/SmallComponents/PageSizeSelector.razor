@@ -1,0 +1,26 @@
+﻿@code {
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+
+    private async Task HandleChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        {
+            PageSize = newSize;
+            await OnPageSizeChanged.InvokeAsync(newSize);
+        }
+    }
+}
+
+<div>
+    <label for="pageSizeSelector" class="form-label me-2">Resultater pr. side:</label>
+    <select id="pageSizeSelector"
+            class="form-select"
+            style="width: auto; display: inline-block;"
+            @onchange="HandleChange"
+            value="@PageSize">
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+    </select>
+</div>
