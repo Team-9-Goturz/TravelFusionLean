@@ -13,122 +13,128 @@
 
 <h3 class="text-primary-blue text-center">Browse Travelpackages</h3>
 
+<TravelFusionLean.Components.SmallComponents.TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelFusionLean.Components.SmallComponents.TravelPackageSearch>
 
-<div class="card p-3 mb-3 shadow-sm w-100 rounded-3" style="margin-left: 0; margin-right: 0; border-radius: 12px;">
-    <div class="row g-2 align-items-end px-3">
-        <div class="col-md">
-            <label for="departureLocation" class="form-label">Afrejsested</label>
-            <input type="text" id="departureLocation" class="form-control" @bind="DepartureLocation" placeholder="F.eks. Danmark eller København" />
-        </div>
-        <div class="col-md">
-            <label for="destination" class="form-label">Destination</label>
-            <input type="text" id="destination" class="form-control" @bind="destinationSearch" placeholder="F.eks. Paris eller Frankrig" />
-        </div>
-        <div class="col-md">
-            <label for="dateFrom" class="form-label">Afrejsedato</label>
-            <input type="date" id="dateFrom" class="form-control" @bind="startDateSearch" />
-        </div>
-        <div class="col-md">
-            <label for="travelers" class="form-label">Rejsende</label>
-            <input type="number" id="travelers" class="form-control" @bind="NoOfTravelers" min="1" />
-        </div>
-        <div class="col-md">
-            <label for="priceFrom" class="form-label">Pris (min)</label>
-            <input type="number" id="priceFrom" class="form-control" @bind="priceFromSearch" />
-        </div>
-        <div class="col-md">
-            <label for="priceTo" class="form-label">Pris (maks)</label>
-            <input type="number" id="priceTo" class="form-control" @bind="priceToSearch" />
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-warning btn-sm d-flex align-items-center gap-1" @onclick="SearchTravelPackages">
-                🔍 Søg
-            </button>
-        </div>
+<br />
+@code 
+{
+    private TravelPackageSearchDTO SearchModel = new()
+    {
+        DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Now),
+        MinPrice = 0,
+        MaxPrice = 10000
+    };
+
+    private List<TravelPackage>? SearchResults;
+    private int resultCount;
+    private bool isLoading = true;
+    private bool isSearching = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadInitialPackages();
+    }
+
+    private async Task LoadInitialPackages()
+    {
+        isLoading = true;
+        await FilterTravelPackages();
+        isLoading = false;
+    }
+
+    private async Task FilterTravelPackages()
+    {
+        isSearching = true;
+        var result = await travelPackageService.SearchAvailableAsync(SearchModel);
+        SearchResults = result.ToList();
+        resultCount = SearchResults.Count;
+        isSearching = false;
+    }
+}
+
+<!-- Tabs for sorting and page size -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <button class="nav-link @(selectedTab == "cheapest" ? "active" : "")" @onclick='() => SetTab("cheapest")'>Cheapest</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link @(selectedTab == "New" ? "active" : "")" @onclick='() => SetTab("News")'>Best</button>
+        </li>
+    </ul>
+    <div>
+        <label for="pageSizeSelector" class="form-label me-2">Results per page:</label>
+        <select id="pageSizeSelector" class="form-select" style="width: auto; display: inline-block;" @onchange="OnPageSizeChange">
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+        </select>
     </div>
 </div>
-<br />
-
-@code{
-    private string? DepartureLocation;
-    private string? destinationSearch;
-    private DateOnly? startDateSearch = DateOnly.FromDateTime(DateTime.Now);
-    private int? NoOfTravelers;
-    private decimal priceFromSearch = 0;
-    private decimal priceToSearch = 10000;
-
-    private string noResultsMessage = "";
-    private bool IsSearching = false;
-
-    private async Task SearchTravelPackages() 
-    {
-        IsSearching = true;
-        TravelPackageSearchDTO searchDTO = new TravelPackageSearchDTO();
-
-        searchDTO.DepartureLocation = DepartureLocation;
-        searchDTO.Destination = destinationSearch;
-        searchDTO.DepartureDateEarliest = startDateSearch;
-        searchDTO.NumberOfTravelers = NoOfTravelers;
-        searchDTO.MinPrice = priceFromSearch;
-        searchDTO.MaxPrice = priceToSearch;
-
-        var result = await travelPackageService.SearchAvailableAsync(searchDTO);
-        _travelPackages = result.ToList();
-        resultCount = _travelPackages.Count;
-        IsSearching = false; 
-
-        if (_travelPackages.Count == 0)
-        {
-            noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
-        }
-        else
-        {
-            noResultsMessage = ""; // Hvis der er fundet resultater, nulstil beskeden
-        }
-    }
-}
-
 @code {
-    private List<TravelPackage> _travelPackages;
-    private int resultCount;
-    private bool _hasLoaded = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private string selectedTab = "fastest";
+    private void SetTab(string tab)
     {
-        if (firstRender)
-        {
-            await LoadTravelPackages();
-            StateHasChanged(); // Tving re-render efter data er hentet
-            _hasLoaded = true;
-        }
+        selectedTab = tab;
+        // CurrentPage = 1;
+        StateHasChanged();
     }
 
-    private async Task LoadTravelPackages()
+
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 10;
+    private int TotalPages => (int)Math.Ceiling((double)(SearchResults?.Count ?? 0) / PageSize);
+
+    private IEnumerable<TravelPackage> PagedFlights =>
+        SearchResults?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
+
+    private void GoToPage(int page)
     {
-        _travelPackages = (await travelPackageService.GetAvailableAsync()).ToList();
-        resultCount = _travelPackages.Count;
+        if (page >= 1 && page <= TotalPages)
+            CurrentPage = page;
+    }
+
+    private void NextPage()
+    {
+        if (CurrentPage < TotalPages)
+            CurrentPage++;
+    }
+
+    private void PreviousPage()
+    {
+        if (CurrentPage > 1)
+            CurrentPage--;
+    }
+
+    private void OnPageSizeChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 10)
+        {
+            PageSize = newSize;
+            CurrentPage = 1;
+            StateHasChanged();
+        }
     }
 }
 
-
-
-  @if (_travelPackages == null)
+  @if (isLoading)
 {
     <p><em>Loading travelpackages...</em></p>
 }
-else if (IsSearching == true){
-    <p><em>Searching</em></p>
-}
-else if (!_travelPackages.Any())
+else if (isSearching)
 {
-    <p>No hotels found.</p>
+    <p><em>Searching...</em></p>
+}
+else if (SearchResults == null || !SearchResults.Any())
+{
+    <p><strong>No travelpackages found.</strong></p>
 }
 else
 {
-    <p>results: @resultCount</p>
+    <p>Results: <strong>@resultCount</strong></p>
     <div class="container">
         <div class="row">
-            @foreach (var package in _travelPackages)
+            @foreach (TravelPackage package in SearchResults)
             {
                 <div class="col-md-4 mb-4">
                     <div class="card @(package.IsRecommended == true ? "recommended-package" : "")">
@@ -138,13 +144,13 @@ else
                             <p class="card-text">
                                 @if (!string.IsNullOrEmpty(package.Description))
                                 {
-                                    var truncatedDescription = package.Description.Length > 100 ? package.Description.Substring(0, 95) + "..." : package.Description;
-                                    @truncatedDescription
+                                    var truncated = package.Description.Length > 100 ? package.Description.Substring(0, 95) + "..." : package.Description;
+                                    @truncated
                                 }
                             </p>
-                            <p><strong>Antal Rejsende:</strong> @package.NoOfTravellers</p>
-                            <p><strong>Pris:</strong> @package.Price.ToString()</p>
-                            <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Show more</a>
+                            <p><strong>Antal rejsende:</strong> @package.NoOfTravellers</p>
+                            <p><strong>Pris:</strong> @package.Price</p>
+                            <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis mere</a>
                             <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@package.Id">Book</a>
                         </div>
                     </div>
