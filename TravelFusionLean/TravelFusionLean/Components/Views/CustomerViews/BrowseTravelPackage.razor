@@ -135,8 +135,24 @@ else
         <div class="row">
             @foreach (TravelPackage package in PagedTravelPackages)
             {
+                var daysUntilDeparture = (package.OutboundFlight.DepartureTime - DateTime.Now).TotalDays;
+
                 <div class="col-md-4 mb-4">
-                    <div class="card @(package.IsRecommended == true ? "recommended-package" : "")">
+                    <div class="card h-100 position-relative">
+
+                        @* Top labels stacked *@
+                        @if (package.IsRecommended == true)
+                        {
+                            <div class="bg-warning text-dark text-center fw-bold py-1 w-100">
+                                Recommended
+                            </div>
+                        }
+                        @if (daysUntilDeparture <= 3)
+                        {
+                            <div class="bg-danger text-white text-center fw-bold py-1 w-100">
+                                Last chance!
+                            </div>
+                        }
                         <img loading="lazy" src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
                             <h5 class="card-title"> @package.Headline</h5>

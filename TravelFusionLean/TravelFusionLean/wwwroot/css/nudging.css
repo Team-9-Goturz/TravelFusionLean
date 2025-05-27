@@ -7,14 +7,34 @@
         position: absolute;
         top: 0;
         left: 0;
-        height: 30px; /* tykkelse af stripen */
+        height: 30px;
         width: 100%;
         font-weight: bold;
         color: black;
-        background-color: gold; /* gul farve */
-        line-height: 30px; /* Vertikal centrering */
-        font-family: sans-serif; /* Du kan vælge anden font hvis ønsket */
+        background-color: gold;
+        line-height: 30px;
+        font-family: sans-serif;
         font-size: 14px;
         border-top-left-radius: 0.25rem;
         border-top-right-radius: 0.25rem;
+        text-align: center;
     }
+
+/* Last chance badge via ::after */
+.card.last-chance-package::after {
+    content: "Last chance!";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 30px;
+    width: 100%;
+    font-weight: bold;
+    color: white;
+    background-color: red;
+    line-height: 30px;
+    font-family: sans-serif;
+    font-size: 14px;
+    border-bottom-left-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+    text-align: center;
+}
