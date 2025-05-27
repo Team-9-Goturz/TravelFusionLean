@@ -2,6 +2,8 @@
 @using Shared.Models
 @using TravelFusionLean.Components.Layout.Customer
 @using TravelFusionLean.Components.SmallComponents
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
 @layout CustomerLayout
 @rendermode InteractiveServer
 
@@ -19,6 +21,7 @@
 }
 else
 {
+    <script src="~/js/leafletMap.js"></script>
     <div class="row">
         <div class="col-md-6">
             <!-- Billede eller fallback -->
@@ -83,6 +86,28 @@ else
                         <strong>Rating:</strong> @TravelPackage.HotelStay.Hotel.Rating/5
                     </p>
                 </div>
+
+
+                <h2>Her ligger vores hotel</h2>
+
+                <div id="map"></div>
+
+                <style>
+                    #map {
+                        height: 400px;
+                        width: 100%;
+                        border: 2px solid #333;
+                        border-radius: 10px;
+                        margin-top: 20px;
+                    }
+                </style>
+
+                <!-- Leaflet CSS -->
+                <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+                <!-- Leaflet JS -->
+                <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
                 <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@TravelPackage.Id">Book</a>
             }
             else
@@ -124,13 +149,13 @@ else
     {
         TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, newCurrency);
     }
-    // private async Task ConvertPrice()
-    // {
-    //     if (TravelPackage?.Price != null)
-    //     {
-    //         TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, SelectedCurrency);
-    //         StateHasChanged();
-    //     }
-    // }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/leafletMap.js");
+            await module.InvokeVoidAsync("initializeMap");
+        }
+    }
 }
 
