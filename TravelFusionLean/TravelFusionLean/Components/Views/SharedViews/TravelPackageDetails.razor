@@ -3,6 +3,7 @@
 @using TravelFusionLean.Components.Layout.Customer
 @using TravelFusionLean.Components.SmallComponents
 @using Microsoft.JSInterop
+@using Shared.DTOs
 @inject IJSRuntime JS
 @layout CustomerLayout
 @rendermode InteractiveServer
@@ -26,7 +27,7 @@ else
         <div class="col-md-6">
             <!-- Billede eller fallback -->
             <img src="@(!string.IsNullOrEmpty(TravelPackage?.ImagePath) ? TravelPackage.ImagePath : "/images/WineOnBeach.png")"
-                 class="img-fluid rounded mb-3" alt="Billede af rejse" />
+            class="img-fluid rounded mb-3" alt="Billede af rejse" />
 
             <p> <strong>Pris:</strong> @TravelPackage.Price.ToString() </p>
 
@@ -94,11 +95,11 @@ else
 
                 <style>
                     #map {
-                        height: 400px;
-                        width: 100%;
-                        border: 2px solid #333;
-                        border-radius: 10px;
-                        margin-top: 20px;
+                    height: 400px;
+                    width: 100%;
+                    border: 2px solid #333;
+                    border-radius: 10px;
+                    margin-top: 20px;
                     }
                 </style>
 
@@ -118,7 +119,7 @@ else
     </div>
 
     <a href="/Travelpackage-Browse" class="btn btn-secondary mt-4">Tilbage</a>
-   
+
 }
 
 @code {
@@ -149,12 +150,21 @@ else
     {
         TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, newCurrency);
     }
+
+    private IJSObjectReference jsModule;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && TravelPackage?.HotelStay?.Hotel != null)
         {
-            var module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/leafletMap.js");
-            await module.InvokeVoidAsync("initializeMap");
+            jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "/js/leafletMap.js");
+
+            var LeafLetDTO = new LeafLetDTO()
+                {
+                    HotelName = TravelPackage.HotelStay.Hotel.Name,
+                    Latitude = TravelPackage.HotelStay.Hotel.Latitude,
+                    Longitude = TravelPackage.HotelStay.Hotel.Longitude
+                };
+            await jsModule.InvokeVoidAsync("initializeMapWithData", LeafLetDTO);
         }
     }
 }
