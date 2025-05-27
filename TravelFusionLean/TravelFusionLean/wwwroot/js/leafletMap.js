@@ -1,12 +1,12 @@
-﻿export function initializeMap() {
-    const map = L.map('map').setView([56.4607, 10.0364], 13);
+﻿export function initializeMapWithData(data) {
+    const map = L.map('map').setView([data.latitude, data.longitude], 13);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap-bidragsydere'
+        attribution: 'Map data © OpenStreetMap contributors'
     }).addTo(map);
 
-    L.marker([56.4607, 10.0364])
+    L.marker([data.latitude, data.longitude])
         .addTo(map)
-        .bindPopup("Hotel Randers")
+        .bindPopup(`<b>${data.hotelName}</b>`)
         .openPopup();
 }
