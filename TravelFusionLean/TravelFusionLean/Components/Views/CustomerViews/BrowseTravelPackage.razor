@@ -1,4 +1,6 @@
 ﻿@page "/Travelpackage-Browse"
+@page "/Travelpackage-Browse/{Destination?}"
+
 @using Shared.Dtos
 @using TravelFusionLean.Components.Layout.Customer
 @layout CustomerLayout
@@ -61,6 +63,9 @@
 
 @code 
 {
+    [Parameter]
+    public string? Destination { get; set; }
+
     private TravelPackageSearchDTO SearchModel = new()
     {
         DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Now),
@@ -75,6 +80,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (!string.IsNullOrEmpty(Destination))
+        {
+            SearchModel.Destination = Destination;
+            await FilterTravelPackages();
+        }
         await LoadInitialPackages();
     }
 

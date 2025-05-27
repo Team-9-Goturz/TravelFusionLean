@@ -1,0 +1,81 @@
+﻿@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+
+<div class="destination-card test-flex" @onclick="Navigate">
+    <img src="@ImagePath" alt="@Label" />
+    <div class="destination-label">@Label</div>
+</div>
+
+
+
+@code {
+    [Parameter] public string Destination { get; set; } = string.Empty;
+    [Parameter] public string ImagePath { get; set; } = string.Empty;
+    [Parameter] public string Label { get; set; } = string.Empty;
+
+    private void Navigate()
+    {
+        NavManager.NavigateTo($"/Travelpackage-Browse/{Destination}");
+    }
+}
+
+<style>
+    .card-row {
+        display: flex !important;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 1rem;
+        padding-bottom: 0.5rem;
+    }
+
+    .destination-card {
+        flex: 0 0 24%;
+        max-width: 320px;
+        aspect-ratio: 5 / 4;
+        cursor: pointer;
+        overflow: hidden;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: transform 0.2s ease-in-out;
+        display: block;
+    }
+
+        .destination-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .destination-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .destination-label {
+        position: absolute;
+        bottom: -40px; /* Start skjult under kortet */
+        left: 0;
+        width: 100%;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+        text-align: center;
+        border-radius: 0 0 16px 16px;
+        user-select: none;
+        transition: bottom 0.3s ease, opacity 0.3s ease;
+        opacity: 0;
+    }
+
+    .destination-card:hover .destination-label {
+        bottom: 0; /* Labelen "slides op" til bunden af kortet */
+        opacity: 1; /* Fade in */
+    }
+
+    .test-flex {
+        border: #003366;
+    }
+</style>

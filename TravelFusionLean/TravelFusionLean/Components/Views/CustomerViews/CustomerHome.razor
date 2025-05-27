@@ -1,11 +1,15 @@
 ﻿@page "/"
 @using TravelFusionLean.Components.Layout.Customer
+@using TravelFusionLean.Components.SmallComponents
 @layout CustomerLayout
 @attribute [StreamRendering]
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
 
 <PageTitle>Welcome</PageTitle>
 
 <link href="css/CustomColors.css" rel="stylesheet" />
+<link href="css/destinationCard.css" rel="stylesheet" />
 
 <!-- Content directly inside layout's content area -->
 <div class="px-4 py-5">
@@ -30,5 +34,27 @@
             </div>
 
         </div>
+       
     </div>
+
+    <br />
+    <br/>
+    <div class="card-row">
+        <DestinationCard Destination="Greece" ImagePath="images/Greece.jpg" Label="Greece" />
+        <DestinationCard Destination="Egypt" ImagePath="images/Egypt.jpg" Label="Egypt" />
+        <DestinationCard Destination="France" ImagePath="images/France.jpg" Label="France" />
+        <DestinationCard Destination="Thailand" ImagePath="images/thailand.jpg" Label="Thailand" />
+        <DestinationCard Destination="Maldives" ImagePath="images/Maldives.jpg" Label="Maldives" />
+        <DestinationCard Destination="Italy" ImagePath="images/Venedig.jpg" Label="Italy" />
+        <DestinationCard Destination="Japan" ImagePath="images/Japan.jpg" Label="Japan" />
+    </div>
+
 </div>
+
+@code 
+{
+    private void NavigateToDestination(string destination)
+    {
+        NavManager.NavigateTo($"/Travelpackage-Browse/{destination}");
+    }
+}
