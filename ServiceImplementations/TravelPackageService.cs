@@ -141,16 +141,16 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
         if (!string.IsNullOrWhiteSpace(searchDto.DepartureLocation))
         {
             query = query.Where(tp =>
-                tp.OutboundFlight.DepartureFromAirport.Country.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase) ||
-                tp.OutboundFlight.DepartureFromAirport.City.Contains(searchDto.DepartureLocation, StringComparison.OrdinalIgnoreCase));
+                tp.OutboundFlight.DepartureFromAirport.Country.ToLower().Contains(searchDto.DepartureLocation.ToLower()) ||
+                 tp.OutboundFlight.DepartureFromAirport.City.ToLower().Contains(searchDto.DepartureLocation.ToLower()));
         }
 
         // Destination: land eller by
         if (!string.IsNullOrWhiteSpace(searchDto.Destination))
         {
             query = query.Where(tp =>
-                tp.HotelStay.Hotel.Country.Name.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase) ||
-                tp.HotelStay.Hotel.City.Contains(searchDto.Destination, StringComparison.OrdinalIgnoreCase));
+                tp.HotelStay.Hotel.Country.Name.ToLower().Contains(searchDto.Destination.ToLower()) ||
+                tp.HotelStay.Hotel.City.ToLower().Contains(searchDto.Destination.ToLower()));
         }
 
         // Afgangs-dato

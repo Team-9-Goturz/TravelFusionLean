@@ -87,11 +87,21 @@
 
     private async Task FilterTravelPackages()
     {
-        isSearching = true;
-        var result = await travelPackageService.SearchAvailableAsync(SearchModel);
-        SearchResults = result.ToList();
-        resultCount = SearchResults.Count;
-        isSearching = false;
+        try
+        {
+            isSearching = true;
+            var result = await travelPackageService.SearchAvailableAsync(SearchModel);
+            SearchResults = result.ToList();
+            resultCount = SearchResults.Count;
+        }
+        catch (Exception ex)
+        {
+            string errorMessage = $"Noget gik galt: {ex.Message}";
+        }
+        finally
+        {
+            isSearching = false;
+        }
     }
 }
 
