@@ -31,7 +31,7 @@
         <div class="col-md-4 d-flex flex-column gap-3">
             @if (package.OutboundFlight != null)
             {
-                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight" OutBound="true"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -42,7 +42,7 @@
 
             @if (package.InboundFlight != null)
             {
-                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight=" travelPackageState.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight=" travelPackageState.InboundFlight" OutBound="false"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -130,6 +130,6 @@
 
         ResetTravelPackageState();
 
-        navigationManager.NavigateTo("/TravelPackageList");
+        navigationManager.NavigateTo($"/travelpackages/details/{package.Id}");
     }
 }

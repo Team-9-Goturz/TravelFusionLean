@@ -1,18 +1,33 @@
 ﻿@using Shared.Models
 
 <div class="card shadow-sm h-100">
-    <div class="card-header fw-bold">Outbound Flight</div>
+    @if (OutBound == true)
+    {
+        <div class="card-header fw-bold">Outbound Flight</div>
+    }
+    else{
+        <div class="card-header fw-bold">Inbound Flight</div>
+    }
+
     <div class="card-body small">
-        <div><strong>From:</strong> @Flight.DepartureFromAirport?.City</div>
-        <div><strong>To:</strong> @Flight.ArrivalAtAirport?.City</div>
-        <div><strong>Departure:</strong> @Flight.DepartureTime.ToString()</div>
-        <div><strong>Arrival:</strong> @Flight.ArrivalTime.ToString()</div>
-        <div><strong>Airline:</strong> @Flight.Airline</div>
-        <div><strong>Price:</strong> @Flight.Price.ToString()</div>
-        <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
+        <div><strong>From:</strong> @Flight?.DepartureFromAirport?.City</div>
+        <div><strong>To:</strong> @Flight?.ArrivalAtAirport?.City</div>
+        <div><strong>Departure:</strong> @Flight?.DepartureTime.ToString()</div>
+        <div><strong>Arrival:</strong> @Flight?.ArrivalTime.ToString()</div>
+        <div><strong>Airline:</strong> @Flight?.Airline</div>
+        <div><strong>Price:</strong> @Flight?.Price.ToString()</div>
+        @if (OutBound == true)
+        {
+            <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
+        }
+        else
+        {
+            <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Inbound">Change</a>
+        }
     </div>
 </div>
 
 @code {
-    [Parameter] public Flight Flight { get; set; }
+    [Parameter] public Flight? Flight { get; set; }
+    [Parameter] public bool OutBound { get; set; }
 }

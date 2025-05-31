@@ -13,7 +13,7 @@
     <div class="col-md-4">
         @if (travelPackageState.OutboundFlight != null)
         {
-            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight" OutBound="true"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
         }
         else
         {
@@ -43,7 +43,7 @@
     <div class="col-md-4">
         @if (travelPackageState.InboundFlight != null)
         {
-            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.InboundFlight" OutBound="false"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
         }
         else
         {
