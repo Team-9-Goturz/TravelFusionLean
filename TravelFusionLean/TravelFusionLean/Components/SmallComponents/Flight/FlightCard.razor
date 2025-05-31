@@ -1,0 +1,18 @@
+﻿@using Shared.Models
+
+<div class="card shadow-sm h-100">
+    <div class="card-header fw-bold">Outbound Flight</div>
+    <div class="card-body small">
+        <div><strong>From:</strong> @Flight.DepartureFromAirport?.City</div>
+        <div><strong>To:</strong> @Flight.ArrivalAtAirport?.City</div>
+        <div><strong>Departure:</strong> @Flight.DepartureTime.ToString()</div>
+        <div><strong>Arrival:</strong> @Flight.ArrivalTime.ToString()</div>
+        <div><strong>Airline:</strong> @Flight.Airline</div>
+        <div><strong>Price:</strong> @Flight.Price.ToString()</div>
+        <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Flight Flight { get; set; }
+}

@@ -1,4 +1,5 @@
 ﻿@using Shared.Models
+@using SmallComponents.Flight
 
 @namespace TravelFusionLean.Components.SmallComponents
 
@@ -11,18 +12,7 @@
     <div class="col-md-4">
         @if (travelPackageState.OutboundFlight != null)
         {
-            <div class="card shadow-sm h-100">
-                <div class="card-header fw-bold">Outbound Flight</div>
-                <div class="card-body small">
-                    <div><strong>From:</strong> @travelPackageState.OutboundFlight.DepartureFromAirport?.City</div>
-                    <div><strong>To:</strong> @travelPackageState.OutboundFlight.ArrivalAtAirport?.City</div>
-                    <div><strong>Departure:</strong> @travelPackageState.OutboundFlight.DepartureTime.ToString()</div>
-                    <div><strong>Arrival:</strong> @travelPackageState.OutboundFlight.ArrivalTime.ToString()</div>
-                    <div><strong>Airline:</strong> @travelPackageState.OutboundFlight.Airline</div>
-                    <div><strong>Price:</strong> @travelPackageState.OutboundFlight.Price.ToString()</div>
-                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
-                </div>
-            </div>
+           <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
         }
         else
         {
@@ -63,18 +53,7 @@
     <div class="col-md-4">
         @if (travelPackageState.InboundFlight != null)
         {
-            <div class="card shadow-sm h-100">
-                <div class="card-header fw-bold">Return Flight</div>
-                <div class="card-body small">
-                    <div><strong>From:</strong> @travelPackageState.InboundFlight.DepartureFromAirport?.City</div>
-                    <div><strong>To:</strong> @travelPackageState.InboundFlight.ArrivalAtAirport?.City</div>
-                    <div><strong>Departure:</strong> @travelPackageState.InboundFlight.DepartureTime.ToString()</div>
-                    <div><strong>Arrival:</strong> @travelPackageState.InboundFlight.ArrivalTime.ToString()</div>
-                    <div><strong>Airline:</strong> @travelPackageState.InboundFlight.Airline</div>
-                    <div><strong>Price:</strong> @travelPackageState.InboundFlight.Price.ToString()</div>
-                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Inbound">Change</a>
-                </div>
-            </div>
+            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
         }
         else
         {

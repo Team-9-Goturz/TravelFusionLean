@@ -1,0 +1,61 @@
+﻿@using Shared.Models
+@code {
+    [Parameter] public string? Headline { get; set; }
+    [Parameter] public string? Description { get; set; }
+    [Parameter] public int NoOfTravellers { get; set; }
+    [Parameter] public int MarkupPercentage { get; set; } = 10;
+    [Parameter] public bool IsRecommended { get; set; }
+    [Parameter] public EventCallback<string> HeadlineChanged { get; set; }
+    [Parameter] public EventCallback<string> DescriptionChanged { get; set; }
+    [Parameter] public EventCallback<int> NoOfTravellersChanged { get; set; }
+    [Parameter] public EventCallback<int> MarkupPercentageChanged { get; set; }
+    [Parameter] public EventCallback<bool> IsRecommendedChanged { get; set; }
+    [Parameter] public EventCallback<IBrowserFile> OnImageUploaded { get; set; }
+    [Parameter] public Price CalculatedPrice { get; set; }
+}
+
+<div class="mb-3">
+    <label for="headline" class="form-label">HeadLine</label>
+    <InputText id="headline" Value="@Headline" ValueChanged="HeadlineChanged" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="description" class="form-label">Description</label>
+    <InputText id="description" Value="@Description" ValueChanged="DescriptionChanged" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="NoOfTravellers" class="form-label">Number of travellers</label>
+    <InputNumber id="NoOfTravellers" Value="@NoOfTravellers" ValueChanged="NoOfTravellersChanged" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="markupPercentage" class="form-label">Markup (% added to base price)</label>
+    <InputNumber id="markupPercentage" Value="@MarkupPercentage" ValueChanged="MarkupPercentageChanged" class="form-control" />
+</div>
+
+<div class="mb-3">
+    <label for="uploadImage" class="form-label">Upload image</label>
+    <InputFile OnChange="HandleFileUpload" />
+</div>
+
+<div class="form-check mb-3">
+    <InputCheckbox id="isRecommended" Value="@IsRecommended" ValueChanged="IsRecommendedChanged" class="form-check-input" />
+    <label for="isRecommended" class="form-check-label">Recommended</label>
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Total Price</label>
+    <h4>@CalculatedPrice</h4>
+</div>
+
+@code {
+    private async Task HandleFileUpload(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null && OnImageUploaded.HasDelegate)
+        {
+            await OnImageUploaded.InvokeAsync(file);
+        }
+    }
+}
