@@ -1,0 +1,17 @@
+﻿@using Shared.Models
+
+<div class="card shadow-sm h-100">
+    <div class="card-header fw-bold">Hotel Stay</div>
+    <div class="card-body small">
+        <div><strong>Hotel:</strong> @hotelStay.Hotel?.Name</div>
+        <div><strong>City:</strong> @hotelStay.Hotel?.City</div>
+        <div><strong>Check-in:</strong> @hotelStay.CheckInDate.ToString()</div>
+        <div><strong>Check-out:</strong> @hotelStay.CheckOutDate.ToString()</div>
+        <div><strong>Travellers:</strong> @hotelStay.NoOfTravellers</div>
+        <div><strong>Price:</strong> @hotelStay.Price.ToString()</div>
+        <a class="btn btn-sm btn-primary me-1" href="/travel-package-hotels">Change</a>
+    </div>
+</div>
+@code {
+    [Parameter] public HotelStay hotelStay { get; set; }
+}

@@ -1,5 +1,6 @@
 ﻿@using Shared.Models
 @using SmallComponents.Flight
+@using SmallComponents
 
 @namespace TravelFusionLean.Components.SmallComponents
 
@@ -27,18 +28,7 @@
     <div class="col-md-4">
         @if (travelPackageState.SelectedHotelStay != null)
         {
-            <div class="card shadow-sm h-100">
-                <div class="card-header fw-bold">Hotel Stay</div>
-                <div class="card-body small">
-                    <div><strong>Hotel:</strong> @travelPackageState.SelectedHotelStay.Hotel?.Name</div>
-                    <div><strong>City:</strong> @travelPackageState.SelectedHotelStay.Hotel?.City</div>
-                    <div><strong>Check-in:</strong> @travelPackageState.SelectedHotelStay.CheckInDate.ToString()</div>
-                    <div><strong>Check-out:</strong> @travelPackageState.SelectedHotelStay.CheckOutDate.ToString()</div>
-                    <div><strong>Travellers:</strong> @travelPackageState.SelectedHotelStay.NoOfTravellers</div>
-                    <div><strong>Price:</strong> @travelPackageState.SelectedHotelStay.Price.ToString()</div>
-                    <a class="btn btn-sm btn-primary me-1" href="/travel-package-hotels">Change</a>
-                </div>
-            </div>
+            <TravelFusionLean.Components.SmallComponents.HotelCard HotelStay="travelPackageState.SelectedHotelStay"></TravelFusionLean.Components.SmallComponents.HotelCard>
         }
         else
         {

@@ -93,23 +93,7 @@
         <div class="col-md-4 d-flex flex-column gap-3">
             @if (travelPackageState.OutboundFlight != null)
             {
-                <div class="card shadow-sm h-100">
-                    <div class="card-header fw-bold">Selected outboundFlight</div>
-                    <div class="card-body">
-                        <p>
-                            <strong>Flight to</strong><br />
-                            Airline: @travelPackageState.OutboundFlight.Airline<br />
-                            From: @travelPackageState.OutboundFlight.DepartureFromAirport?.City<br />
-                            To: @travelPackageState.OutboundFlight.ArrivalAtAirport?.City<br />
-                            Departure: @travelPackageState.OutboundFlight.DepartureTime.ToString("g")<br />
-                            Arrival: @travelPackageState.OutboundFlight.ArrivalTime.ToString("g")<br />
-                            Class: @travelPackageState.OutboundFlight.ClassType<br />
-                            Seats: @travelPackageState.OutboundFlight.SeatsAvailable<br />
-                            Price: @travelPackageState.OutboundFlight.Price
-                        </p>
-                        <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Outbound">Change</a>
-                    </div>
-                </div>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -120,23 +104,7 @@
 
             @if (travelPackageState.InboundFlight != null)
             {
-                <div class="card shadow-sm h-100">
-                    <div class="card-header fw-bold">Selected inboundFlight</div>
-                    <div class="card-body">
-                        <p>
-                            <strong>Flight back</strong><br />
-                            Airline: @travelPackageState.InboundFlight.Airline<br />
-                            From: @travelPackageState.InboundFlight.DepartureFromAirport?.City<br />
-                            To: @travelPackageState.InboundFlight.ArrivalAtAirport?.City<br />
-                            Departure: @travelPackageState.InboundFlight.DepartureTime.ToString("g")<br />
-                            Arrival: @travelPackageState.InboundFlight.ArrivalTime.ToString("g")<br />
-                            Class: @travelPackageState.InboundFlight.ClassType<br />
-                            Seats: @travelPackageState.InboundFlight.SeatsAvailable<br />
-                            Price: @travelPackageState.InboundFlight.Price
-                        </p>
-                        <a class="btn btn-sm btn-primary me-1" href="/travel-package-hotels">Change</a>
-                    </div>
-                </div>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -147,28 +115,7 @@
 
             @if (travelPackageState.SelectedHotelStay != null)
             {
-                <div class="card shadow-sm h-100">
-                    <div class="card-header fw-bold">Selected Hotel Stay</div>
-                    <div class="card-body">
-                        <p>
-                            <strong>Hotel Information</strong><br />
-                            Hotel: @travelPackageState.SelectedHotelStay.Hotel?.Name<br />
-                            Description: @travelPackageState.SelectedHotelStay.Hotel?.Description<br />
-                            Address: @travelPackageState.SelectedHotelStay.Hotel?.Address<br />
-                            City: @travelPackageState.SelectedHotelStay.Hotel?.City<br />
-                            Country: @travelPackageState.SelectedHotelStay.Hotel?.Country<br />
-                            Rating: @travelPackageState.SelectedHotelStay.Hotel?.Rating<br />
-                            <br />
-                            <strong>Stay Details</strong><br />
-                            Check-in: @travelPackageState.SelectedHotelStay.CheckInDate.ToString("d")<br />
-                            Check-out: @travelPackageState.SelectedHotelStay.CheckOutDate.ToString("d")<br />
-                            Days: @travelPackageState.SelectedHotelStay.DaysOfStay<br />
-                            Travellers: @travelPackageState.SelectedHotelStay.NoOfTravellers<br />
-                            Price: @travelPackageState.SelectedHotelStay.Price
-                        </p>
-                        <a class="btn btn-sm btn-primary me-1" href="/travel-package-flights/Inbound">Change</a>
-                    </div>
-                </div>
+                <TravelFusionLean.Components.SmallComponents.HotelCard HotelStay="travelPackageState.SelectedHotelStay"></TravelFusionLean.Components.SmallComponents.HotelCard>
             }
             else
             {
