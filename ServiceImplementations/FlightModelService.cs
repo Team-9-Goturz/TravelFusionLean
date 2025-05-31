@@ -17,5 +17,6 @@ namespace ServiceImplementations
             flight.ArrivalAtAirportId = (int)arrival.Id;
             return await AddAsync(flight);
         }
+
     }
 }

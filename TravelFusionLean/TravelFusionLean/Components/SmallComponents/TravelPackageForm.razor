@@ -2,6 +2,7 @@
 @using Shared.Dtos
 
 @inject ICurrencyConverter CurrencyConverter
+@inject TravelPackageState travelPackageState
 
 <div class="mb-3">
     <label for="headline" class="form-label">Headline</label>
@@ -35,12 +36,6 @@
 </div>
 
 @code {
-    [Parameter]
-    public Shared.Models.Flight OutboundFlight { get; set; }
-    [Parameter]
-    public Shared.Models.Flight InboundFlight { get; set; }
-    [Parameter]
-    public HotelStay SelectedHotelStay { get; set; }
     [Parameter]
     public TravelPackage? ExistingPackage { get; set; }
     protected override async Task OnInitializedAsync()
@@ -82,24 +77,24 @@
 
     protected override void OnParametersSet()
     {
-        if (SelectedHotelStay?.NoOfTravellers != null)
+        if (travelPackageState.SelectedHotelStay?.NoOfTravellers != null)
         {
-            NoOfTravellers = SelectedHotelStay.NoOfTravellers;
+            NoOfTravellers = travelPackageState.SelectedHotelStay.NoOfTravellers;
         }
         CalculatePrice();
     }
 
     private void CalculatePrice()
     {
-        if (OutboundFlight == null || InboundFlight == null || SelectedHotelStay == null)
+        if (travelPackageState.OutboundFlight == null || travelPackageState.InboundFlight == null || travelPackageState.SelectedHotelStay == null)
         {
             CalculatedPrice = new Price(0, Price.ISOCurrency.DKK);
             return;
         }
 
-        Price outboundInDKK = CurrencyConverter.Convert(OutboundFlight.Price, Price.ISOCurrency.DKK);
-        Price hotelInDKK = CurrencyConverter.Convert(SelectedHotelStay.Price, Price.ISOCurrency.DKK);
-        Price inboundInDKK = CurrencyConverter.Convert(InboundFlight.Price, Price.ISOCurrency.DKK);
+        Price outboundInDKK = CurrencyConverter.Convert(travelPackageState.OutboundFlight.Price, Price.ISOCurrency.DKK);
+        Price hotelInDKK = CurrencyConverter.Convert(travelPackageState.SelectedHotelStay.Price, Price.ISOCurrency.DKK);
+        Price inboundInDKK = CurrencyConverter.Convert(travelPackageState.InboundFlight.Price, Price.ISOCurrency.DKK);
 
         decimal basePrice = outboundInDKK.Amount + hotelInDKK.Amount + inboundInDKK.Amount;
         CalculatedPrice.Amount = basePrice + (basePrice * (MarkupPercentage / 100m));
@@ -133,9 +128,9 @@
                 Headline = TravelPackageHeadline,
                 Description = TravelPackageDescription,
                 Price = CalculatedPrice,
-                HotelStay = SelectedHotelStay,
-                OutboundFlight = OutboundFlight,
-                InboundFlight = InboundFlight,
+                HotelStay = travelPackageState.SelectedHotelStay,
+                OutboundFlight = travelPackageState.OutboundFlight,
+                InboundFlight = travelPackageState.InboundFlight,
                 NoOfTravellers = NoOfTravellers,
                 ImagePath = uploadedFileName,
                 IsRecommended = IsRecommended

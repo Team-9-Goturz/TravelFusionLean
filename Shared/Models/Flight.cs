@@ -10,7 +10,7 @@ namespace Shared.Models;
 public class Flight
 {
     [Key]
-    public int Id { get; set; }
+    public int? Id { get; set; }
 
     [Column(TypeName = "decimal(30,2)")]
     public Price Price { get; set; }

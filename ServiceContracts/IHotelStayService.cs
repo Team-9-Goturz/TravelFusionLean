@@ -9,6 +9,7 @@ namespace ServiceContracts
 {
     public interface IHotelStayService : ICrudService<HotelStay>
     {
-        Task<HotelStay> CreateForHotelAsync(Hotel hotel, HotelStay stay);
+        Task<HotelStay> CreateHotelStayAsync(Hotel hotel, HotelStay stay);
+        Task<HotelStay> UpdateHotelStayAsync(int id, HotelStay updatedStay);
     }
 }

@@ -13,7 +13,7 @@
     <div class="col-md-4">
         @if (travelPackageState.OutboundFlight != null)
         {
-           <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+            <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
         }
         else
         {
@@ -53,15 +53,20 @@
             </div>
         }
     </div>
-@if (travelPackageState.InboundFlight != null && travelPackageState.SelectedHotelStay != null && travelPackageState.OutboundFlight != null)
-{
+    @if (travelPackageState.InboundFlight != null && travelPackageState.SelectedHotelStay != null && travelPackageState.OutboundFlight != null)
+    {
+        if(travelPackageState.IsEditing == true){
+            <a class="btn btn-sm btn-primary me-1" href="/EditTravelPackage/@travelPackageState.TravelpackageID">Back to editing</a>
+        }
+        else{
         <a class="btn btn-sm btn-primary me-1" href="/publish-travel-package" >Create TravelPackage</a>
-      
-}
-</div>
+        }
 
+    }
+</div>
 
 @code {
     [Parameter]
     public TravelPackageState travelPackageState { get; set; }
+    
 }

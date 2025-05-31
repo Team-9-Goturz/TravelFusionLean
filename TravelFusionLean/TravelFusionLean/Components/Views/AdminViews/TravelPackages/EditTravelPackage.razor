@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @inject ICurrencyConverter currencyConverter
 @inject NavigationManager navigationManager
+@inject TravelPackageState travelPackageState
 
 @using Shared.Models
 @using Shared.Dtos
@@ -21,9 +22,7 @@
         <!-- LEFT: Form -->
         <div class="col-md-8">
 
-            <TravelPackageForm OutboundFlight="package.OutboundFlight"
-            InboundFlight="package.InboundFlight"
-            SelectedHotelStay="package.HotelStay"
+            <TravelPackageForm 
             ExistingPackage = "package"
             @ref="travelPackageForm" />
         </div>
@@ -32,7 +31,7 @@
         <div class="col-md-4 d-flex flex-column gap-3">
             @if (package.OutboundFlight != null)
             {
-                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="package.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="travelPackageState.OutboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -43,7 +42,7 @@
 
             @if (package.InboundFlight != null)
             {
-                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight="package.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
+                <TravelFusionLean.Components.SmallComponents.Flight.FlightCard Flight=" travelPackageState.InboundFlight"></TravelFusionLean.Components.SmallComponents.Flight.FlightCard>
             }
             else
             {
@@ -54,7 +53,7 @@
 
             @if (package.HotelStay != null)
             {
-                <TravelFusionLean.Components.SmallComponents.HotelCard HotelStay="package.HotelStay"></TravelFusionLean.Components.SmallComponents.HotelCard>
+                <TravelFusionLean.Components.SmallComponents.HotelCard HotelStay="travelPackageState.SelectedHotelStay"></TravelFusionLean.Components.SmallComponents.HotelCard>
             }
             else
             {
@@ -82,6 +81,39 @@
     {
         await base.OnInitializedAsync();
         package = await TravelPackageService.GetByIdAsync(TravelPackageId);
+
+        if (travelPackageState.IsEditing != true) //find udad om en redigering allerede er igang
+        {
+            navigationManager.LocationChanged += OnLocationChanged;
+
+            travelPackageState.InboundFlight = package.InboundFlight;
+            travelPackageState.OutboundFlight = package.OutboundFlight;
+            travelPackageState.SelectedHotelStay = package.HotelStay;
+            travelPackageState.IsEditing = true;
+            travelPackageState.TravelpackageID = package.Id;
+        }
+    }
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        var url = e.Location.ToLower();
+
+        if (!url.Contains("/travel-package-hotels") && !url.Contains("/travel-package-flights") && !url.Contains("/edittravelpackage"))
+        {
+            ResetTravelPackageState();
+        }
+    }
+
+    private void ResetTravelPackageState()
+    {
+        travelPackageState.InboundFlight = null;
+        travelPackageState.OutboundFlight = null;
+        travelPackageState.SelectedHotelStay = null;
+        travelPackageState.IsEditing = false;
+        travelPackageState.TravelpackageID = 0;
+    }
+    public void Dispose()
+    {
+        navigationManager.LocationChanged -= OnLocationChanged;
     }
 
     private TravelPackageForm travelPackageForm;
@@ -92,12 +124,12 @@
             return;
 
         CreateTravelPackageDTO dto = travelPackageForm.GetTravelPackageDTO();
-   
+
         // Antag Update-metode i koordinator som opdaterer eksisterende
         TravelPackage UpdatedTravelPackage = await TravelPackageCoordinator.UpdateTravelpackageAsync(package.Id, dto);
+
+        ResetTravelPackageState();
+
         navigationManager.NavigateTo("/TravelPackageList");
     }
-}
-
-
 }

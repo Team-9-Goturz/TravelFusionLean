@@ -11,5 +11,8 @@ namespace Shared.Models
         public Flight? OutboundFlight { get; set; }
         public HotelStay? SelectedHotelStay { get; set;}
         public Flight? InboundFlight { get; set; }
+
+        public bool IsEditing { get; set; } = false;
+        public int? TravelpackageID { get; set; }
     }
 }
