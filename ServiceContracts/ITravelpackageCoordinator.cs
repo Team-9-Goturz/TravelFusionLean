@@ -11,5 +11,6 @@ namespace ServiceContracts
     public interface ITravelPackageCoordinator
     {
         Task<TravelPackage> CreateTravelpackageAsync(CreateTravelPackageDTO travelpackageDTO, TravelPackageStatus status);
+        Task<TravelPackage> UpdateTravelpackageAsync(int travelPackageId, CreateTravelPackageDTO travelpackageDTO);
     }
 }

@@ -67,12 +67,9 @@
 </div>
 
 <div class="mt-4 d-flex justify-content-end">
-   @*  <button class="btn btn-primary" @onclick="CreateTravelPackageAsync">
-        <i class="fa fa-plus"></i> Publish travel package
+    <button class="btn btn-primary" @onclick="UpdateTravelPackageAsync">
+        <i class="fa fa-plus"></i> Update Travel Package
     </button>
-    <button class="btn btn-primary ms-2" @onclick="CreateTravelPackageAsDraftAsync">
-        <i class="fa fa-plus"></i> Save as draft
-    </button> *@
 </div>
 
 @code 
@@ -89,27 +86,17 @@
 
     private TravelPackageForm travelPackageForm;
 
-    // private async Task UpdateTravelPackageAsync()
-    // {
-    //     if (travelPackageForm == null)
-    //         return;
+    private async Task UpdateTravelPackageAsync()
+    {
+        if (travelPackageForm == null)
+            return;
 
-    //     CreateTravelPackageDTO dto = travelPackageForm.GetTravelPackageDTO();
-    //     dto. = TravelPackageId; // Husk at sætte ID ved opdatering
-
-    //     // Antag Update-metode i koordinator som opdaterer eksisterende
-    //     bool success = await TravelPackageCoordinator.UpdateTravelPackageAsync(dto);
-
-    //     if (success)
-    //     {
-    //         navigationManager.NavigateTo("/TravelPackageList");
-    //     }
-    //     else
-    //     {
-    //         // Håndter fejl, fx vis besked til bruger
-    //         // fx en toast-notifikation eller et flag i UI
-    //     }
-    // }
+        CreateTravelPackageDTO dto = travelPackageForm.GetTravelPackageDTO();
+   
+        // Antag Update-metode i koordinator som opdaterer eksisterende
+        TravelPackage UpdatedTravelPackage = await TravelPackageCoordinator.UpdateTravelpackageAsync(package.Id, dto);
+        navigationManager.NavigateTo("/TravelPackageList");
+    }
 }
 
 

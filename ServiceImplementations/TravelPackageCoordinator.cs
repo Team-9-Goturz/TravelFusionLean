@@ -80,5 +80,66 @@ namespace ServiceImplementations
                 throw;
             }
         }
+        public async Task<TravelPackage> UpdateTravelpackageAsync(int travelPackageId, CreateTravelPackageDTO travelpackageDTO)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // 1. Hent eksisterende TravelPackage fra databasen inkl. relaterede entiteter
+                var existingTravelPackage = await _travelPackageService.GetByIdAsync(travelPackageId);
+                if (existingTravelPackage == null)
+                {
+                    throw new KeyNotFoundException($"TravelPackage med Id {travelPackageId} blev ikke fundet.");
+                }
+
+                //// 2. Opdater eller find/creat lufthavne for outbound flight
+                //if (travelpackageDTO.OutboundFlight != null)
+                //{
+                //    travelpackageDTO.OutboundFlight.DepartureFromAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.OutboundFlight.DepartureFromAirport);
+                //    travelpackageDTO.OutboundFlight.ArrivalAtAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.OutboundFlight.ArrivalAtAirport);
+
+                //    // Opdater outbound flight via flight service
+                //    await _flightModelService.UpdateFlightAsync(existingTravelPackage.OutboundFlightId, travelpackageDTO.OutboundFlight);
+                //}
+
+                //// 3. Opdater eller find/creat lufthavne for inbound flight
+                //if (travelpackageDTO.InboundFlight != null)
+                //{
+                //    travelpackageDTO.InboundFlight.DepartureFromAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.DepartureFromAirport);
+                //    travelpackageDTO.InboundFlight.ArrivalAtAirport = await _airportService.FindOrCreateAsync(travelpackageDTO.InboundFlight.ArrivalAtAirport);
+
+                //    // Opdater inbound flight via flight service
+                //    await _flightModelService.UpdateFlightAsync(existingTravelPackage.InboundFlightId, travelpackageDTO.InboundFlight);
+                //}
+
+                //// 4. Opdater eller find/creat hotel for hotel stay
+                //if (travelpackageDTO.HotelStay != null)
+                //{
+                //    travelpackageDTO.HotelStay.Hotel = await _hotelModelService.FindOrCreateAsync(travelpackageDTO.HotelStay.Hotel);
+
+                //    // Opdater hotel stay via hotel stay service
+                //    await _hotelstayService.UpdateHotelStayAsync(existingTravelPackage.HotelStayId, travelpackageDTO.HotelStay);
+                //}
+
+                // 5. Opdater felter på selve TravelPackage
+                existingTravelPackage.Headline = travelpackageDTO.Headline;
+                existingTravelPackage.Description = travelpackageDTO.Description;
+                existingTravelPackage.Price = travelpackageDTO.Price;
+                existingTravelPackage.NoOfTravellers = travelpackageDTO.NoOfTravellers;
+                existingTravelPackage.ImagePath = travelpackageDTO.ImagePath;
+
+                // 6. Gem opdateringen via travel package service
+                await _travelPackageService.UpdateAsync(existingTravelPackage);
+
+                await transaction.CommitAsync();
+                return existingTravelPackage;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
     }
 }
