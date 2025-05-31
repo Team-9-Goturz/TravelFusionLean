@@ -13,6 +13,8 @@ namespace Shared.Dtos
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
         public int? NumberOfTravelers { get; set; }         
-        public DateOnly? DepartureDateEarliest { get; set; }        
+        public DateOnly? DepartureDateEarliest { get; set; }
+        public DateOnly? DepartureDateLatest{ get; set; }
+        public bool HasToBeRecommended { get; set; }=false;
     }
 }

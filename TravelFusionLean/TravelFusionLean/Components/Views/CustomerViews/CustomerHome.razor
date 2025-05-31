@@ -1,9 +1,13 @@
 ﻿@page "/"
 @using TravelFusionLean.Components.Layout.Customer
 @using TravelFusionLean.Components.SmallComponents
+@using Shared.Dtos
+@using Shared.Models
 @layout CustomerLayout
 @attribute [StreamRendering]
 @inject NavigationManager NavManager
+@inject ITravelPackageService travelPackageService
+
 @rendermode InteractiveServer
 
 <PageTitle>Welcome</PageTitle>
@@ -17,7 +21,7 @@
         <div class="text-center">
             <div class="mb-3">
                 <span class="animated-globe">🌍</span>
-                
+
             </div>
 
 
@@ -34,7 +38,7 @@
             </div>
 
         </div>
-       
+
     </div>
 
     <br />
@@ -57,5 +61,60 @@
     private void NavigateToDestination(string destination)
     {
         NavManager.NavigateTo($"/Travelpackage-Browse/{destination}");
+    }
+}
+
+
+
+@* Rejser med snarlig afrejse *@
+<h3>Book Before They're Gone – Last-Minute Deals</h3>
+<div class="card-row">
+    @if (LeavingSoonTravelPackage is not null)
+    {
+        @foreach (var package in LeavingSoonTravelPackage)
+        {
+            <TravelPackageCard package="@package" />
+        }
+    }
+</div>
+
+@* Anbefalede rejser *@
+<h3>Top Travel Picks – Just for You</h3>
+<div class="card-row">
+    @if (RecommendedTravelPackage is not null)
+    {
+        @foreach (var package in RecommendedTravelPackage)
+        {
+            <TravelPackageCard package="@package" />
+        }
+    }
+</div>
+
+@code {
+    private List<TravelPackage> LeavingSoonTravelPackage { get; set; } = new();
+    private List<TravelPackage> RecommendedTravelPackage { get; set; } = new();
+
+    private readonly int maxDaysToDeparture = 7;
+
+    private readonly TravelPackageSearchDTO searchLeavingSoon = new()
+        {
+            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
+            DepartureDateLatest = DateOnly.FromDateTime(DateTime.Today.AddDays(7)),
+      
+        };
+
+    private readonly TravelPackageSearchDTO searchRecommended = new()
+        {
+            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
+            HasToBeRecommended = true
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var leavingSoonResult = await travelPackageService.SearchAvailableAsync(searchLeavingSoon);
+        var recommendedResult = await travelPackageService.SearchAvailableAsync(searchRecommended);
+
+        LeavingSoonTravelPackage = leavingSoonResult.ToList();
+        RecommendedTravelPackage = recommendedResult.ToList();
     }
 }

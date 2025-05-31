@@ -153,11 +153,17 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
                 tp.HotelStay.Hotel.City.ToLower().Contains(searchDto.Destination.ToLower()));
         }
 
-        // Afgangs-dato
+        // Afgangs-dato (tidligst)
         if (searchDto.DepartureDateEarliest != null)
         {
             query = query.Where(tp =>
                 DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) >= searchDto.DepartureDateEarliest);
+        }
+        // Afgangs-dato (senest)
+        if (searchDto.DepartureDateLatest != null)
+        {
+            query = query.Where(tp =>
+                DateOnly.FromDateTime(tp.OutboundFlight.DepartureTime) <= searchDto.DepartureDateLatest);
         }
 
         // Antal rejsende
@@ -178,9 +184,12 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
             query = query.Where(tp => tp.Price.Amount <= searchDto.MaxPrice);
         }
 
+        // Kun anbefalede
+        if (searchDto.HasToBeRecommended)
+        {
+            query = query.Where(tp => tp.IsRecommended.Value);
+        }
+
         return await query.ToListAsync();
     }
-
-
-
 }
