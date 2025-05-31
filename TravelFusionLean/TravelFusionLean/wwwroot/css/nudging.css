@@ -1,40 +1,70 @@
-﻿.card.recommended-package {
+﻿.card-img-top {
+    position: relative;
+    z-index: 1;
+}
+
+.nudging-badges {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    z-index: 5;
+}
+
+/* Fælles stil for badges */
+.badge-recommended,
+.badge-last-chance,
+.badge-no-longer-available {
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-family: sans-serif;
+    font-size: 14px;
+    padding: 4px 0;
     position: relative;
 }
 
-    .card.recommended-package::before {
-        content: "Recommended";
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 30px;
-        width: 100%;
-        font-weight: bold;
-        color: black;
-        background-color: gold;
-        line-height: 30px;
-        font-family: sans-serif;
-        font-size: 14px;
-        border-top-left-radius: 0.25rem;
-        border-top-right-radius: 0.25rem;
-        text-align: center;
-    }
+/* Gul anbefalet badge */
+.badge-recommended {
+    background-color: gold;
+    color: black;
+}
 
-/* Last chance badge via ::after */
-.card.last-chance-package::after {
-    content: "Last chance!";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 30px;
-    width: 100%;
-    font-weight: bold;
-    color: white;
+/* Rød last chance badge */
+.badge-last-chance {
     background-color: red;
-    line-height: 30px;
+    color: white;
+}
+
+.badge-no-longer-available {
+    position: relative;
+    background-color: rgba(64, 64, 64, 0.85); /* fallback, hvis striber ikke loader */
+    padding: 6px 0;
+    text-align: center;
     font-family: sans-serif;
     font-size: 14px;
-    border-bottom-left-radius: 0.25rem;
-    border-bottom-right-radius: 0.25rem;
-    text-align: center;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+    z-index: 5;
 }
+
+    .badge-no-longer-available::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -25%;
+        width: 150%;
+        height: 100%;
+        background: repeating-linear-gradient( 45deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15) 10px, rgba(64, 64, 64, 0.85) 10px, rgba(64, 64, 64, 0.85) 20px );
+        z-index: 1;
+    }
+
+    .badge-no-longer-available span {
+        position: relative;
+        z-index: 2;
+        color: white;
+        font-weight: bold;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
+    }

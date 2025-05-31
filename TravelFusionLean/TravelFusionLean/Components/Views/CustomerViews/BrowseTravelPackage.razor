@@ -2,14 +2,15 @@
 @page "/Travelpackage-Browse/{Destination?}"
 
 @using Shared.Dtos
+@using Shared.Models
+@using Data
+@using ServiceImplementations
 @using TravelFusionLean.Components.Layout.Customer
+@using TravelFusionLean.Components.SmallComponents
+
 @layout CustomerLayout
 @rendermode InteractiveServer
 
-@using Shared.Models
-@using Data
-@using ServiceImplementations;
-@using TravelFusionLean.Components.SmallComponents
 @inject ITravelPackageService travelPackageService
 @inject ICurrencyConverter currencyConverter
 
@@ -17,66 +18,78 @@
 
 <h3 class="text-primary-blue text-center">Browse Travelpackages</h3>
 
-<TravelFusionLean.Components.SmallComponents.TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelFusionLean.Components.SmallComponents.TravelPackageSearch>
+<TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages" />
 <br />
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <!-- Tabs for sorting -->
     <div class="flex-grow-1 me-3">
         <TravelPackageSortTab SelectedTab="@selectedTab" OnTabChanged="@SetTab" />
     </div>
-    <!-- Dropdown for valuta -->
+
+    <!-- Valuta -->
     <div class="me-3" style="min-width: 150px; max-width: 200px; flex-shrink: 0;">
         <CurrencySelector SelectedCurrency="@SelectedCurrency" OnCurrencyChanged="HandleCurrencyChanged" />
     </div>
-    <!-- Dropdown for page size -->
+
+    <!-- Page size -->
     <div style="min-width: 100px; flex-shrink: 0;">
-        <PageSizeSelector PageSize="@PageSize" OnPageSizeChanged="@(size => OnPageSizeChange(size))" />
+        <PageSizeSelector PageSize="@PageSize" OnPageSizeChanged="OnPageSizeChange" PageSizeOptions="new List<int> { 3, 6, 9, 12 }" />
     </div>
 </div>
 
-@code {
-    private string selectedTab = "earliest";
-
-    private void SetTab(string tab)
-    {
-        selectedTab = tab;
-        CurrentPage = 1;
-        StateHasChanged();
-    }
-    private void OnPageSizeChange(int newSize)
-    {
-        PageSize = newSize;
-        CurrentPage = 1;
-        StateHasChanged();
-    }
-    private IEnumerable<TravelPackage> PagedTravelPackages => SortedTravelpackages?.Skip((CurrentPage - 1) * PageSize).Take(PageSize) ?? Enumerable.Empty<TravelPackage>();
-    private IEnumerable<TravelPackage> SortedTravelpackages =>
-        selectedTab switch
-        {
-            "earliest" => SearchResults?.OrderBy(tp => tp.OutboundFlight.DepartureTime) ?? Enumerable.Empty<TravelPackage>(),
-            "cheapest" => SearchResults?.OrderBy(tp => tp.Price.Amount) ?? Enumerable.Empty<TravelPackage>(),
-
-            _ => SearchResults ?? Enumerable.Empty<TravelPackage>()
-        };
+@if (isLoading)
+{
+    <p><em>Loading travelpackages...</em></p>
+}
+else if (isSearching)
+{
+    <p><em>Searching...</em></p>
+}
+else if (SearchResults == null || !SearchResults.Any())
+{
+    <p><strong>No travelpackages found.</strong></p>
+}
+else
+{
+    <p>Results: <strong>@resultCount</strong></p>
+    <div class="container">
+        <div class="row">
+            @foreach (var package in PagedResults)
+            {
+                <TravelPackageCard package="@package" />
+            }
+        </div>
+    </div>
+    <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" OnPageChanged="HandlePageChanged" />
 }
 
+@code {
+    // Parametre og injected services
+    [Parameter] public string? Destination { get; set; }
+    private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
 
-@code 
-{
-    [Parameter]
-    public string? Destination { get; set; }
-
+    // Søgemodel og resultater
     private TravelPackageSearchDTO SearchModel = new()
-    {
-        DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Now),
-        MinPrice = 0,
-        MaxPrice = 10000
-    };
+        {
+            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Now),
+            MinPrice = 0,
+            MaxPrice = 10000
+        };
 
     private List<TravelPackage>? SearchResults;
+    private List<TravelPackage> PagedResults = new();
     private int resultCount;
+
+    // UI-styring
+    private string selectedTab = "earliest";
     private bool isLoading = true;
     private bool isSearching = false;
+
+    // Pagination
+    private int CurrentPage { get; set; } = 1;
+    private int PageSize { get; set; } = 9;
+    private int TotalPages => (int)Math.Ceiling((double)(SearchResults?.Count ?? 0) / PageSize);
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,6 +98,7 @@
             SearchModel.Destination = Destination;
             await FilterTravelPackages();
         }
+
         await LoadInitialPackages();
     }
 
@@ -103,96 +117,64 @@
             var result = await travelPackageService.SearchAvailableAsync(SearchModel);
             SearchResults = result.ToList();
             resultCount = SearchResults.Count;
+            CurrentPage = 1;
+            UpdatePagedResults();
         }
         catch (Exception ex)
         {
-            string errorMessage = $"Noget gik galt: {ex.Message}";
+            Console.WriteLine($"Noget gik galt: {ex.Message}");
         }
         finally
         {
             isSearching = false;
         }
     }
-}
 
+    private IEnumerable<TravelPackage> SortedTravelpackages =>
+        selectedTab switch
+        {
+            "earliest" => SearchResults?.OrderBy(tp => tp.OutboundFlight.DepartureTime) ?? Enumerable.Empty<TravelPackage>(),
+            "cheapest" => SearchResults?.OrderBy(tp => tp.Price.Amount) ?? Enumerable.Empty<TravelPackage>(),
+            _ => SearchResults ?? Enumerable.Empty<TravelPackage>()
+        };
 
-  @if (isLoading)
-{
-    <p><em>Loading travelpackages...</em></p>
-}
-else if (isSearching)
-{
-    <p><em>Searching...</em></p>
-}
-else if (SearchResults == null || !SearchResults.Any())
-{
-    <p><strong>No travelpackages found.</strong></p>
-}
-else
-{
-    <p>Results: <strong>@resultCount</strong></p>
-    <div class="container">
-        <div class="row">
-            @foreach (TravelPackage package in PagedTravelPackages)
-            {
-                var daysUntilDeparture = (package.OutboundFlight.DepartureTime - DateTime.Now).TotalDays;
+    private void UpdatePagedResults()
+    {
+        PagedResults = SortedTravelpackages
+            .Skip((CurrentPage - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+    }
 
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 position-relative">
+    private void OnPageSizeChange(int newSize)
+    {
+        PageSize = newSize;
+        CurrentPage = 1;
+        UpdatePagedResults();
+    }
 
-                        @* Top labels stacked *@
-                        @if (package.IsRecommended == true)
-                        {
-                            <div class="bg-warning text-dark text-center fw-bold py-1 w-100">
-                                Recommended
-                            </div>
-                        }
-                        @if (daysUntilDeparture <= 3)
-                        {
-                            <div class="bg-danger text-white text-center fw-bold py-1 w-100">
-                                Last chance!
-                            </div>
-                        }
-                        <img loading="lazy" src="@(!string.IsNullOrEmpty(package.ImagePath) ? package.ImagePath : "/images/WineOnBeach.png")" alt="Travel Package Image" class="card-img-top" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title"> @package.Headline</h5>
-                            <p class="card-text">
-                                @if (!string.IsNullOrEmpty(package.Description))
-                                {
-                                    var truncated = package.Description.Length > 100 ? package.Description.Substring(0, 95) + "..." : package.Description;
-                                    @truncated
-                                }
-                            </p>
-                            <p><strong>Antal rejsende:</strong> @package.NoOfTravellers</p>
-                            <p><strong>Pris:</strong> @package.Price</p>
-                            <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis mere</a>
-                            <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@package.Id">Book</a>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </div>
-    <Pagination CurrentPage="@CurrentPage" TotalPages="@TotalPages" OnPageChanged="HandlePageChanged" />
-}
-
- @code {
-    private int TotalPages => (int)Math.Ceiling((double)(SearchResults?.Count ?? 0) / PageSize);
-    private int CurrentPage { get; set; } = 1;
-    private int PageSize { get; set; } = 10;
+    private void SetTab(string tab)
+    {
+        selectedTab = tab;
+        CurrentPage = 1;
+        UpdatePagedResults();
+    }
 
     private async Task HandlePageChanged(int newPage)
     {
         CurrentPage = newPage;
+        UpdatePagedResults();
         await InvokeAsync(StateHasChanged);
     }
 
-    private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
     private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
     {
-        foreach (TravelPackage travelPackage in PagedTravelPackages)
+        foreach (var travelPackage in PagedResults)
         {
             travelPackage.Price = currencyConverter.Convert(travelPackage.Price, newCurrency);
         }
+
+        SelectedCurrency = newCurrency;
+        await InvokeAsync(StateHasChanged);
     }
- }
+}

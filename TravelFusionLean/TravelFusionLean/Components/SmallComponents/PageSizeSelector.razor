@@ -1,6 +1,7 @@
 ﻿@code {
     [Parameter] public int PageSize { get; set; } = 10;
     [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+    [Parameter] public List<int> PageSizeOptions { get; set; } = new() { 5, 10, 20, 50 };
 }
 
 <div>
@@ -10,17 +11,17 @@
             style="width: auto; display: inline-block;"
             @onchange="HandleChange"
             value="@PageSize">
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
-        <option value="50">50</option>
+            @foreach (var size in PageSizeOptions)
+            {
+                <option value="@size">@size</option>
+            }
     </select>
 </div>
 
 @code{
     private async Task HandleChange(ChangeEventArgs e)
     {
-        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 5)
+        if (int.TryParse(e?.Value?.ToString(), out int newSize) && newSize >= 1)
         {
             PageSize = newSize;
             await OnPageSizeChanged.InvokeAsync(newSize);
