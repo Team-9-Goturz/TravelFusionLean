@@ -41,6 +41,19 @@
     public Shared.Models.Flight InboundFlight { get; set; }
     [Parameter]
     public HotelStay SelectedHotelStay { get; set; }
+    [Parameter]
+    public TravelPackage? ExistingPackage { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        if(ExistingPackage!= null){
+            TravelPackageHeadline = ExistingPackage.Headline;
+            TravelPackageDescription = ExistingPackage.Description;
+            NoOfTravellers = ExistingPackage.NoOfTravellers;
+            IsRecommended = ExistingPackage.IsRecommended.Value;
+        }
+        
+    }
 
     [Parameter]
     public EventCallback<CreateTravelPackageDTO> OnFormSubmit { get; set; }
