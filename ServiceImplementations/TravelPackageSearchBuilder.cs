@@ -1,15 +1,40 @@
 ﻿using Shared.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ServiceImplementations
 {
     public class TravelPackageSearchBuilder
     {
         private readonly TravelPackageSearchDTO _searchDto = new();
+
+        public TravelPackageSearchBuilder WithDepartureLocation(string departureLocation)
+        {
+            _searchDto.DepartureLocation = departureLocation;
+            return this;
+        }
+
+        public TravelPackageSearchBuilder WithDestination(string destination)
+        {
+            _searchDto.Destination = destination;
+            return this;
+        }
+
+        public TravelPackageSearchBuilder WithMinPrice(decimal minPrice)
+        {
+            _searchDto.MinPrice = minPrice;
+            return this;
+        }
+
+        public TravelPackageSearchBuilder WithMaxPrice(decimal maxPrice)
+        {
+            _searchDto.MaxPrice = maxPrice;
+            return this;
+        }
+
+        public TravelPackageSearchBuilder WithNumberOfTravelers(int numberOfTravelers)
+        {
+            _searchDto.NumberOfTravelers = numberOfTravelers;
+            return this;
+        }
 
         public TravelPackageSearchBuilder WithDepartureDateEarliest(DateOnly date)
         {
@@ -26,12 +51,6 @@ namespace ServiceImplementations
         public TravelPackageSearchBuilder WithRecommendedOnly(bool recommended = true)
         {
             _searchDto.HasToBeRecommended = recommended;
-            return this;
-        }
-
-        public TravelPackageSearchBuilder WithDestination(string destination)
-        {
-            _searchDto.Destination = destination;
             return this;
         }
 
