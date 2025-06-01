@@ -113,7 +113,7 @@ else
         try
         {
             isSearching = true;
-            var result = await travelPackageService.SearchAvailableAsync(SearchModel);
+            var result = await travelPackageService.SearchAsync(SearchModel);
             SearchResults = result.ToList();
             resultCount = SearchResults.Count;
             CurrentPage = 1;

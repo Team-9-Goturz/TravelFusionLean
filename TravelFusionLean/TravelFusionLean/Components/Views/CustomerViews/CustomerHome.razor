@@ -109,8 +109,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var leavingSoonResult = await travelPackageService.SearchAvailableAsync(searchLeavingSoon);
-        var recommendedResult = await travelPackageService.SearchAvailableAsync(searchRecommended);
+        var leavingSoonResult = await travelPackageService.SearchAsync(searchLeavingSoon);
+        var recommendedResult = await travelPackageService.SearchAsync(searchRecommended);
 
         LeavingSoonTravelPackage = leavingSoonResult.ToList();
         RecommendedTravelPackage = recommendedResult.ToList();

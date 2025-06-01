@@ -26,21 +26,74 @@
 
     private async Task FilterTravelPackages()
     {
-        var result = await travelPackageService.SearchAvailableAsync(SearchModel);
+        var result = await travelPackageService.SearchAsync(SearchModel);
         SearchResults = result.ToList();
         resultCount = SearchResults.Count;
     }
 }
 
 <p>Results: <strong>@resultCount</strong></p>
-<div class="container">
-    <div class="row">
-        @foreach (TravelPackage package in SearchResults)
+
+<table class="table table-hover table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>Rejse</th>
+            <th>Antal Rejsende</th>
+            <th>Fly (Udrejse)</th>
+            <th>Hotel</th>
+            <th>Fly (Hjemrejse)</th>
+            <th>Pris</th>
+            <th>Status</th>
+            <th>Handlinger</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var package in SearchResults)
         {
-            <TravelPackageCard package="@package" />
+            <tr>
+                <td style="max-width: 250px;">
+                    @if (!string.IsNullOrEmpty(package.ImagePath))
+                    {
+                        <img src="@package.ImagePath" alt="Billede" class="img-thumbnail mb-1" style="max-width: 100%; height: auto;" />
+                    }
+                    <strong>@package.Headline</strong><br />
+                    <span title="@package.Description">
+                        @(package.Description?.Length > 100
+                            ? package.Description.Substring(0, 100) + "..."
+                            : package.Description)
+                    </span>
+                </td>
+                <td>@package.NoOfTravellers</td>
+                <td>
+                    @package.OutboundFlight?.DepartureFromAirport.Name <br />
+                    @package.OutboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @package.OutboundFlight?.Airline
+                </td>
+                <td>
+                    @if (package.HotelStay != null)
+                    {
+                        @package.HotelStay.CheckInDate.ToString("d") <br />
+                        @package.HotelStay.CheckOutDate.ToString("d") <br />
+                        @package.HotelStay.Hotel.Name
+                    }
+                </td>
+                <td>
+                    @package.InboundFlight?.DepartureFromAirport.Name <br />
+                    @package.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
+                    @package.InboundFlight?.Airline
+                </td>
+                <td>@package.Price.ToString()</td>
+                <td>@package.Status</td>
+                <td>
+                    <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis</a>
+                    <a class="btn btn-sm btn-warning me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">Slet</button>
+                </td>
+            </tr>
         }
-    </div>
-</div>
+    </tbody>
+</table>
+
 
 @code 
 {
@@ -50,4 +103,22 @@
         await FilterTravelPackages();
     }
 }
+@code 
+{
+  private async Task DeleteTravelPackageAsync(int id)
+    {
+        var success = await travelPackageService.ArchiveAsync(id); // kald til service
+
+        if (success)
+        {
+            var travelPackage = SearchResults.FirstOrDefault(tp => tp.Id == id);
+            if (travelPackage is not null)
+            {
+                SearchResults.Remove(travelPackage); // fjern fra visningen
+            }
+        }
+    }
+}
+
+
 
