@@ -3,6 +3,7 @@
 @using TravelFusionLean.Components.SmallComponents
 @using Shared.Dtos
 @using Shared.Models
+@using ServiceImplementations
 @layout CustomerLayout
 @attribute [StreamRendering]
 @inject NavigationManager NavManager
@@ -96,18 +97,15 @@
 
     private readonly int maxDaysToDeparture = 7;
 
-    private readonly TravelPackageSearchDTO searchLeavingSoon = new()
-        {
-            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
-            DepartureDateLatest = DateOnly.FromDateTime(DateTime.Today.AddDays(7)),
-      
-        };
+    private readonly TravelPackageSearchDTO searchLeavingSoon = new TravelPackageSearchBuilder()
+       .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
+       .WithDepartureDateLatest(DateOnly.FromDateTime(DateTime.Today.AddDays(7)))
+       .Build();
 
-    private readonly TravelPackageSearchDTO searchRecommended = new()
-        {
-            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
-            HasToBeRecommended = true
-        };
+    private readonly TravelPackageSearchDTO searchRecommended = new TravelPackageSearchBuilder()
+     .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
+     .WithRecommendedOnly()
+     .Build();
 
     protected override async Task OnInitializedAsync()
     {
