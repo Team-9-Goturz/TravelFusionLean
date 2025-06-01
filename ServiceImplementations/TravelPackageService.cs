@@ -134,7 +134,7 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
                 .ThenInclude(hs => hs.Hotel)
             .Include(tp => tp.InboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
-            .Where(tp => tp.Status == TravelPackageStatus.Available) 
+            .Where(tp => tp.Status == searchDto.Status) 
             .AsQueryable();
 
         // Departure location: land eller by
