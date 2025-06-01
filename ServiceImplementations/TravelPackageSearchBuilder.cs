@@ -1,4 +1,5 @@
 ﻿using Shared.Dtos;
+using Shared.Models;
 
 namespace ServiceImplementations
 {
@@ -53,7 +54,11 @@ namespace ServiceImplementations
             _searchDto.HasToBeRecommended = recommended;
             return this;
         }
-
+        public TravelPackageSearchBuilder WithStatusOnly(TravelPackageStatus travelPackageStatus)
+        {
+            _searchDto.Status = travelPackageStatus;
+            return this;
+        }
         public TravelPackageSearchDTO Build()
         {
             return _searchDto;

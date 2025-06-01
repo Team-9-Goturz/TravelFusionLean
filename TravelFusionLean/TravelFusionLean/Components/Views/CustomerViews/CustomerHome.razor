@@ -100,11 +100,13 @@
     private readonly TravelPackageSearchDTO searchLeavingSoon = new TravelPackageSearchBuilder()
        .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
        .WithDepartureDateLatest(DateOnly.FromDateTime(DateTime.Today.AddDays(7)))
+       .WithStatusOnly(TravelPackageStatus.Available)
        .Build();
 
     private readonly TravelPackageSearchDTO searchRecommended = new TravelPackageSearchBuilder()
      .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
      .WithRecommendedOnly()
+     .WithStatusOnly(TravelPackageStatus.Available)
      .Build();
 
     protected override async Task OnInitializedAsync()

@@ -74,6 +74,7 @@ else
       .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Now))
       .WithMinPrice(0)
       .WithMaxPrice(10000)
+      .WithStatusOnly(TravelPackageStatus.Available)
       .Build();
 
     private List<TravelPackage>? SearchResults;

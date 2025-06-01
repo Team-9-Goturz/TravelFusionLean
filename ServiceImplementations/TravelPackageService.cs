@@ -65,8 +65,13 @@ public class TravelPackageService : CrudService<TravelPackage>, ITravelPackageSe
                 .ThenInclude(hs => hs.Hotel)
             .Include(tp => tp.InboundFlight)
                 .ThenInclude(f => f.DepartureFromAirport)
-                .Where(tp => tp.Status == searchDto.Status)
             .AsQueryable();
+
+        //Status 
+        if (searchDto.Status != null)
+        {
+            query = query.Where(tp => tp.Status == searchDto.Status);
+        }
 
         // Departure location: land eller by
         if (!string.IsNullOrWhiteSpace(searchDto.DepartureLocation))

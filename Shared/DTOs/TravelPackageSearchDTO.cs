@@ -17,6 +17,6 @@ namespace Shared.Dtos
         public DateOnly? DepartureDateEarliest { get; set; }
         public DateOnly? DepartureDateLatest{ get; set; }
         public bool HasToBeRecommended { get; set; }=false;
-        public TravelPackageStatus? Status { get; set; } = TravelPackageStatus.Available;
+        public TravelPackageStatus? Status { get; set; }
     }
 }
