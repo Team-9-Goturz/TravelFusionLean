@@ -10,6 +10,7 @@
 @using TravelFusionLean.Components.Layout.Admin
 
 @inject ITravelPackageService travelPackageService
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelPackageSearch>
 
@@ -85,9 +86,15 @@
                 <td>@package.Price.ToString()</td>
                 <td>@package.Status</td>
                 <td>
-                    <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis</a>
-                    <a class="btn btn-sm btn-warning me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
-                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">Slet</button>
+                    <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">
+                        <i class="bi bi-eye"></i> Vis
+                    </a>
+                    <a class="btn btn-sm btn-warning me-1" href="/EditTravelPackage/@package.Id">
+                        <i class="bi bi-pencil-square"></i> Rediger
+                    </a>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">
+                        <i class="bi bi-trash"></i> Slet
+                    </button>
                 </td>
             </tr>
         }
