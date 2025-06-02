@@ -1,13 +1,18 @@
 ﻿@inherits LayoutComponentBase
 
+@inject NavigationManager NavManager
+
+
 <div class="page d-flex flex-column min-vh-100">
 
     <!-- Fixed Top Nav -->
     <header class="bg-primary text-light px-4 py-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center gap-3">
-            <img src="/images/GoTorz.png" alt="Gotorz Logo" style="max-height: 50px;" />
-            <h5 class="mb-0">Gotorz Travel Customer</h5>
-        </div>
+        <NavLink href="/" class="text-light text-decoration-none">
+            <div class="d-flex align-items-center gap-3">
+                <img src="/images/GoTorz.png" alt="Gotorz Logo" style="max-height: 50px;" />
+                <h5 class="mb-0">Gotorz Travel Customer</h5>
+            </div>
+        </NavLink>
 
         <nav>
             <NavLink href="/" class="text-light me-3">Customer Home</NavLink>
@@ -42,3 +47,5 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+
