@@ -1,12 +1,7 @@
 ﻿using Data;
 using Microsoft.EntityFrameworkCore;
-using Shared.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ServiceContracts;
+using Shared.Models;
 
 namespace ServiceImplementations
 {
