@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shared.Models;
-using TravelFusionLean.Models;
 
 namespace Data
 {
@@ -8,10 +9,8 @@ namespace Data
     /// Repræsenterer Entity Framework Core databasekontekst og definerer tabeller og struktur.
     /// Indeholder DbSet's for alle entiteter i TravelFusion-databasen.
     /// </summary>
-    public class AppDbContext : DbContext
+    public class AppDbContext : IdentityDbContext<IdentityUser>
     {
-        public DbSet<UserRole> UserRoles { get; set; }
-        public DbSet<User> Users { get; set; }
         public DbSet<Airport> Airports { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<Flight> Flights { get; set; }
@@ -33,37 +32,6 @@ namespace Data
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserRole>(entity =>
-            {
-                entity.ToTable("UserRole");
-                entity.HasKey(ur => ur.Id);
-                entity.Property(ur => ur.Name).IsRequired().HasMaxLength(128);
-            });
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.ToTable("User");
-                entity.HasKey(u => u.Id);
-                entity.HasIndex(u => u.Username).IsUnique();
-                entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
-                entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(128);
-                entity.Property(u => u.PasswordSalt).IsRequired().HasMaxLength(128);
-                entity.Property(u => u.EmailForPasswordReset).IsRequired().HasMaxLength(128);
-            });
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.UserRole)
-                .WithMany()
-                .HasForeignKey(u => u.UserRoleId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
-
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Contact)
-                .WithOne()
-                .HasForeignKey<User>(u => u.ContactId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade); // ellers kunne en stored procedure der kørte dagligt fjerne alle kontakter der ikke er tilknyttet bruger eller aktiv booking 
 
             modelBuilder.Entity<Contact>(entity =>
             {
@@ -81,8 +49,6 @@ namespace Data
             {
                 entity.ToTable("Hotel");
                 entity.HasKey(h => h.Id);
-
-              
             });
 
             modelBuilder.Entity<Flight>(entity =>
@@ -156,16 +122,6 @@ namespace Data
                 entity.HasOne(tp => tp.HotelStay) // en rejsepakke har et hotelophold
                       .WithMany() //et hotelophold kan optræde på flere rejsepakker
                       .HasForeignKey(tp => tp.HotelStayId); //HotelStayId er en fremmednøgle 
-
-                //entity.HasOne(tp => tp.ToHotelTransfer) // en rejsepakke indeholder en transport fra lufthavnen til hotellet (i forbindelse med udrejse) 
-                //      .WithMany() //en transport fra lufthavn til hotel kan optræde på mange rejsepakker
-                //      .HasForeignKey(tp => tp.ToHotelTransferId); //ToHotelTransferId er en fremmednøgle
-
-                //entity.HasOne(tp => tp.FromHotelTransfer) //En rejsepakke indeholder en transport fra hotellet til lufthavnen (i forbindelse med hjemrejse)
-                //      .WithMany() // en transport fra hotel til lufthavn kan være tilknyttet flere rejsepakker
-                //      .HasForeignKey(tp => tp.FromHotelTransferId); //FromHotelTransferId er en fremmednøgle
-                //      
-
 
                 // Mapper PriceAsDecimal til som en værdi-objekt
                 entity.OwnsOne(p => p.Price, price =>

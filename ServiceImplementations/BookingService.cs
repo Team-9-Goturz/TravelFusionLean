@@ -12,8 +12,14 @@ using TravelFusionLean.Models;
 
 namespace ServiceImplementations
 {
-    public class BookingService(AppDbContext context) : CrudService<Booking>(context), IBookingService
+    public class BookingService : CrudService<Booking>, IBookingService
     {
+        private readonly AppDbContext _context;
+
+        public BookingService(AppDbContext context) : base(context)
+        {
+            _context = context;
+        }
         public override async Task<IEnumerable<Booking>> GetAllAsync()
         {
             return await _context.Bookings

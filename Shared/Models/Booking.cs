@@ -1,4 +1,4 @@
-﻿using TravelFusionLean.Models;
+﻿using Shared.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace Shared.Models
@@ -9,8 +9,6 @@ namespace Shared.Models
         public TravelPackage TravelPackage { get; set; }
         public Price Price { get; set; }
         public int TravelPackageId { get; set; }
-        public int? UserId { get; set; }
-        public User? User { get; set; }
 
         public int TravelManagerContactId { get; set; }
         public Contact TravelManagerContact { get; set; }
