@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Shared.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,5 +17,6 @@ namespace Shared.Dtos
         public DateOnly? DepartureDateEarliest { get; set; }
         public DateOnly? DepartureDateLatest{ get; set; }
         public bool HasToBeRecommended { get; set; }=false;
+        public TravelPackageStatus? Status { get; set; }
     }
 }

@@ -70,12 +70,12 @@ else
     private Price.ISOCurrency SelectedCurrency = Price.ISOCurrency.DKK;
 
     // Søgemodel og resultater
-    private TravelPackageSearchDTO SearchModel = new()
-        {
-            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Now),
-            MinPrice = 0,
-            MaxPrice = 10000
-        };
+    private TravelPackageSearchDTO SearchModel = new TravelPackageSearchBuilder()
+      .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Now))
+      .WithMinPrice(0)
+      .WithMaxPrice(10000)
+      .WithStatusOnly(TravelPackageStatus.Available)
+      .Build();
 
     private List<TravelPackage>? SearchResults;
     private List<TravelPackage> PagedResults = new();
@@ -114,7 +114,7 @@ else
         try
         {
             isSearching = true;
-            var result = await travelPackageService.SearchAvailableAsync(SearchModel);
+            var result = await travelPackageService.SearchAsync(SearchModel);
             SearchResults = result.ToList();
             resultCount = SearchResults.Count;
             CurrentPage = 1;

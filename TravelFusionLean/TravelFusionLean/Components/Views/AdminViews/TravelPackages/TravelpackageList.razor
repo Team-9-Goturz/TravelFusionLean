@@ -1,127 +1,68 @@
 ﻿@page "/TravelPackageList"
-
-@using Microsoft.EntityFrameworkCore
-@using ServiceImplementations
-@using Shared.Dtos
-@using Shared.Models
-@using Data
-@using ServiceImplementations;
-@inject ITravelPackageService travelPackageService
-
 @layout AdminLayout
 @rendermode InteractiveServer
+
+@using ServiceImplementations;
+@using TravelFusionLean.Components.SmallComponents
+@using Shared.Dtos
+@using Shared.Models
 @using TravelFusionLean.Components.Layout
 @using TravelFusionLean.Components.Layout.Admin
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="mb-0">Travelpackages</h3>
-    <a class="btn btn-success" href="/travel-package-flights">
-        <i class="bi bi-person-plus me-1"></i> Opret rejsepakke
-    </a>
-</div>
+@inject ITravelPackageService travelPackageService
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
-@code {
-    private string? DepartureLocation;
-    private string? destinationSearch;
-    private DateOnly? startDateSearch = DateOnly.FromDateTime(DateTime.Now);
-    private int? NoOfTravelers;
-    private decimal priceFromSearch = 0;
-    private decimal priceToSearch = 10000;
+<TravelPackageSearch searchDTO="@SearchModel" OnSearch="FilterTravelPackages"></TravelPackageSearch>
 
-    private string noResultsMessage = "";
-
-    private async Task SearchTravelPackages()
-    {
-        TravelPackageSearchDTO searchDTO = new TravelPackageSearchDTO();
-
-        searchDTO.DepartureLocation = DepartureLocation;
-        searchDTO.Destination = destinationSearch;
-        searchDTO.DepartureDateEarliest = startDateSearch;
-        searchDTO.NumberOfTravelers = NoOfTravelers;
-        searchDTO.MinPrice = priceFromSearch;
-        searchDTO.MaxPrice = priceToSearch;
-
-        var result = await travelPackageService.SearchAsync(searchDTO);
-        _travelPackages = result.ToList();
-
-        if (_travelPackages.Count == 0)
-        {
-            noResultsMessage = "Ingen rejsepakker matchede dine kriterier."; // Besked til brugeren
-        }
-        else
-        {
-            noResultsMessage = ""; // Hvis der er fundet resultater, nulstil beskeden
-        }
-    }
-}
-<div>
-    <label for="departureLocation">Afrejsested (by eller land):</label>
-    <input type="text" id="departureLocation" @bind="DepartureLocation" placeholder="F.eks. Danmark eller København" />
-
-    <label for="destination">Destination (by eller land):</label>
-    <input type="text" id="destination" @bind="destinationSearch" placeholder="F.eks. Paris eller Frankrig" />
-
-    <label for="dateFrom">Tidligste afrejsedato:</label>
-    <input type="date" id="dateFrom" @bind="startDateSearch" />
-
-    <label for="travelers">Antal rejsende:</label>
-    <input type="number" id="travelers" @bind="NoOfTravelers" min="1" />
-
-    <label for="priceFrom">Pris (min):</label>
-    <input type="number" id="priceFrom" @bind="priceFromSearch" />
-
-    <label for="priceTo">Pris (maks):</label>
-    <input type="number" id="priceTo" @bind="priceToSearch" />
-
-    <br />
-    <button @onclick="SearchTravelPackages">Søg</button>
-</div>
-<br />
-
-@code 
+@code
 {
-    private List<TravelPackage> _travelPackages = new List<TravelPackage>();
-    private int resultCount;
+    // Søgemodel og resultater
+    private TravelPackageSearchDTO SearchModel = new TravelPackageSearchBuilder()
+      .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Now))
+      .WithMinPrice(0)
+      .Build();
 
-    protected override async Task OnInitializedAsync()
-    {
-        base.OnInitialized(); //sørger for at basekomponeten bliver initialiseret korrekt på trods af override, ikke nødvendig, men god stil jævnfør Liskov Substitution Principle hvor en subklasse skal kunne erstatte sin superklasse uden problemer
-        await LoadTravelPackages();
-    }
+    private List<TravelPackage> SearchResults = new();
+    private int resultCount = 0;
 
-    private async Task LoadTravelPackages()
+    private async Task FilterTravelPackages()
     {
-        var result = await travelPackageService.GetAllAsync();
-        _travelPackages = result.ToList();
-        resultCount = _travelPackages.Count;
+        var result = await travelPackageService.SearchAsync(SearchModel);
+        SearchResults = result.ToList();
+        resultCount = SearchResults.Count;
     }
 }
 
-@if (!string.IsNullOrEmpty(noResultsMessage))
-{
-    <p>@noResultsMessage</p>
-}
-else{
+<p>Results: <strong>@resultCount</strong></p>
 
-<table border="1">
-    <thead>
+<table class="table table-hover table-bordered align-middle">
+    <thead class="table-dark">
         <tr>
-            <th>beskrivelse</th>
+            <th>Rejse</th>
             <th>Antal Rejsende</th>
-            <th>Fly (udrejse)</th>
+            <th>Fly (Udrejse)</th>
             <th>Hotel</th>
-            <th>Fly (hjemrejse)</th>
+            <th>Fly (Hjemrejse)</th>
             <th>Pris</th>
             <th>Status</th>
+            <th>Handlinger</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var package in _travelPackages)
+        @foreach (var package in SearchResults)
         {
             <tr>
-                <td>
+                <td style="max-width: 250px;">
+                    @if (!string.IsNullOrEmpty(package.ImagePath))
+                    {
+                        <img src="@package.ImagePath" alt="Billede" class="img-thumbnail mb-1" style="max-width: 100%; height: auto;" />
+                    }
                     <strong>@package.Headline</strong><br />
-                    @package.Description
+                    <span title="@package.Description">
+                        @(package.Description?.Length > 100
+                            ? package.Description.Substring(0, 100) + "..."
+                            : package.Description)
+                    </span>
                 </td>
                 <td>@package.NoOfTravellers</td>
                 <td>
@@ -130,46 +71,61 @@ else{
                     @package.OutboundFlight?.Airline
                 </td>
                 <td>
-                    @if (package.HotelStay!= null)
+                    @if (package.HotelStay != null)
                     {
                         @package.HotelStay.CheckInDate.ToString("d") <br />
                         @package.HotelStay.CheckOutDate.ToString("d") <br />
-                        @package.HotelStay.Hotel.Name <br />
+                        @package.HotelStay.Hotel.Name
                     }
-
                 </td>
                 <td>
                     @package.InboundFlight?.DepartureFromAirport.Name <br />
                     @package.InboundFlight?.DepartureTime.ToString("dd MMM yyyy HH:mm")<br />
-                    @package.InboundFlight?.Airline<br />
-                    <br />
+                    @package.InboundFlight?.Airline
                 </td>
                 <td>@package.Price.ToString()</td>
                 <td>@package.Status</td>
-
                 <td>
-                        <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">Vis</a>
-                    <a class="btn btn-sm btn-primary me-1" href="/EditTravelPackage/@package.Id">Rediger</a>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">Slet</button>
+                    <a class="btn btn-sm btn-primary me-1" href="/travelpackages/details/@package.Id">
+                        <i class="bi bi-eye"></i> Vis
+                    </a>
+                    <a class="btn btn-sm btn-warning me-1" href="/EditTravelPackage/@package.Id">
+                        <i class="bi bi-pencil-square"></i> Rediger
+                    </a>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteTravelPackageAsync(package.Id))">
+                        <i class="bi bi-trash"></i> Slet
+                    </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
-}
 
-@code {
+
+@code 
+{
+    //LivsCyklus
+    protected override async Task OnInitializedAsync()
+    {
+        await FilterTravelPackages();
+    }
+}
+@code 
+{
   private async Task DeleteTravelPackageAsync(int id)
     {
         var success = await travelPackageService.ArchiveAsync(id); // kald til service
 
         if (success)
         {
-            var travelPackage = _travelPackages.FirstOrDefault(tp => tp.Id == id);
+            var travelPackage = SearchResults.FirstOrDefault(tp => tp.Id == id);
             if (travelPackage is not null)
             {
-                _travelPackages.Remove(travelPackage); // fjern fra visningen
+                SearchResults.Remove(travelPackage); // fjern fra visningen
             }
         }
     }
 }
+
+
+
