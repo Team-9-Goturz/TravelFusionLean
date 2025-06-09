@@ -3,6 +3,7 @@
 @using TravelFusionLean.Components.SmallComponents
 @using Shared.Dtos
 @using Shared.Models
+@using ServiceImplementations
 @layout CustomerLayout
 @attribute [StreamRendering]
 @inject NavigationManager NavManager
@@ -96,23 +97,22 @@
 
     private readonly int maxDaysToDeparture = 7;
 
-    private readonly TravelPackageSearchDTO searchLeavingSoon = new()
-        {
-            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
-            DepartureDateLatest = DateOnly.FromDateTime(DateTime.Today.AddDays(7)),
-      
-        };
+    private readonly TravelPackageSearchDTO searchLeavingSoon = new TravelPackageSearchBuilder()
+       .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
+       .WithDepartureDateLatest(DateOnly.FromDateTime(DateTime.Today.AddDays(7)))
+       .WithStatusOnly(TravelPackageStatus.Available)
+       .Build();
 
-    private readonly TravelPackageSearchDTO searchRecommended = new()
-        {
-            DepartureDateEarliest = DateOnly.FromDateTime(DateTime.Today),
-            HasToBeRecommended = true
-        };
+    private readonly TravelPackageSearchDTO searchRecommended = new TravelPackageSearchBuilder()
+     .WithDepartureDateEarliest(DateOnly.FromDateTime(DateTime.Today))
+     .WithRecommendedOnly()
+     .WithStatusOnly(TravelPackageStatus.Available)
+     .Build();
 
     protected override async Task OnInitializedAsync()
     {
-        var leavingSoonResult = await travelPackageService.SearchAvailableAsync(searchLeavingSoon);
-        var recommendedResult = await travelPackageService.SearchAvailableAsync(searchRecommended);
+        var leavingSoonResult = await travelPackageService.SearchAsync(searchLeavingSoon);
+        var recommendedResult = await travelPackageService.SearchAsync(searchRecommended);
 
         LeavingSoonTravelPackage = leavingSoonResult.ToList();
         RecommendedTravelPackage = recommendedResult.ToList();

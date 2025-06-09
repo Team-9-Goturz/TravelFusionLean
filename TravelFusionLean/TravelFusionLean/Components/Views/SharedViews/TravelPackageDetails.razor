@@ -22,7 +22,6 @@
 }
 else
 {
-    <script src="~/js/leafletMap.js"></script>
     <div class="row">
         <div class="col-md-6">
             <!-- Billede eller fallback -->
@@ -91,7 +90,7 @@ else
 
                 <h2>Her ligger vores hotel</h2>
 
-                <div id="map"></div>
+                <div id="map" style="height: 400px;"></div>
 
                 <style>
                     #map {
@@ -102,12 +101,6 @@ else
                     margin-top: 20px;
                     }
                 </style>
-
-                <!-- Leaflet CSS -->
-                <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-                <!-- Leaflet JS -->
-                <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
                 <a class="btn btn-sm btn-primary me-1" href="/MakeBooking/@TravelPackage.Id">Book</a>
             }
@@ -146,26 +139,27 @@ else
     {
         TravelPackage = await travelpackageService.GetByIdAsync(id);
     }
+
     private async Task HandleCurrencyChanged(Price.ISOCurrency newCurrency)
     {
         TravelPackage.Price = currencyConverter.Convert(TravelPackage.Price, newCurrency);
     }
 
-    private IJSObjectReference jsModule;
+    private IJSObjectReference? module;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && TravelPackage?.HotelStay?.Hotel != null)
+        if (firstRender)
         {
-            jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "/js/leafletMap.js");
-
-            var LeafLetDTO = new LeafLetDTO()
-                {
-                    HotelName = TravelPackage.HotelStay.Hotel.Name,
-                    Latitude = TravelPackage.HotelStay.Hotel.Latitude,
-                    Longitude = TravelPackage.HotelStay.Hotel.Longitude
-                };
-            await jsModule.InvokeVoidAsync("initializeMapWithData", LeafLetDTO);
+            module = await JS.InvokeAsync<IJSObjectReference>("import", "/js/leafletMap.js");
+            await module.InvokeVoidAsync("initializeMapWithData", new
+            {
+                latitude = TravelPackage.HotelStay.Hotel.Latitude,
+                longitude = TravelPackage.HotelStay.Hotel.Longitude,
+                hotelName = TravelPackage.HotelStay.Hotel.Name
+            });
         }
+      
     }
 }
 
