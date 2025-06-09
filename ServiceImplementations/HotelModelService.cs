@@ -12,6 +12,12 @@ namespace ServiceImplementations
 {
     public class HotelModelService(AppDbContext context): CrudService<Hotel>(context), IHotelModelService
     {
+        public override async Task<IEnumerable<Hotel>> GetAllAsync()
+        {
+            return await _context.Hotels
+           .Include(tp => tp.Country)
+               .ToListAsync();
+        }
         public async Task<Hotel> FindOrCreateAsync(Hotel hotel)
         {
             var existing = await _context.Hotels
@@ -19,6 +25,7 @@ namespace ServiceImplementations
 
             return existing ?? await AddAsync(hotel);
         }
+
     }
 }
 

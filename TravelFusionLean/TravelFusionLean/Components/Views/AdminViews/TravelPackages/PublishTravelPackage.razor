@@ -21,8 +21,8 @@
         <!-- LEFT: Form -->
         <div class="col-md-8">
             <TravelPackageForm OutboundFlight="travelPackageState.OutboundFlight"
-            InboundFlight="travelPackageState.InboundFlight"
-            SelectedHotelStay="travelPackageState.SelectedHotelStay"
+                               InboundFlight="travelPackageState.InboundFlight"
+                               SelectedHotelStay="travelPackageState.SelectedHotelStay"
             @ref="travelPackageForm" />
         </div>
 
@@ -78,14 +78,14 @@
 
     private async Task CreateTravelPackageAsync()
     {
-        var dto = travelPackageForm.GetTravelPackageDTO();
+        CreateTravelPackageDTO dto = travelPackageForm.GetTravelPackageDTO();
         var travelPackage = await TravelPackageCoordinator.CreateTravelpackageAsync(dto, TravelPackageStatus.Available);
         navigationManager.NavigateTo("/TravelPackageList");
     }
 
     private async Task CreateTravelPackageAsDraftAsync()
     {
-        var dto = travelPackageForm.GetTravelPackageDTO();
+        CreateTravelPackageDTO dto = travelPackageForm.GetTravelPackageDTO();
         await TravelPackageCoordinator.CreateTravelpackageAsync(dto, TravelPackageStatus.Draft);
         navigationManager.NavigateTo("/TravelPackageList");
     }

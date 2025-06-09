@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Data;
+﻿using Data;
 using Microsoft.EntityFrameworkCore;
 using ServiceContracts;
 
@@ -47,7 +42,18 @@ namespace ServiceImplementations
         /// </summary>
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return await _dbSet.ToListAsync();
+            try
+            {
+                if (_dbSet == null)
+                    throw new InvalidOperationException("DbSet is not initialized.");
+
+                return await _dbSet.AsNoTracking().ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FEJL i GetAllAsync(): {ex.Message}");
+                throw; // Eller returnér en tom liste for at undgå crash
+            }
         }
     }
 

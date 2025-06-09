@@ -81,8 +81,6 @@ namespace Data
             {
                 entity.ToTable("Hotel");
                 entity.HasKey(h => h.Id);
-
-              
             });
 
             modelBuilder.Entity<Flight>(entity =>

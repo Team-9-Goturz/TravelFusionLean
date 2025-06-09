@@ -1,0 +1,123 @@
+﻿@using Shared.Models
+
+@inject IHotelStayService hotelStayService
+@inject IHotelModelService hotelService
+
+
+@if (IsVisible && SelectedHotelStay is not null)
+{
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Book Hotel</h5>
+                </div>
+                <div class="modal-body">
+                    <!-- Hotel Dropdown -->
+                    <div class="form-group mb-3">
+                        <label for="hotelSelect">Hotel</label>
+                        <select id="hotelSelect" class="form-control" @bind="SelectedHotelStay.Hotel.Name">
+                            <option disabled selected value="">-- Vælg et hotel --</option>
+                            @foreach (var hotel in Hotels)
+                            {
+                                <option value="@hotel"> @($"{hotel.Name} ({hotel.City}, {hotel.Country.Name})")</option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Check-in -->
+                    <div class="form-group mb-3">
+                        <label for="checkIn">Check-in dato</label>
+                        <input type="date" id="checkIn" class="form-control"
+                        @bind="SelectedHotelStay.CheckInDate"
+                        @bind:format="yyyy-MM-dd" />
+                    </div>
+
+                    <!-- Check-out -->
+                    <div class="form-group mb-3">
+                        <label for="checkOut">Check-out dato</label>
+                        <input type="date" id="checkOut" class="form-control"
+                        @bind="SelectedHotelStay.CheckOutDate"
+                        @bind:format="yyyy-MM-dd" />
+                    </div>
+             
+
+                    <!-- Antal rejsende -->
+                    <div class="form-group mb-3">
+                        <label for="travelers">Antal rejsende</label>
+                        <input type="number" id="travelers" class="form-control"
+                                @bind="SelectedHotelStay.NoOfTravellers"
+                                min="1" />
+                    </div>
+
+                    <!-- Pris -->
+                    <div class="form-group mb-3">
+                        <label for="price">Pris (DKK)</label>
+                        <input type="number" id="price" class="form-control"
+                                @bind="SelectedHotelStay.Price.Amount"
+                                step="0.01" min="0" />
+                    </div>
+                </div>
+
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Gem</button>
+                    <button type="button" class="btn btn-secondary" @onclick="Luk">Annuller</button>
+                </div>
+            </div>
+        </div>
+        </div>
+}
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public EventCallback<bool> IsVisibleChanged { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public HotelStay SelectedHotelStay { get; set; } = new HotelStay();
+    private List<Hotel> Hotels { get; set; } = new();
+    private bool hotelsLoaded = false;
+
+    private async Task Luk()
+    {
+        await IsVisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task BaggrundKlik()
+    {
+        await Luk();
+    }
+
+    private async Task LoadHotels()
+    {
+        if (!hotelsLoaded)
+        {
+            var hotelResult = await hotelService.GetAllAsync();
+            Hotels = hotelResult.ToList();
+            hotelsLoaded = true;
+        }
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            if (SelectedHotelStay == null)
+            {
+                Console.Error.WriteLine("SelectedHotelStay er null");
+                return;
+            }
+
+            if (IsVisible && !hotelsLoaded)
+            {
+                await LoadHotels();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"[EditHotelStay] OnParametersSetAsync fejl: {ex}");
+            throw; // Eller: undgå throw for ikke at crashe
+        }
+    }
+
+}

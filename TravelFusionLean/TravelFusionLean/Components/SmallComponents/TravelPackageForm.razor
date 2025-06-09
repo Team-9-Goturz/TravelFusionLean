@@ -11,7 +11,7 @@
 
 <div class="mb-3">
     <label for="description" class="form-label">Description</label>
-    <InputText id="description" @bind-Value="TravelPackageDescription" class="form-control" />
+    <InputTextArea id="description" @bind-Value="TravelPackageDescription" class="form-control" />
 </div>
 
 <label for="NoOfTravellers" class="form-label">Number of travellers</label>
@@ -24,6 +24,14 @@
     <label for="uploadImage" class="form-label">Upload image</label>
     <InputFile OnChange="HandleImageUpload" />
 </div>
+
+@if (!string.IsNullOrEmpty(uploadedFileName))
+{
+    <div class="mb-3">
+        <label class="form-label">Preview</label>
+        <img src="@uploadedFileName" class="img-fluid rounded" style="max-height: 200px;" />
+    </div>
+}
 
 <div class="form-check mb-3">
     <InputCheckbox id="isRecommended" @bind-Value="IsRecommended" class="form-check-input" />
@@ -46,6 +54,7 @@
             TravelPackageDescription = ExistingPackage.Description;
             NoOfTravellers = ExistingPackage.NoOfTravellers;
             IsRecommended = ExistingPackage.IsRecommended.Value;
+            uploadedFileName = ExistingPackage.ImagePath;
         }
         
     }
